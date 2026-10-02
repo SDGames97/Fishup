@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Fishup">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#031329">
+    <meta name="theme-color" content="#4a90e2">
     <link rel="apple-touch-icon" href="https://img.icons8.com/emoji/192/fish-emoji.png">
     <title>Fishup - Mobile Online</title>
     
@@ -28,7 +28,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #020a14;
+            background-color: #4a90e2;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         #gameCanvas {
@@ -40,7 +40,7 @@
         .modal-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(180deg, rgba(2,10,20,0.95) 0%, rgba(8,32,64,0.95) 100%);
+            background: linear-gradient(180deg, rgba(20, 60, 100, 0.85) 0%, rgba(10, 35, 65, 0.9) 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -274,7 +274,7 @@
         </div>
         <div class="menu-btn-group">
             <button class="btn" onclick="startGame()">Spielen</button>
-            <button class="btn btn-secondary" onclick="showModal('settingsModal')">⚙️ Einstellungen</button>
+            <button class="btn btn-secondary" onclick="showModal('settingsModal')">⚙️️ Einstellungen</button>
         </div>
 
         <div class="card" style="max-width: 280px; margin-top: 15px;">
@@ -362,7 +362,7 @@
 
         const WORLD_WIDTH = 3200;
         const WORLD_HEIGHT = 2400;
-        const SAND_HEIGHT = 200;
+        const SAND_HEIGHT = 80; // Niedrigerer Sandboden
         const MAX_FISHES = 55;
 
         let width, height;
@@ -403,16 +403,20 @@
             return notes[note] || 440;
         }
 
-        function initAudio() {
-            if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-                mainGainNode = audioCtx.createGain();
-                mainGainNode.gain.setValueAtTime(musicVolume, audioCtx.currentTime);
-                mainGainNode.connect(audioCtx.destination);
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
+        async function initAudio() {
+            try {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContext();
+                    mainGainNode = audioCtx.createGain();
+                    mainGainNode.gain.setValueAtTime(musicVolume, audioCtx.currentTime);
+                    mainGainNode.connect(audioCtx.destination);
+                }
+                if (audioCtx.state === 'suspended') {
+                    await audioCtx.resume();
+                }
+            } catch(e) {
+                console.log("Audio Init Warning:", e);
             }
         }
 
@@ -436,8 +440,8 @@
             } catch(e){}
         }
 
-        function startMusic() {
-            initAudio();
+        async function startMusic() {
+            await initAudio();
             if (isMusicPlaying) return;
             isMusicPlaying = true;
 
@@ -483,7 +487,7 @@
         for(let x = 100; x < WORLD_WIDTH; x += 220 + Math.random() * 200) {
             plants.push({
                 x: x,
-                height: 120 + Math.random() * 80,
+                height: 50 + Math.random() * 40,
                 blades: 3 + Math.floor(Math.random() * 3)
             });
         }
@@ -811,7 +815,7 @@
         function drawSunRays() {
             ctx.save();
             const time = performance.now() * 0.0005;
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
 
             for (let i = 0; i < 4; i++) {
                 ctx.beginPath();
@@ -827,12 +831,13 @@
         }
 
         function drawBackground() {
-            ctx.fillStyle = '#053158';
+            // Hellblauer Ozean-Hintergrund
+            ctx.fillStyle = '#4a90e2';
             ctx.fillRect(0, 0, width, height);
 
             drawSunRays();
 
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
             bubbles.forEach(b => {
                 let bx = b.x - camera.x;
                 let by = b.y - camera.y;
@@ -855,7 +860,7 @@
                     }
                 });
 
-                ctx.fillStyle = '#d4a359';
+                ctx.fillStyle = '#e5c158';
                 ctx.fillRect(0, sandY, width, height - sandY);
             }
         }
