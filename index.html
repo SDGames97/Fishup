@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Fishup">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#031329">
+    <meta name="theme-color" content="#00b4db">
     <link rel="apple-touch-icon" href="https://img.icons8.com/emoji/192/fish-emoji.png">
     <title>Fishup - Mobile Online</title>
     
@@ -28,7 +28,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #020a14;
+            background-color: #00b4db;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         #gameCanvas {
@@ -40,7 +40,7 @@
         .modal-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(180deg, rgba(2,10,20,0.95) 0%, rgba(8,32,64,0.95) 100%);
+            background: linear-gradient(180deg, rgba(0, 180, 219, 0.92) 0%, rgba(0, 95, 140, 0.95) 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -53,13 +53,13 @@
 
         h1 {
             font-size: 38px;
-            color: #00d2ff;
-            text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0,0,0,0.3);
             margin-bottom: 20px;
             letter-spacing: 2px;
             font-weight: 900;
         }
-        h2 { font-size: 22px; margin-bottom: 15px; color: #ffd700; }
+        h2 { font-size: 22px; margin-bottom: 15px; color: #ffd700; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 
         .input-group {
             display: flex;
@@ -69,17 +69,19 @@
             max-width: 280px;
             margin-bottom: 20px;
         }
-        .input-group label { font-size: 13px; color: #aaa; text-align: center; }
+        .input-group label { font-size: 13px; color: #e0f7fc; text-align: center; font-weight: 600; }
         .input-group input {
             padding: 12px 16px;
             border-radius: 12px;
-            border: 2px solid #00d2ff;
-            background: rgba(255,255,255,0.1);
+            border: 2px solid #ffffff;
+            background: rgba(255,255,255,0.2);
             color: #fff;
             font-size: 18px;
             text-align: center;
             outline: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+        .input-group input::placeholder { color: rgba(255,255,255,0.7); }
 
         .menu-btn-group {
             display: flex;
@@ -93,42 +95,52 @@
             font-size: 16px;
             font-weight: bold;
             color: #fff;
-            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
             border: none;
             border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 126, 95, 0.4);
             text-align: center;
         }
-        .btn-gold {
-            background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
-            box-shadow: 0 4px 15px rgba(241, 196, 15, 0.4);
-        }
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .card {
-            background: rgba(0, 20, 45, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 60, 100, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 16px;
             padding: 15px;
             width: 100%;
             max-width: 320px;
             margin-bottom: 12px;
+            backdrop-filter: blur(5px);
         }
-        .shop-item {
+
+        .setting-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .setting-label {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
         }
-        .shop-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .shop-item-desc { font-size: 12px; color: #ccc; }
-        .shop-item-title { font-size: 14px; font-weight: bold; color: #fff; }
+        .volume-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            accent-color: #ffd700;
+            cursor: pointer;
+        }
 
         /* HUD OVERLAY */
         #uiOverlay {
@@ -154,12 +166,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: rgba(0, 70, 120, 0.7);
             border: 2px solid #ffd700;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             border-radius: 25px;
             padding: 4px 12px 4px 6px;
             color: #fff;
+            backdrop-filter: blur(4px);
         }
         .hud-level-circle {
             width: 32px; height: 32px;
@@ -169,15 +182,15 @@
             font-weight: 900; font-size: 16px; color: #000;
         }
         .hud-level-name {
-            font-size: 13px; font-weight: bold; color: #00d2ff; text-transform: uppercase;
+            font-size: 13px; font-weight: bold; color: #ffffff; text-transform: uppercase;
         }
 
         .hud-xp-container {
             flex: 1;
             max-width: 180px;
             margin: 0 10px;
-            background: rgba(0,0,0,0.6);
-            border: 2px solid rgba(255,255,255,0.4);
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.6);
             border-radius: 15px;
             height: 18px;
             overflow: hidden;
@@ -190,53 +203,53 @@
             transition: width 0.2s ease-out;
         }
 
-        /* BLAU-GRAUES P ICON FÜR PUNKTESTAND RECHTS OBEN */
         .hud-score-box {
-            background: rgba(10, 30, 50, 0.7);
-            border: 2px solid #5a738e;
+            background: rgba(0, 70, 120, 0.7);
+            border: 2px solid #ffffff;
             border-radius: 20px;
             padding: 4px 12px;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(4px);
         }
         .hud-score-p-icon {
             width: 24px; height: 24px;
-            background: linear-gradient(135deg, #4a6572 0%, #2c3e50 100%);
-            border: 1.5px solid #7f9cb0;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            border: 1.5px solid #ffffff;
             border-radius: 50%;
-            color: #dbebf5;
+            color: #000;
             font-weight: 900;
             font-size: 13px;
             font-family: sans-serif;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
         }
         .hud-score-val { color: #ffffff; font-weight: 900; font-size: 18px; }
 
         .hud-banner {
             align-self: center;
-            background: rgba(2, 10, 20, 0.75);
-            border: 1px solid rgba(0, 210, 255, 0.4);
+            background: rgba(0, 50, 90, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 12px;
             padding: 6px 16px;
-            color: #e0f7fc;
+            color: #ffffff;
             font-size: 12px;
             font-weight: 600;
             text-align: center;
+            backdrop-filter: blur(4px);
         }
 
         .leaderboard-list { list-style: none; font-size: 13px; width: 100%; margin-top: 10px; }
-        .leaderboard-item { display: flex; justify-content: space-between; margin-bottom: 5px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 6px; }
-        .leaderboard-item.highlight { color: #00d2ff; font-weight: bold; background: rgba(0, 210, 255, 0.15); }
+        .leaderboard-item { display: flex; justify-content: space-between; margin-bottom: 5px; padding: 4px 8px; background: rgba(255,255,255,0.15); border-radius: 6px; }
+        .leaderboard-item.highlight { color: #ffd700; font-weight: bold; background: rgba(255, 215, 0, 0.25); }
 
         #joystickContainer {
             position: absolute;
             bottom: 40px; left: 40px;
             width: 100px; height: 100px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
             border-radius: 50%;
             pointer-events: auto;
             display: none;
@@ -245,7 +258,7 @@
             position: absolute;
             top: 50%; left: 50%;
             width: 40px; height: 40px;
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.6);
             border-radius: 50%;
             transform: translate(-50%, -50%);
             will-change: transform;
@@ -258,7 +271,7 @@
     <div id="startMenu" class="modal-overlay">
         <h1>FISHUP</h1>
         <div id="lastScoreBox" class="card hidden" style="text-align: center; max-width: 280px; padding: 10px;">
-            <span style="font-size: 12px; color: #aaa;">Letzter Score:</span>
+            <span style="font-size: 12px; color: #e0f7fc;">Letzter Score:</span>
             <div id="lastScoreVal" style="font-size: 20px; font-weight: bold; color: #ffd700;">0</div>
         </div>
         <div class="input-group">
@@ -267,7 +280,6 @@
         </div>
         <div class="menu-btn-group">
             <button class="btn" onclick="startGame()">Spielen</button>
-            <button class="btn btn-gold" onclick="showModal('shopModal')">🛒 Shop</button>
             <button class="btn btn-secondary" onclick="showModal('settingsModal')">⚙️ Einstellungen</button>
         </div>
 
@@ -279,63 +291,24 @@
         </div>
     </div>
 
-    <!-- SHOP MODAL -->
-    <div id="shopModal" class="modal-overlay hidden">
-        <h2>SHOP & REWARDS</h2>
-        <div class="card">
-            <div class="shop-item">
-                <div>
-                    <div class="shop-item-title">Werbung Entfernen</div>
-                    <div class="shop-item-desc">Keine automatischen Ads</div>
-                </div>
-                <button class="btn btn-gold" onclick="buyNoAds()" style="padding: 8px 12px; font-size: 13px;">1,99 €</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <div style="font-size: 13px; font-weight: bold; color: #00d2ff; margin-bottom: 10px;">POWER-UPS (ADS)</div>
-            <div class="shop-item">
-                <div>
-                    <div class="shop-item-title">Grüner Start-Fisch</div>
-                    <div class="shop-item-desc" id="statusGreenStart">Inaktiv</div>
-                </div>
-                <button class="btn" onclick="watchRewardAd('greenStart', 1)" style="padding: 6px 10px; font-size: 12px;">1 Ad ▶</button>
-            </div>
-            <div class="shop-item">
-                <div>
-                    <div class="shop-item-title">2x Leben</div>
-                    <div class="shop-item-desc" id="statusExtraLife">Inaktiv</div>
-                </div>
-                <button class="btn" onclick="watchRewardAd('extraLife', 2)" style="padding: 6px 10px; font-size: 12px;">2 Ads ▶</button>
-            </div>
-            <div class="shop-item">
-                <div>
-                    <div class="shop-item-title">Magnet (30 Sek)</div>
-                    <div class="shop-item-desc" id="statusMagnet">Inaktiv</div>
-                </div>
-                <button class="btn" onclick="watchRewardAd('magnet', 3)" style="padding: 6px 10px; font-size: 12px;">3 Ads ▶</button>
-            </div>
-        </div>
-        <button class="btn btn-secondary" onclick="hideModals()">Zurück</button>
-    </div>
-
     <!-- EINSTELLUNGEN -->
     <div id="settingsModal" class="modal-overlay hidden">
         <h2>EINSTELLUNGEN</h2>
         <div class="card">
-            <div style="font-size: 13px; font-weight: bold; margin-bottom: 12px;">PERFORMANCE</div>
+            <div class="setting-row">
+                <div class="setting-label">
+                    <span>🎵 Musiklautstärke</span>
+                    <span id="volumeVal">50%</span>
+                </div>
+                <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="50" oninput="updateVolume(this.value)">
+            </div>
+            <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">PERFORMANCE</div>
             <div class="menu-btn-group" style="max-width: 100%;">
                 <button id="btn30fps" class="btn btn-secondary" onclick="setFPS(30)">🔋 30 FPS</button>
                 <button id="btn60fps" class="btn" onclick="setFPS(60)">⚡ MAX FPS</button>
             </div>
         </div>
         <button class="btn btn-secondary" onclick="hideModals()">Zurück</button>
-    </div>
-
-    <!-- AD OVERLAY -->
-    <div id="adOverlay" class="modal-overlay hidden" style="z-index: 200;">
-        <h2>WERBUNG...</h2>
-        <p style="margin-top: 10px; color: #aaa;">Schließt in <span id="adTimer" style="color: #00d2ff; font-weight: bold;">5</span> Sek.</p>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -355,7 +328,6 @@
             <div class="hud-score-box">
                 <div class="hud-score-p-icon">P</div>
                 <span class="hud-score-val" id="scoreVal">0</span>
-                <span id="magnetHud" style="display: none; margin-left: 4px;">🧲</span>
             </div>
         </div>
 
@@ -385,13 +357,13 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 
-        // AUSSAGEKRÄFTIGE LEVELEINSTELLUNGEN
+        // LEVELEINSTELLUNGEN
         const RANKS = [
-            { id: 0, name: 'Grau', color: '#8a99ad', darkColor: '#5c6b7e', radius: 18, expNeeded: 10 },
-            { id: 1, name: 'Grün', color: '#2ed573', darkColor: '#1e9b50', radius: 26, expNeeded: 25 },
-            { id: 2, name: 'Blau', color: '#1e90ff', darkColor: '#0058b3', radius: 38, expNeeded: 50 },
-            { id: 3, name: 'Lila', color: '#a55eea', darkColor: '#6f30a0', radius: 54, expNeeded: 100 },
-            { id: 4, name: 'Gold', color: '#ffa502', darkColor: '#cc7a00', radius: 80, expNeeded: Infinity }
+            { id: 0, name: 'Grau', color: '#7f8c8d', darkColor: '#34495e', radius: 18, expNeeded: 10 },
+            { id: 1, name: 'Grün', color: '#2ecc71', darkColor: '#27ae60', radius: 26, expNeeded: 25 },
+            { id: 2, name: 'Blau', color: '#3498db', darkColor: '#2980b9', radius: 38, expNeeded: 50 },
+            { id: 3, name: 'Lila', color: '#9b59b6', darkColor: '#8e44ad', radius: 54, expNeeded: 100 },
+            { id: 4, name: 'Gold', color: '#f1c40f', darkColor: '#d35400', radius: 80, expNeeded: Infinity }
         ];
 
         const WORLD_WIDTH = 3200;
@@ -403,16 +375,101 @@
         let camera = { x: 0, y: 0 };
         let isGameRunning = false;
         let score = 0;
-        let deathsCount = 0;
-        let noAdsPurchased = false;
         let targetFPS = 60;
 
         let playerName = localStorage.getItem('fishup_player_name') || '';
         document.getElementById('playerNameInput').value = playerName;
 
-        let powerups = { extraLife: false, greenStart: false, magnet: false };
-        let lives = 1;
-        let magnetActive = false;
+        // AUDIO SYSTEM (Web Audio API Synthesizer)
+        let audioCtx = null;
+        let mainGainNode = null;
+        let musicVolume = 0.5;
+        let isMusicPlaying = false;
+        let musicTimer = null;
+
+        const MELODY_NOTES = [
+            { note: "E5", duration: 0.18 }, { note: "B4", duration: 0.18 }, { note: "C5", duration: 0.18 }, { note: "D5", duration: 0.18 },
+            { note: "C5", duration: 0.18 }, { note: "B4", duration: 0.18 }, { note: "A4", duration: 0.18 }, { note: "A4", duration: 0.18 },
+            { note: "C5", duration: 0.18 }, { note: "E5", duration: 0.18 }, { note: "D5", duration: 0.18 }, { note: "C5", duration: 0.18 },
+            { note: "B4", duration: 0.28 }, { note: "C5", duration: 0.18 }, { note: "D5", duration: 0.18 }, { note: "E5", duration: 0.28 },
+            { note: "C5", duration: 0.28 }, { note: "A4", duration: 0.28 }, { note: "A4", duration: 0.4 },
+            
+            { note: "D5", duration: 0.22 }, { note: "F5", duration: 0.18 }, { note: "A5", duration: 0.18 }, { note: "G5", duration: 0.18 },
+            { note: "F5", duration: 0.18 }, { note: "E5", duration: 0.28 }, { note: "C5", duration: 0.18 }, { note: "E5", duration: 0.18 },
+            { note: "D5", duration: 0.18 }, { note: "C5", duration: 0.18 }, { note: "B4", duration: 0.22 }, { note: "B4", duration: 0.18 },
+            { note: "C5", duration: 0.18 }, { note: "D5", duration: 0.28 }, { note: "E5", duration: 0.28 }, { note: "C5", duration: 0.28 },
+            { note: "A4", duration: 0.28 }, { note: "A4", duration: 0.4 }
+        ];
+
+        function getNoteFrequency(note) {
+            const notes = {
+                "A4": 440.00, "B4": 493.88, "C5": 523.25, "D5": 587.33,
+                "E5": 659.25, "F5": 698.46, "G5": 783.99, "A5": 880.00
+            };
+            return notes[note] || 440;
+        }
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                mainGainNode = audioCtx.createGain();
+                mainGainNode.gain.setValueAtTime(musicVolume, audioCtx.currentTime);
+                mainGainNode.connect(audioCtx.destination);
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, duration) {
+            if (!audioCtx || musicVolume <= 0) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const noteGain = audioCtx.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                noteGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                noteGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration - 0.02);
+
+                osc.connect(noteGain);
+                noteGain.connect(mainGainNode);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }
+
+        function startMusic() {
+            initAudio();
+            if (isMusicPlaying) return;
+            isMusicPlaying = true;
+
+            let step = 0;
+            function playNextNote() {
+                if (!isMusicPlaying) return;
+                const noteData = MELODY_NOTES[step];
+                playTone(getNoteFrequency(noteData.note), noteData.duration);
+                step = (step + 1) % MELODY_NOTES.length;
+                musicTimer = setTimeout(playNextNote, noteData.duration * 1000);
+            }
+            playNextNote();
+        }
+
+        function stopMusic() {
+            isMusicPlaying = false;
+            if (musicTimer) clearTimeout(musicTimer);
+        }
+
+        function updateVolume(val) {
+            musicVolume = val / 100;
+            document.getElementById('volumeVal').innerText = val + '%';
+            if (mainGainNode && audioCtx) {
+                mainGainNode.gain.setValueAtTime(musicVolume, audioCtx.currentTime);
+            }
+        }
 
         let player = {
             x: WORLD_WIDTH / 2,
@@ -420,7 +477,7 @@
             rank: 0,
             exp: 0,
             vx: 0, vy: 0,
-            speed: 5.5,
+            speed: 3.5, // Spieler-Geschwindigkeit reduziert
             angle: 0,
             targetAngle: 0
         };
@@ -437,12 +494,12 @@
             });
         }
 
-        for(let i = 0; i < 25; i++) {
+        for(let i = 0; i < 30; i++) {
             bubbles.push({
                 x: Math.random() * WORLD_WIDTH,
                 y: Math.random() * WORLD_HEIGHT,
-                r: 2 + Math.random() * 3,
-                speed: 0.8 + Math.random() * 1.2,
+                r: 2 + Math.random() * 4,
+                speed: 0.5 + Math.random() * 0.8,
                 wobble: Math.random() * Math.PI * 2
             });
         }
@@ -513,52 +570,6 @@
             document.getElementById('btn60fps').className = fps === 60 ? 'btn' : 'btn btn-secondary';
         }
 
-        function buyNoAds() {
-            noAdsPurchased = true;
-            alert("Werbung deaktiviert!");
-            hideModals();
-        }
-
-        function watchRewardAd(type, requiredAds) {
-            let count = 0;
-            function runAd() {
-                showAdScreen(3, () => {
-                    count++;
-                    if (count < requiredAds) {
-                        runAd();
-                    } else {
-                        powerups[type] = true;
-                        updateShopUI();
-                        alert("Power-Up aktiviert!");
-                    }
-                });
-            }
-            runAd();
-        }
-
-        function updateShopUI() {
-            document.getElementById('statusGreenStart').innerText = powerups.greenStart ? "Aktiv" : "Inaktiv";
-            document.getElementById('statusExtraLife').innerText = powerups.extraLife ? "Aktiv" : "Inaktiv";
-            document.getElementById('statusMagnet').innerText = powerups.magnet ? "Aktiv (30s)" : "Inaktiv";
-        }
-
-        function showAdScreen(sec, callback) {
-            const adEl = document.getElementById('adOverlay');
-            const timerEl = document.getElementById('adTimer');
-            adEl.classList.remove('hidden');
-            let left = sec;
-            timerEl.innerText = left;
-            let inv = setInterval(() => {
-                left--;
-                timerEl.innerText = left;
-                if (left <= 0) {
-                    clearInterval(inv);
-                    adEl.classList.add('hidden');
-                    if (callback) callback();
-                }
-            }, 1000);
-        }
-
         window.addEventListener('touchstart', e => {
             if (!isGameRunning) return;
             touchActive = true;
@@ -620,7 +631,8 @@
             y = Math.max(50, y);
 
             const dir = Math.random() * Math.PI * 2;
-            const spd = Math.max(1.5, 3.8 - rank * 0.4);
+            // NPC-Fischgeschwindigkeit deutlich reduziert (ca. 50% langsamer)
+            const spd = Math.max(0.8, 2.0 - rank * 0.2);
 
             fishes.push({
                 x: x, y: y,
@@ -683,18 +695,8 @@
                 f.vx = Math.cos(f.angle) * f.speed;
                 f.vy = Math.sin(f.angle) * f.speed;
 
-                if (magnetActive && f.rank <= player.rank) {
-                    const mDist = Math.hypot(player.x - f.x, player.y - f.y);
-                    if (mDist < 300) {
-                        const mAngle = Math.atan2(player.y - f.y, player.x - f.x);
-                        f.vx += Math.cos(mAngle) * 3.0;
-                        f.vy += Math.sin(mAngle) * 3.0;
-                        f.angle = Math.atan2(f.vy, f.vx);
-                    }
-                }
-
                 f.x += f.vx; f.y += f.vy;
-                f.cycle += 0.08;
+                f.cycle += 0.04; // Flossenbewegung ebenfalls etwas verlangsamt
 
                 if (f.x < 30 || f.x > WORLD_WIDTH - 30) {
                     f.targetAngle = Math.PI - f.angle;
@@ -709,8 +711,6 @@
                 if (dist < pRad + f.radius * 0.7) {
                     if (player.rank >= f.rank) {
                         score += (f.rank + 1) * 10;
-                        
-                        // KORRIGIERTE XP-VERGABE: 1 XP pro Fressen, sauber bezogen auf das aktuelle Rank
                         player.exp += 1;
                         fishes.splice(i, 1);
                         
@@ -720,12 +720,7 @@
                         }
                         updateHUD();
                     } else {
-                        if (lives > 1) {
-                            lives--;
-                            fishes.splice(i, 1);
-                        } else {
-                            gameOver();
-                        }
+                        gameOver();
                     }
                 }
             }
@@ -744,7 +739,6 @@
             document.getElementById('hudXpBar').style.width = pct + '%';
         }
 
-        // AKTUALLISIERTE DRAW-FISH FUNKTION MIT 3D-FLIP (Spiegelung bei Linksdrehung)
         function drawFish(x, y, rankIndex, angle, cycle) {
             let screenX = x - camera.x;
             let screenY = y - camera.y;
@@ -759,14 +753,12 @@
             ctx.save();
             ctx.translate(screenX, screenY);
 
-            // Winkel normalisieren (-Math.PI bis Math.PI)
             let normAngle = angle;
             while (normAngle < -Math.PI) normAngle += Math.PI * 2;
             while (normAngle > Math.PI) normAngle -= Math.PI * 2;
             
             const isFacingLeft = Math.abs(normAngle) > Math.PI / 2;
 
-            // Bei Blick nach links: Vertikal spiegeln & Winkel umkehren
             if (isFacingLeft) {
                 ctx.scale(1, -1);
                 ctx.rotate(-angle);
@@ -800,7 +792,7 @@
                 ctx.stroke();
             }
 
-            // Auge (Fest oben positioniert; Spiegelung übernimmt die korrekte Ausrichtung)
+            // Auge
             const eyeX = radius * 0.45;
             const eyeY = -radius * 0.2;
             const eyeRadius = Math.max(2.5, radius * 0.15);
@@ -826,15 +818,15 @@
         function drawSunRays() {
             ctx.save();
             const time = performance.now() * 0.0005;
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
 
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 5; i++) {
                 ctx.beginPath();
-                let xStart = (width / 3) * i + Math.sin(time + i) * 20;
+                let xStart = (width / 4) * i + Math.sin(time + i) * 30;
                 ctx.moveTo(xStart, 0);
-                ctx.lineTo(xStart + 100, 0);
-                ctx.lineTo(xStart - 200, height);
-                ctx.lineTo(xStart - 320, height);
+                ctx.lineTo(xStart + 120, 0);
+                ctx.lineTo(xStart - 180, height);
+                ctx.lineTo(xStart - 300, height);
                 ctx.closePath();
                 ctx.fill();
             }
@@ -842,19 +834,25 @@
         }
 
         function drawBackground() {
-            ctx.fillStyle = '#053158';
+            let grad = ctx.createLinearGradient(0, 0, 0, height);
+            grad.addColorStop(0, '#4facfe');
+            grad.addColorStop(1, '#00f2fe');
+            ctx.fillStyle = grad;
             ctx.fillRect(0, 0, width, height);
 
             drawSunRays();
 
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 1;
             bubbles.forEach(b => {
                 let bx = b.x - camera.x;
                 let by = b.y - camera.y;
-                if (bx >= 0 && bx <= width && by >= 0 && by <= height) {
+                if (bx >= -10 && bx <= width + 10 && by >= -10 && by <= height + 10) {
                     ctx.beginPath();
                     ctx.arc(bx, by, b.r, 0, Math.PI * 2);
                     ctx.fill();
+                    ctx.stroke();
                 }
             });
 
@@ -865,12 +863,12 @@
                     let px = p.x - camera.x;
                     if (px >= -30 && px <= width + 30) {
                         for(let i = 0; i < p.blades; i++) {
-                            ctx.fillRect(px + (i * 8), sandY - p.height, 4, p.height);
+                            ctx.fillRect(px + (i * 8), sandY - p.height, 5, p.height);
                         }
                     }
                 });
 
-                ctx.fillStyle = '#d4a359';
+                ctx.fillStyle = '#f6d365';
                 ctx.fillRect(0, sandY, width, height - sandY);
             }
         }
@@ -879,24 +877,20 @@
             drawBackground();
             fishes.forEach(f => drawFish(f.x, f.y, f.rank, f.angle, f.cycle));
             if (isGameRunning) {
-                drawFish(player.x, player.y, player.rank, player.angle, performance.now() * 0.01);
+                drawFish(player.x, player.y, player.rank, player.angle, performance.now() * 0.005);
             }
         }
 
         function gameOver() {
             isGameRunning = false;
-            deathsCount++;
+            stopMusic();
             saveScoreOnline(playerName, score);
 
             document.getElementById('lastScoreBox').classList.remove('hidden');
             document.getElementById('lastScoreVal').innerText = score;
             document.getElementById('uiOverlay').classList.add('hidden');
 
-            if (!noAdsPurchased && deathsCount % 5 === 0) {
-                showAdScreen(5, () => showModal('startMenu'));
-            } else {
-                showModal('startMenu');
-            }
+            showModal('startMenu');
         }
 
         function startGame() {
@@ -917,25 +911,11 @@
             player.y = WORLD_HEIGHT / 2;
             fishes = [];
 
-            // Startvoraussetzungen festlegen
-            player.rank = powerups.greenStart ? 1 : 0;
+            player.rank = 0;
             player.exp = 0;
-            lives = powerups.extraLife ? 2 : 1;
-            magnetActive = powerups.magnet;
 
-            if (magnetActive) {
-                document.getElementById('magnetHud').style.display = 'inline';
-                setTimeout(() => {
-                    magnetActive = false;
-                    document.getElementById('magnetHud').style.display = 'none';
-                }, 30000);
-            } else {
-                document.getElementById('magnetHud').style.display = 'none';
-            }
-
-            powerups = { extraLife: false, greenStart: false, magnet: false };
-            updateShopUI();
             updateHUD();
+            startMusic();
         }
 
         let lastTime = performance.now();
