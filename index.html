@@ -52,11 +52,12 @@
         .hidden { display: none !important; }
 
         h1 {
-            font-size: 36px;
+            font-size: 38px;
             color: #00d2ff;
-            text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
             margin-bottom: 20px;
             letter-spacing: 2px;
+            font-weight: 900;
         }
         h2 { font-size: 22px; margin-bottom: 15px; color: #ffd700; }
 
@@ -129,29 +130,88 @@
         .shop-item-desc { font-size: 12px; color: #ccc; }
         .shop-item-title { font-size: 14px; font-weight: bold; color: #fff; }
 
+        /* HUD OVERLAY */
         #uiOverlay {
             position: absolute;
             top: 0; left: 0; width: 100%;
             pointer-events: none;
+            padding: 12px 16px;
+            padding-top: max(12px, env(safe-area-inset-top));
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hud-top-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 15px;
-            padding-top: max(12px, env(safe-area-inset-top));
-            box-sizing: border-box;
+            width: 100%;
         }
 
-        .hud-bar {
-            background: rgba(0, 15, 35, 0.6);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 6px 14px;
-            color: #fff;
+        .hud-level-badge {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 13px;
+            gap: 8px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: 2px solid #ffd700;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            border-radius: 25px;
+            padding: 4px 12px 4px 6px;
+            color: #fff;
+        }
+        .hud-level-circle {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 16px; color: #000;
+        }
+        .hud-level-name {
+            font-size: 13px; font-weight: bold; color: #00d2ff; text-transform: uppercase;
+        }
+
+        .hud-xp-container {
+            flex: 1;
+            max-width: 180px;
+            margin: 0 10px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 15px;
+            height: 18px;
+            overflow: hidden;
+            position: relative;
+        }
+        .hud-xp-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+            transition: width 0.2s ease-out;
+        }
+
+        .hud-score-box {
+            background: rgba(255, 140, 0, 0.25);
+            border: 2px solid #ffd700;
+            border-radius: 20px;
+            padding: 5px 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hud-score-icon { font-size: 16px; }
+        .hud-score-val { color: #ffd700; font-weight: 900; font-size: 18px; }
+
+        .hud-banner {
+            align-self: center;
+            background: rgba(2, 10, 20, 0.75);
+            border: 1px solid rgba(0, 210, 255, 0.4);
+            border-radius: 12px;
+            padding: 6px 16px;
+            color: #e0f7fc;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
         }
 
         .leaderboard-list { list-style: none; font-size: 13px; width: 100%; margin-top: 10px; }
@@ -175,6 +235,7 @@
             background: rgba(255, 255, 255, 0.4);
             border-radius: 50%;
             transform: translate(-50%, -50%);
+            will-change: transform;
         }
     </style>
 </head>
@@ -183,6 +244,10 @@
     <!-- HAUPTMENÜ -->
     <div id="startMenu" class="modal-overlay">
         <h1>FISHUP</h1>
+        <div id="lastScoreBox" class="card hidden" style="text-align: center; max-width: 280px; padding: 10px;">
+            <span style="font-size: 12px; color: #aaa;">Letzter Score:</span>
+            <div id="lastScoreVal" style="font-size: 20px; font-weight: bold; color: #ffd700;">0</div>
+        </div>
         <div class="input-group">
             <label for="playerNameInput">DEIN SPIELERNAME:</label>
             <input type="text" id="playerNameInput" maxlength="12" placeholder="Name...">
@@ -191,6 +256,13 @@
             <button class="btn" onclick="startGame()">Spielen</button>
             <button class="btn btn-gold" onclick="showModal('shopModal')">🛒 Shop</button>
             <button class="btn btn-secondary" onclick="showModal('settingsModal')">⚙️ Einstellungen</button>
+        </div>
+
+        <div class="card" style="max-width: 280px; margin-top: 15px;">
+            <div style="font-size: 12px; font-weight: bold; color: #ffd700; text-align: center;">🏆 TOP 5 HIGH SCORES</div>
+            <ul id="leaderboardList" class="leaderboard-list">
+                <li class="leaderboard-item"><span>Lade...</span></li>
+            </ul>
         </div>
     </div>
 
@@ -241,42 +313,41 @@
             <div style="font-size: 13px; font-weight: bold; margin-bottom: 12px;">PERFORMANCE</div>
             <div class="menu-btn-group" style="max-width: 100%;">
                 <button id="btn30fps" class="btn btn-secondary" onclick="setFPS(30)">🔋 30 FPS</button>
-                <button id="btn60fps" class="btn" onclick="setFPS(60)">⚡ 60 FPS</button>
+                <button id="btn60fps" class="btn" onclick="setFPS(60)">⚡ MAX FPS</button>
             </div>
         </div>
         <button class="btn btn-secondary" onclick="hideModals()">Zurück</button>
     </div>
 
-    <!-- FAKE AD -->
+    <!-- AD OVERLAY -->
     <div id="adOverlay" class="modal-overlay hidden" style="z-index: 200;">
         <h2>WERBUNG...</h2>
         <p style="margin-top: 10px; color: #aaa;">Schließt in <span id="adTimer" style="color: #00d2ff; font-weight: bold;">5</span> Sek.</p>
     </div>
 
-    <!-- GAME OVER -->
-    <div id="gameOverModal" class="modal-overlay hidden">
-        <h1 style="color: #ff4757;">GEFRESSEN!</h1>
-        <p style="margin-bottom: 5px; font-size: 18px;">Punkte: <span id="finalScore" style="color:#ffd700; font-weight:bold;">0</span></p>
-        <p style="margin-bottom: 15px; font-size: 12px; color: #aaa;">Tode bis Ads: <span id="deathCounterVal" style="color:#fff;">5</span>/5</p>
-
-        <div class="card" style="max-width: 280px; margin-bottom: 15px;">
-            <div style="font-size: 12px; font-weight: bold; color: #ffd700; text-align: center;">🏆 TOP 5 HIGH SCORES</div>
-            <ul id="leaderboardList" class="leaderboard-list">
-                <li class="leaderboard-item"><span>Lade...</span></li>
-            </ul>
-        </div>
-
-        <button class="btn" onclick="restartGame()">Nochmal Spielen</button>
-    </div>
-
     <canvas id="gameCanvas"></canvas>
 
-    <div id="uiOverlay">
-        <div class="hud-bar">
-            <span>🏆 <strong id="scoreVal" style="color: #ffd700;">0</strong></span>
-            <span style="color: rgba(255,255,255,0.3);">|</span>
-            <span id="rankText" style="color: #00d2ff;">Lvl 0</span>
-            <span id="magnetHud" style="display: none;">🧲</span>
+    <!-- BUNTE HUD -->
+    <div id="uiOverlay" class="hidden">
+        <div class="hud-top-row">
+            <div class="hud-level-badge">
+                <div class="hud-level-circle" id="hudLvlNum">0</div>
+                <div class="hud-level-name" id="hudLvlName">Grau</div>
+            </div>
+
+            <div class="hud-xp-container">
+                <div class="hud-xp-bar" id="hudXpBar"></div>
+            </div>
+
+            <div class="hud-score-box">
+                <span class="hud-score-icon">🪙</span>
+                <span class="hud-score-val" id="scoreVal">0</span>
+                <span id="magnetHud" style="display: none; margin-left: 4px;">🧲</span>
+            </div>
+        </div>
+
+        <div class="hud-banner">
+            ISS KLEINERE FISCHE, UM GRÖSSER ZU WERDEN!
         </div>
     </div>
 
@@ -299,7 +370,8 @@
         const database = firebase.database();
 
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        // Performance Context Optimization
+        const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 
         const RANKS = [
             { id: 0, name: 'Grau', color: '#8a99ad', darkColor: '#5c6b7e', radius: 18, expNeeded: 5 },
@@ -309,10 +381,10 @@
             { id: 4, name: 'Gold', color: '#ffa502', darkColor: '#cc7a00', radius: 80, expNeeded: Infinity }
         ];
 
-        const WORLD_WIDTH = 4000;
-        const WORLD_HEIGHT = 3000;
-        const SAND_HEIGHT = 220;
-        const MAX_FISHES = 75;
+        const WORLD_WIDTH = 3200;
+        const WORLD_HEIGHT = 2400;
+        const SAND_HEIGHT = 200;
+        const MAX_FISHES = 55; // Leicht reduziert für flüssige Performance auf Handys
 
         let width, height;
         let camera = { x: 0, y: 0 };
@@ -344,22 +416,20 @@
         let bubbles = [];
         let plants = [];
 
-        // Generiere Deko-Pflanzen für den Sandboden
-        for(let x = 100; x < WORLD_WIDTH; x += 180 + Math.random() * 200) {
+        for(let x = 100; x < WORLD_WIDTH; x += 220 + Math.random() * 200) {
             plants.push({
                 x: x,
-                height: 120 + Math.random() * 100,
-                blades: 4 + Math.floor(Math.random() * 4)
+                height: 120 + Math.random() * 80,
+                blades: 3 + Math.floor(Math.random() * 3)
             });
         }
 
-        // Generiere aufsteigende Luftblasen
-        for(let i = 0; i < 40; i++) {
+        for(let i = 0; i < 25; i++) {
             bubbles.push({
                 x: Math.random() * WORLD_WIDTH,
                 y: Math.random() * WORLD_HEIGHT,
-                r: 2 + Math.random() * 4,
-                speed: 0.8 + Math.random() * 1.5,
+                r: 2 + Math.random() * 3,
+                speed: 0.8 + Math.random() * 1.2,
                 wobble: Math.random() * Math.PI * 2
             });
         }
@@ -529,23 +599,24 @@
             else if (rand < 0.22) rank = 2;
             else if (rand < 0.48) rank = 1;
 
-            const margin = 150;
+            const margin = 120;
             let x = Math.random() < 0.5 ? camera.x - margin : camera.x + width + margin;
-            let y = Math.random() * (WORLD_HEIGHT - SAND_HEIGHT - 100);
+            let y = Math.random() * (WORLD_HEIGHT - SAND_HEIGHT - 80);
 
             x = Math.max(50, Math.min(WORLD_WIDTH - 50, x));
             y = Math.max(50, y);
 
             const dir = Math.random() * Math.PI * 2;
-            const spd = Math.max(1.5, 4.0 - rank * 0.5);
+            const spd = Math.max(1.5, 3.8 - rank * 0.4);
 
             fishes.push({
                 x: x, y: y,
                 rank: rank,
                 radius: RANKS[rank].radius,
-                vx: Math.cos(dir) * spd,
-                vy: Math.sin(dir) * spd,
+                speed: spd,
                 angle: dir,
+                targetAngle: dir,
+                turnTimer: Math.random() * 100,
                 cycle: Math.random() * 10
             });
         }
@@ -566,11 +637,10 @@
             camera.x = player.x - width / 2;
             camera.y = player.y - height / 2;
 
-            // Update Bubbles
             bubbles.forEach(b => {
                 b.y -= b.speed;
                 b.wobble += 0.05;
-                b.x += Math.sin(b.wobble) * 0.5;
+                b.x += Math.sin(b.wobble) * 0.4;
                 if (b.y < 0) {
                     b.y = WORLD_HEIGHT;
                     b.x = Math.random() * WORLD_WIDTH;
@@ -584,21 +654,43 @@
             for (let i = fishes.length - 1; i >= 0; i--) {
                 let f = fishes[i];
 
+                f.turnTimer--;
+                if (f.turnTimer <= 0) {
+                    f.turnTimer = 100 + Math.random() * 200;
+                    if (Math.random() < 0.25) {
+                        f.targetAngle = f.angle + (Math.random() - 0.5) * 0.8;
+                    }
+                }
+
+                let fDiff = f.targetAngle - f.angle;
+                while (fDiff < -Math.PI) fDiff += Math.PI * 2;
+                while (fDiff > Math.PI) fDiff -= Math.PI * 2;
+                f.angle += fDiff * 0.05;
+
+                f.vx = Math.cos(f.angle) * f.speed;
+                f.vy = Math.sin(f.angle) * f.speed;
+
                 if (magnetActive && f.rank <= player.rank) {
                     const mDist = Math.hypot(player.x - f.x, player.y - f.y);
-                    if (mDist < 350) {
+                    if (mDist < 300) {
                         const mAngle = Math.atan2(player.y - f.y, player.x - f.x);
-                        f.x += Math.cos(mAngle) * 3.5;
-                        f.y += Math.sin(mAngle) * 3.5;
+                        f.vx += Math.cos(mAngle) * 3.0;
+                        f.vy += Math.sin(mAngle) * 3.0;
+                        f.angle = Math.atan2(f.vy, f.vx);
                     }
                 }
 
                 f.x += f.vx; f.y += f.vy;
-                f.cycle += 0.1;
+                f.cycle += 0.08;
 
-                if (f.x < 30 || f.x > WORLD_WIDTH - 30) f.vx *= -1;
-                if (f.y < 30 || f.y > WORLD_HEIGHT - SAND_HEIGHT) f.vy *= -1;
-                f.angle = Math.atan2(f.vy, f.vx);
+                if (f.x < 30 || f.x > WORLD_WIDTH - 30) {
+                    f.targetAngle = Math.PI - f.angle;
+                    f.angle = f.targetAngle;
+                }
+                if (f.y < 30 || f.y > WORLD_HEIGHT - SAND_HEIGHT) {
+                    f.targetAngle = -f.angle;
+                    f.angle = f.targetAngle;
+                }
 
                 const dist = Math.hypot(player.x - f.x, player.y - f.y);
                 if (dist < pRad + f.radius * 0.7) {
@@ -626,186 +718,151 @@
 
         function updateHUD() {
             document.getElementById('scoreVal').innerText = score;
-            document.getElementById('rankText').innerText = `Lvl ${player.rank} (${RANKS[player.rank].name})`;
+            document.getElementById('hudLvlNum').innerText = player.rank;
+            document.getElementById('hudLvlName').innerText = RANKS[player.rank].name;
+
+            const needed = RANKS[player.rank].expNeeded;
+            let pct = 100;
+            if (needed !== Infinity) {
+                pct = Math.min(100, Math.max(0, (player.exp / needed) * 100));
+            }
+            document.getElementById('hudXpBar').style.width = pct + '%';
         }
 
-        // Detaillierter Fisch mit Struktur & Flossen
         function drawFish(x, y, rankIndex, angle, cycle) {
+            // Spatial Culling: Nicht zeichnen wenn außerhalb des Screens
+            let screenX = x - camera.x;
+            let screenY = y - camera.y;
             const rank = RANKS[rankIndex];
             const radius = rank.radius;
 
-            ctx.save();
-            ctx.translate(x - camera.x, y - camera.y);
-            ctx.rotate(angle);
+            if (screenX < -radius * 2 || screenX > width + radius * 2 ||
+                screenY < -radius * 2 || screenY > height + radius * 2) {
+                return;
+            }
 
-            const tailWiggle = Math.sin(cycle) * 0.25;
+            ctx.save();
+            ctx.translate(screenX, screenY);
+
+            let isFacingLeft = Math.abs(angle) > Math.PI / 2;
+            ctx.rotate(angle);
+            if (isFacingLeft) ctx.scale(1, -1);
+
+            const tailWiggle = Math.sin(cycle) * 0.2;
 
             // Schwanzflosse
             ctx.beginPath();
             ctx.fillStyle = rank.darkColor;
             ctx.moveTo(-radius * 0.7, 0);
-            ctx.quadraticCurveTo(-radius * 1.3, -radius * 0.6 + tailWiggle * 10, -radius * 1.5, -radius * 0.7 + tailWiggle * 10);
-            ctx.quadraticCurveTo(-radius * 1.1, 0, -radius * 1.5, radius * 0.7 + tailWiggle * 10);
-            ctx.quadraticCurveTo(-radius * 1.3, radius * 0.6 + tailWiggle * 10, -radius * 0.7, 0);
+            ctx.quadraticCurveTo(-radius * 1.3, -radius * 0.6 + tailWiggle * 8, -radius * 1.4, -radius * 0.6 + tailWiggle * 8);
+            ctx.quadraticCurveTo(-radius * 1.1, 0, -radius * 1.4, radius * 0.6 + tailWiggle * 8);
+            ctx.quadraticCurveTo(-radius * 1.3, radius * 0.6 + tailWiggle * 8, -radius * 0.7, 0);
             ctx.fill();
 
-            // Rückenflosse
+            // Körper
             ctx.beginPath();
-            ctx.fillStyle = rank.darkColor;
-            ctx.moveTo(-radius * 0.2, -radius * 0.45);
-            ctx.quadraticCurveTo(radius * 0.1, -radius * 0.95, -radius * 0.5, -radius * 0.8);
-            ctx.quadraticCurveTo(-radius * 0.4, -radius * 0.5, -radius * 0.6, -radius * 0.4);
-            ctx.fill();
-
-            // Bauchflosse
-            ctx.beginPath();
-            ctx.moveTo(-radius * 0.1, radius * 0.4);
-            ctx.lineTo(-radius * 0.4, radius * 0.75);
-            ctx.lineTo(-radius * 0.3, radius * 0.35);
-            ctx.fill();
-
-            // Hauptkörper (Plastische Ei-Form)
-            ctx.beginPath();
-            let grad = ctx.createLinearGradient(0, -radius * 0.6, 0, radius * 0.6);
-            grad.addColorStop(0, rank.color);
-            grad.addColorStop(1, rank.darkColor);
-            ctx.fillStyle = grad;
+            ctx.fillStyle = rank.color;
             ctx.ellipse(0, 0, radius, radius * 0.55, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Kiemenbogen (Struktur)
-            ctx.beginPath();
-            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-            ctx.lineWidth = Math.max(1.5, radius * 0.05);
-            ctx.arc(radius * 0.1, 0, radius * 0.35, Math.PI * 0.7, Math.PI * 1.3);
-            ctx.stroke();
-
-            // Schuppeneffekt / Lichtglanz
-            ctx.beginPath();
-            ctx.fillStyle = 'rgba(255,255,255,0.15)';
-            ctx.ellipse(-radius * 0.2, -radius * 0.15, radius * 0.5, radius * 0.2, -0.2, 0, Math.PI * 2);
-            ctx.fill();
+            // Kiemen
+            if (rankIndex >= 1) {
+                ctx.beginPath();
+                ctx.strokeStyle = rank.darkColor;
+                ctx.lineWidth = 1.5;
+                ctx.arc(radius * 0.1, 0, radius * 0.35, Math.PI * 0.7, Math.PI * 1.3);
+                ctx.stroke();
+            }
 
             // Auge
             ctx.beginPath();
-            ctx.arc(radius * 0.45, -radius * 0.15, Math.max(2.5, radius * 0.14), 0, Math.PI * 2);
+            ctx.arc(radius * 0.45, -radius * 0.18, Math.max(2.5, radius * 0.14), 0, Math.PI * 2);
             ctx.fillStyle = '#fff';
             ctx.fill();
 
             ctx.beginPath();
-            ctx.arc(radius * 0.48, -radius * 0.15, Math.max(1.2, radius * 0.07), 0, Math.PI * 2);
+            ctx.arc(radius * 0.48, -radius * 0.18, Math.max(1.2, radius * 0.07), 0, Math.PI * 2);
             ctx.fillStyle = '#000';
-            ctx.fill();
-
-            // Lichtpunkt im Auge
-            ctx.beginPath();
-            ctx.arc(radius * 0.5, -radius * 0.18, Math.max(0.6, radius * 0.03), 0, Math.PI * 2);
-            ctx.fillStyle = '#fff';
-            ctx.fill();
-
-            // Brustflosse
-            ctx.beginPath();
-            ctx.fillStyle = rank.darkColor;
-            ctx.ellipse(radius * 0.05, radius * 0.15, radius * 0.25, radius * 0.12, 0.5 + tailWiggle * 0.5, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.restore();
         }
 
+        function drawSunRays() {
+            ctx.save();
+            const time = performance.now() * 0.0005;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                let xStart = (width / 3) * i + Math.sin(time + i) * 20;
+                ctx.moveTo(xStart, 0);
+                ctx.lineTo(xStart + 100, 0);
+                ctx.lineTo(xStart - 200, height);
+                ctx.lineTo(xStart - 320, height);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
         function drawBackground() {
-            // Farbverlauf von hellem Ozean-Blau oben zu dunklem Abgrund unten
-            let bgGrad = ctx.createLinearGradient(0, -camera.y, 0, WORLD_HEIGHT - camera.y);
-            bgGrad.addColorStop(0, '#0a3d62');
-            bgGrad.addColorStop(0.5, '#0c2461');
-            bgGrad.addColorStop(1, '#020a14');
-            ctx.fillStyle = bgGrad;
+            // Statischer flächiger Hintergrund zur Performance-Optimierung
+            ctx.fillStyle = '#053158';
             ctx.fillRect(0, 0, width, height);
 
-            // Sanftes Raster
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
-            ctx.lineWidth = 1;
-            const gSize = 200;
-            for (let x = -camera.x % gSize; x < width; x += gSize) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
-            }
+            drawSunRays();
 
-            // Aufsteigende Luftblasen zeichnen
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
             bubbles.forEach(b => {
                 let bx = b.x - camera.x;
                 let by = b.y - camera.y;
-                if (bx >= -10 && bx <= width + 10 && by >= -10 && by <= height + 10) {
+                if (bx >= 0 && bx <= width && by >= 0 && by <= height) {
                     ctx.beginPath();
                     ctx.arc(bx, by, b.r, 0, Math.PI * 2);
                     ctx.fill();
-                    ctx.stroke();
                 }
             });
 
-            // Sandboden & Seegras Deko ganz unten
             const sandY = WORLD_HEIGHT - SAND_HEIGHT - camera.y;
             if (sandY < height) {
-                // Seegras
+                ctx.fillStyle = '#10ac84';
                 plants.forEach(p => {
                     let px = p.x - camera.x;
-                    if (px >= -50 && px <= width + 50) {
-                        ctx.fillStyle = '#10ac84';
+                    if (px >= -30 && px <= width + 30) {
                         for(let i = 0; i < p.blades; i++) {
-                            let bend = Math.sin(performance.now() * 0.002 + p.x + i) * 20;
-                            ctx.beginPath();
-                            ctx.moveTo(px + (i * 8), WORLD_HEIGHT - camera.y);
-                            ctx.quadraticCurveTo(px + (i * 8) + bend, WORLD_HEIGHT - camera.y - (p.height * 0.6), px + (i * 8) + bend * 1.5, WORLD_HEIGHT - camera.y - p.height);
-                            ctx.quadraticCurveTo(px + (i * 8) + 5, WORLD_HEIGHT - camera.y - (p.height * 0.5), px + (i * 8) + 6, WORLD_HEIGHT - camera.y);
-                            ctx.fill();
+                            let bend = Math.sin(performance.now() * 0.0015 + p.x) * 12;
+                            ctx.fillRect(px + (i * 8), sandY - p.height, 4, p.height);
                         }
                     }
                 });
 
-                // Sand-Schicht mit hübscher Welle
-                let sandGrad = ctx.createLinearGradient(0, sandY, 0, height);
-                sandGrad.addColorStop(0, '#eccc68');
-                sandGrad.addColorStop(0.2, '#d4a359');
-                sandGrad.addColorStop(1, '#845b24');
-
-                ctx.fillStyle = sandGrad;
-                ctx.beginPath();
-                ctx.moveTo(-10, height);
-                ctx.lineTo(-10, sandY);
-                for (let x = 0; x <= width + 20; x += 60) {
-                    let wave = Math.sin((x + camera.x) * 0.01) * 15;
-                    ctx.lineTo(x, sandY + wave);
-                }
-                ctx.lineTo(width + 10, height);
-                ctx.closePath();
-                ctx.fill();
+                ctx.fillStyle = '#d4a359';
+                ctx.fillRect(0, sandY, width, height - sandY);
             }
         }
 
         function draw() {
             drawBackground();
-
-            // Fische zeichnen
             fishes.forEach(f => drawFish(f.x, f.y, f.rank, f.angle, f.cycle));
-
-            // Spieler zeichnen
             if (isGameRunning) {
-                drawFish(player.x, player.y, player.rank, player.angle, performance.now() * 0.012);
+                drawFish(player.x, player.y, player.rank, player.angle, performance.now() * 0.01);
             }
         }
 
         function gameOver() {
             isGameRunning = false;
             deathsCount++;
-            document.getElementById('finalScore').innerText = score;
-            document.getElementById('deathCounterVal').innerText = 5 - (deathsCount % 5);
-
             saveScoreOnline(playerName, score);
 
+            document.getElementById('lastScoreBox').classList.remove('hidden');
+            document.getElementById('lastScoreVal').innerText = score;
+            document.getElementById('uiOverlay').classList.add('hidden');
+
             if (!noAdsPurchased && deathsCount % 5 === 0) {
-                showAdScreen(5, () => showModal('gameOverModal'));
+                showAdScreen(5, () => showModal('startMenu'));
             } else {
-                showModal('gameOverModal');
+                showModal('startMenu');
             }
         }
 
@@ -819,6 +876,8 @@
             localStorage.setItem('fishup_player_name', playerName);
 
             hideModals();
+            document.getElementById('uiOverlay').classList.remove('hidden');
+
             isGameRunning = true;
             score = 0;
             player.x = WORLD_WIDTH / 2;
@@ -844,16 +903,13 @@
             updateHUD();
         }
 
-        function restartGame() {
-            startGame();
-        }
-
-        let lastTime = 0;
-        function loop(timestamp) {
-            if (timestamp - lastTime >= 1000 / targetFPS) {
+        let lastTime = performance.now();
+        function loop(now) {
+            let dt = now - lastTime;
+            if (dt >= 1000 / targetFPS) {
                 update();
                 draw();
-                lastTime = timestamp;
+                lastTime = now - (dt % (1000 / targetFPS));
             }
             requestAnimationFrame(loop);
         }
