@@ -107,6 +107,10 @@
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
+        }
 
         .card {
             background: rgba(0, 60, 100, 0.5);
@@ -187,8 +191,8 @@
 
         .hud-xp-container {
             flex: 1;
-            max-width: 180px;
-            margin: 0 10px;
+            max-width: 120px;
+            margin: 0 6px;
             background: rgba(0,0,0,0.3);
             border: 2px solid rgba(255,255,255,0.6);
             border-radius: 15px;
@@ -203,29 +207,52 @@
             transition: width 0.2s ease-out;
         }
 
+        .hud-right-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            pointer-events: auto;
+        }
+
         .hud-score-box {
             background: rgba(0, 70, 120, 0.7);
             border: 2px solid #ffffff;
             border-radius: 20px;
-            padding: 4px 12px;
+            padding: 4px 10px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             backdrop-filter: blur(4px);
         }
         .hud-score-p-icon {
-            width: 24px; height: 24px;
+            width: 22px; height: 22px;
             background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
             border: 1.5px solid #ffffff;
             border-radius: 50%;
             color: #000;
             font-weight: 900;
-            font-size: 13px;
+            font-size: 12px;
             font-family: sans-serif;
             display: flex; align-items: center; justify-content: center;
         }
-        .hud-score-val { color: #ffffff; font-weight: 900; font-size: 18px; }
+        .hud-score-val { color: #ffffff; font-weight: 900; font-size: 16px; }
+
+        .hud-icon-btn {
+            background: rgba(0, 70, 120, 0.8);
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(4px);
+        }
 
         .hud-banner {
             align-self: center;
@@ -280,7 +307,7 @@
         </div>
         <div class="menu-btn-group">
             <button class="btn" onclick="startGame()">Spielen</button>
-            <button class="btn btn-secondary" onclick="showModal('settingsModal')">⚙️ Einstellungen</button>
+            <button class="btn btn-secondary" onclick="openSettings('startMenu')">⚙️ Einstellungen</button>
         </div>
 
         <div class="card" style="max-width: 280px; margin-top: 15px;">
@@ -288,6 +315,16 @@
             <ul id="leaderboardList" class="leaderboard-list">
                 <li class="leaderboard-item"><span>Lade...</span></li>
             </ul>
+        </div>
+    </div>
+
+    <!-- PAUSE MENÜ -->
+    <div id="pauseModal" class="modal-overlay hidden">
+        <h2>PAUSE</h2>
+        <div class="menu-btn-group">
+            <button class="btn" onclick="resumeGame()">Fortsetzen</button>
+            <button class="btn btn-secondary" onclick="openSettings('pauseModal')">⚙️ Einstellungen</button>
+            <button class="btn btn-danger" onclick="quitToMainMenu()">Hauptmenü</button>
         </div>
     </div>
 
@@ -308,7 +345,7 @@
                 <button id="btn60fps" class="btn" onclick="setFPS(60)">⚡ MAX FPS</button>
             </div>
         </div>
-        <button class="btn btn-secondary" onclick="hideModals()">Zurück</button>
+        <button class="btn btn-secondary" onclick="closeSettings()">Zurück</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -325,9 +362,12 @@
                 <div class="hud-xp-bar" id="hudXpBar"></div>
             </div>
 
-            <div class="hud-score-box">
-                <div class="hud-score-p-icon">P</div>
-                <span class="hud-score-val" id="scoreVal">0</span>
+            <div class="hud-right-group">
+                <div class="hud-score-box">
+                    <div class="hud-score-p-icon">P</div>
+                    <span class="hud-score-val" id="scoreVal">0</span>
+                </div>
+                <button class="hud-icon-btn" onclick="pauseGame()">⏸️</button>
             </div>
         </div>
 
@@ -359,28 +399,30 @@
 
         // LEVELEINSTELLUNGEN
         const RANKS = [
-            { id: 0, name: 'Grau', color: '#7f8c8d', darkColor: '#34495e', radius: 18, expNeeded: 10 },
-            { id: 1, name: 'Grün', color: '#2ecc71', darkColor: '#27ae60', radius: 26, expNeeded: 25 },
-            { id: 2, name: 'Blau', color: '#3498db', darkColor: '#2980b9', radius: 38, expNeeded: 50 },
-            { id: 3, name: 'Lila', color: '#9b59b6', darkColor: '#8e44ad', radius: 54, expNeeded: 100 },
-            { id: 4, name: 'Gold', color: '#f1c40f', darkColor: '#d35400', radius: 80, expNeeded: Infinity }
+            { id: 0, name: 'Grau', color: '#7f8c8d', darkColor: '#34495e', radius: 18, expNeeded: 3 },
+            { id: 1, name: 'Grün', color: '#2ecc71', darkColor: '#27ae60', radius: 26, expNeeded: 8 },
+            { id: 2, name: 'Blau', color: '#3498db', darkColor: '#2980b9', radius: 38, expNeeded: 15 },
+            { id: 3, name: 'Lila', color: '#9b59b6', darkColor: '#8e44ad', radius: 54, expNeeded: 25 },
+            { id: 4, name: 'Gold', color: '#f1c40f', darkColor: '#d35400', radius: 80, expNeeded: 35 }
         ];
 
         const WORLD_WIDTH = 3200;
         const WORLD_HEIGHT = 2400;
         const SAND_HEIGHT = 200;
-        const MAX_FISHES = 55;
+        const MAX_FISHES = 120;
 
         let width, height;
         let camera = { x: 0, y: 0 };
         let isGameRunning = false;
+        let isPaused = false;
         let score = 0;
         let targetFPS = 60;
+        let previousModal = 'startMenu';
 
         let playerName = localStorage.getItem('fishup_player_name') || '';
         document.getElementById('playerNameInput').value = playerName;
 
-        // AUDIO SYSTEM (Web Audio API Synthesizer)
+        // AUDIO SYSTEM
         let audioCtx = null;
         let mainGainNode = null;
         let musicVolume = 0.5;
@@ -423,7 +465,7 @@
         }
 
         function playTone(freq, duration) {
-            if (!audioCtx || musicVolume <= 0) return;
+            if (!audioCtx || musicVolume <= 0 || isPaused) return;
             try {
                 const osc = audioCtx.createOscillator();
                 const noteGain = audioCtx.createGain();
@@ -477,7 +519,7 @@
             rank: 0,
             exp: 0,
             vx: 0, vy: 0,
-            speed: 4.3, // Spieler-Geschwindigkeit reduziert
+            speed: 3.5,
             angle: 0,
             targetAngle: 0
         };
@@ -542,7 +584,7 @@
         }
 
         function saveScoreOnline(name, finalScore) {
-            if (!name) return;
+            if (!name || finalScore <= 0) return;
             const userRef = database.ref('highscores/' + name);
             userRef.once('value', (snapshot) => {
                 const data = snapshot.val();
@@ -554,14 +596,44 @@
 
         listenToOnlineLeaderboard();
 
-        function showModal(id) {
+        function hideAllModals() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
         }
 
-        function hideModals() {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
-            if (!isGameRunning) document.getElementById('startMenu').classList.remove('hidden');
+        function openSettings(fromModal) {
+            previousModal = fromModal;
+            hideAllModals();
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function closeSettings() {
+            hideAllModals();
+            if (previousModal) {
+                document.getElementById(previousModal).classList.remove('hidden');
+            }
+        }
+
+        function pauseGame() {
+            if (!isGameRunning || isPaused) return;
+            isPaused = true;
+            hideAllModals();
+            document.getElementById('pauseModal').classList.remove('hidden');
+        }
+
+        function resumeGame() {
+            isPaused = false;
+            hideAllModals();
+        }
+
+        function quitToMainMenu() {
+            isGameRunning = false;
+            isPaused = false;
+            stopMusic();
+            saveScoreOnline(playerName, score);
+            
+            document.getElementById('uiOverlay').classList.add('hidden');
+            hideAllModals();
+            document.getElementById('startMenu').classList.remove('hidden');
         }
 
         function setFPS(fps) {
@@ -571,7 +643,8 @@
         }
 
         window.addEventListener('touchstart', e => {
-            if (!isGameRunning) return;
+            if (!isGameRunning || isPaused) return;
+            if (e.target.closest('#uiOverlay')) return;
             touchActive = true;
             const t = e.touches[0];
             touchStartPos = { x: t.clientX, y: t.clientY };
@@ -581,7 +654,7 @@
         }, { passive: false });
 
         window.addEventListener('touchmove', e => {
-            if (!touchActive) return;
+            if (!touchActive || isPaused) return;
             const t = e.touches[0];
             touchCurrentPos = { x: t.clientX, y: t.clientY };
             updateJoystick();
@@ -618,10 +691,11 @@
         function spawnFish() {
             const rand = Math.random();
             let rank = 0;
-            if (rand < 0.008) rank = 4;
-            else if (rand < 0.08) rank = 3;
-            else if (rand < 0.22) rank = 2;
-            else if (rand < 0.48) rank = 1;
+            if (rand < 0.002) rank = 4;        // Gold: 0.2%
+            else if (rand < 0.02) rank = 3;    // Lila: 1.8%
+            else if (rand < 0.10) rank = 2;    // Blau: 8.0%
+            else if (rand < 0.45) rank = 1;    // Grün: 35.0%
+            else rank = 0;                     // Grau: 55.0%
 
             const margin = 120;
             let x = Math.random() < 0.5 ? camera.x - margin : camera.x + width + margin;
@@ -631,7 +705,6 @@
             y = Math.max(50, y);
 
             const dir = Math.random() * Math.PI * 2;
-            // NPC-Fischgeschwindigkeit deutlich reduziert (ca. 50% langsamer)
             const spd = Math.max(0.8, 2.0 - rank * 0.2);
 
             fishes.push({
@@ -647,7 +720,7 @@
         }
 
         function update() {
-            if (!isGameRunning) return;
+            if (!isGameRunning || isPaused) return;
 
             player.x += player.vx;
             player.y += player.vy;
@@ -696,7 +769,7 @@
                 f.vy = Math.sin(f.angle) * f.speed;
 
                 f.x += f.vx; f.y += f.vy;
-                f.cycle += 0.04; // Flossenbewegung ebenfalls etwas verlangsamt
+                f.cycle += 0.04;
 
                 if (f.x < 30 || f.x > WORLD_WIDTH - 30) {
                     f.targetAngle = Math.PI - f.angle;
@@ -714,13 +787,21 @@
                         player.exp += 1;
                         fishes.splice(i, 1);
                         
-                        if (player.exp >= RANKS[player.rank].expNeeded && player.rank < RANKS.length - 1) {
-                            player.exp = 0;
-                            player.rank++;
+                        // EXP LOGIK & AUTOMATISCHES SPIELENDE
+                        if (player.exp >= RANKS[player.rank].expNeeded) {
+                            if (player.rank < RANKS.length - 1) {
+                                player.exp = 0;
+                                player.rank++;
+                            } else {
+                                alert("🏆 GLÜCKWUNSCH! Du bist der König des Ozeans geworden! Dein Score wird gespeichert.");
+                                gameOver();
+                                return;
+                            }
                         }
                         updateHUD();
                     } else {
                         gameOver();
+                        return;
                     }
                 }
             }
@@ -732,10 +813,7 @@
             document.getElementById('hudLvlName').innerText = RANKS[player.rank].name;
 
             const needed = RANKS[player.rank].expNeeded;
-            let pct = 100;
-            if (needed !== Infinity) {
-                pct = Math.min(100, Math.max(0, (player.exp / needed) * 100));
-            }
+            let pct = Math.min(100, Math.max(0, (player.exp / needed) * 100));
             document.getElementById('hudXpBar').style.width = pct + '%';
         }
 
@@ -883,6 +961,7 @@
 
         function gameOver() {
             isGameRunning = false;
+            isPaused = false;
             stopMusic();
             saveScoreOnline(playerName, score);
 
@@ -890,7 +969,8 @@
             document.getElementById('lastScoreVal').innerText = score;
             document.getElementById('uiOverlay').classList.add('hidden');
 
-            showModal('startMenu');
+            hideAllModals();
+            document.getElementById('startMenu').classList.remove('hidden');
         }
 
         function startGame() {
@@ -902,13 +982,16 @@
             playerName = input;
             localStorage.setItem('fishup_player_name', playerName);
 
-            hideModals();
+            hideAllModals();
             document.getElementById('uiOverlay').classList.remove('hidden');
 
             isGameRunning = true;
+            isPaused = false;
             score = 0;
             player.x = WORLD_WIDTH / 2;
             player.y = WORLD_HEIGHT / 2;
+            player.vx = 0;
+            player.vy = 0;
             fishes = [];
 
             player.rank = 0;
