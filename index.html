@@ -787,15 +787,7 @@
                         player.exp += 1;
                         fishes.splice(i, 1);
                         
-                        // EXP LOGIK & AUTOMATISCHES SPIELENDE
-                        if (player.exp >= RANKS[player.rank].expNeeded) {
-                            if (player.rank < RANKS.length - 1) {
-                                player.exp = 0;
-                                player.rank++;
-                            } else {
-                                gameOver();
-                                return;
-                            }
+                        
                         }
                         updateHUD();
                     } else {
