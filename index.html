@@ -190,17 +190,30 @@
             transition: width 0.2s ease-out;
         }
 
+        /* BLAU-GRAUES P ICON FÜR PUNKTESTAND RECHTS OBEN */
         .hud-score-box {
-            background: rgba(255, 140, 0, 0.25);
-            border: 2px solid #ffd700;
+            background: rgba(10, 30, 50, 0.7);
+            border: 2px solid #5a738e;
             border-radius: 20px;
-            padding: 5px 14px;
+            padding: 4px 12px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .hud-score-icon { font-size: 16px; }
-        .hud-score-val { color: #ffd700; font-weight: 900; font-size: 18px; }
+        .hud-score-p-icon {
+            width: 24px; height: 24px;
+            background: linear-gradient(135deg, #4a6572 0%, #2c3e50 100%);
+            border: 1.5px solid #7f9cb0;
+            border-radius: 50%;
+            color: #dbebf5;
+            font-weight: 900;
+            font-size: 13px;
+            font-family: sans-serif;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
+        }
+        .hud-score-val { color: #ffffff; font-weight: 900; font-size: 18px; }
 
         .hud-banner {
             align-self: center;
@@ -340,7 +353,7 @@
             </div>
 
             <div class="hud-score-box">
-                <span class="hud-score-icon">🪙</span>
+                <div class="hud-score-p-icon">P</div>
                 <span class="hud-score-val" id="scoreVal">0</span>
                 <span id="magnetHud" style="display: none; margin-left: 4px;">🧲</span>
             </div>
@@ -370,21 +383,21 @@
         const database = firebase.database();
 
         const canvas = document.getElementById('gameCanvas');
-        // Performance Context Optimization
         const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 
+        // AUSSAGEKRÄFTIGE LEVELEINSTELLUNGEN
         const RANKS = [
-            { id: 0, name: 'Grau', color: '#8a99ad', darkColor: '#5c6b7e', radius: 18, expNeeded: 5 },
-            { id: 1, name: 'Grün', color: '#2ed573', darkColor: '#1e9b50', radius: 26, expNeeded: 35 },
-            { id: 2, name: 'Blau', color: '#1e90ff', darkColor: '#0058b3', radius: 38, expNeeded: 80 },
-            { id: 3, name: 'Lila', color: '#a55eea', darkColor: '#6f30a0', radius: 54, expNeeded: 180 },
+            { id: 0, name: 'Grau', color: '#8a99ad', darkColor: '#5c6b7e', radius: 18, expNeeded: 10 },
+            { id: 1, name: 'Grün', color: '#2ed573', darkColor: '#1e9b50', radius: 26, expNeeded: 25 },
+            { id: 2, name: 'Blau', color: '#1e90ff', darkColor: '#0058b3', radius: 38, expNeeded: 50 },
+            { id: 3, name: 'Lila', color: '#a55eea', darkColor: '#6f30a0', radius: 54, expNeeded: 100 },
             { id: 4, name: 'Gold', color: '#ffa502', darkColor: '#cc7a00', radius: 80, expNeeded: Infinity }
         ];
 
         const WORLD_WIDTH = 3200;
         const WORLD_HEIGHT = 2400;
         const SAND_HEIGHT = 200;
-        const MAX_FISHES = 55; // Leicht reduziert für flüssige Performance auf Handys
+        const MAX_FISHES = 55;
 
         let width, height;
         let camera = { x: 0, y: 0 };
@@ -696,11 +709,13 @@
                 if (dist < pRad + f.radius * 0.7) {
                     if (player.rank >= f.rank) {
                         score += (f.rank + 1) * 10;
-                        player.exp += (f.rank + 1);
+                        
+                        // KORRIGIERTE XP-VERGABE: 1 XP pro Fressen, sauber bezogen auf das aktuelle Rank
+                        player.exp += 1;
                         fishes.splice(i, 1);
                         
                         if (player.exp >= RANKS[player.rank].expNeeded && player.rank < RANKS.length - 1) {
-                            player.exp -= RANKS[player.rank].expNeeded;
+                            player.exp = 0;
                             player.rank++;
                         }
                         updateHUD();
@@ -730,7 +745,6 @@
         }
 
         function drawFish(x, y, rankIndex, angle, cycle) {
-            // Spatial Culling: Nicht zeichnen wenn außerhalb des Screens
             let screenX = x - camera.x;
             let screenY = y - camera.y;
             const rank = RANKS[rankIndex];
@@ -743,10 +757,7 @@
 
             ctx.save();
             ctx.translate(screenX, screenY);
-
-            let isFacingLeft = Math.abs(angle) > Math.PI / 2;
             ctx.rotate(angle);
-            if (isFacingLeft) ctx.scale(1, -1);
 
             const tailWiggle = Math.sin(cycle) * 0.2;
 
@@ -774,15 +785,22 @@
                 ctx.stroke();
             }
 
-            // Auge
+            // DYNAMISCHES AUGE: Schaut immer nach vorne in Bewegung
+            const eyeX = radius * 0.45;
+            const eyeY = -radius * 0.18;
+            const eyeRadius = Math.max(2.5, radius * 0.14);
+            const pupilRadius = Math.max(1.2, radius * 0.07);
+
+            // Augapfel
             ctx.beginPath();
-            ctx.arc(radius * 0.45, -radius * 0.18, Math.max(2.5, radius * 0.14), 0, Math.PI * 2);
-            ctx.fillStyle = '#fff';
+            ctx.arc(eyeX, eyeY, eyeRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
             ctx.fill();
 
+            // Pupille leicht nach vorne versetzt
             ctx.beginPath();
-            ctx.arc(radius * 0.48, -radius * 0.18, Math.max(1.2, radius * 0.07), 0, Math.PI * 2);
-            ctx.fillStyle = '#000';
+            ctx.arc(eyeX + eyeRadius * 0.3, eyeY, pupilRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#000000';
             ctx.fill();
 
             ctx.restore();
@@ -807,7 +825,6 @@
         }
 
         function drawBackground() {
-            // Statischer flächiger Hintergrund zur Performance-Optimierung
             ctx.fillStyle = '#053158';
             ctx.fillRect(0, 0, width, height);
 
@@ -831,7 +848,6 @@
                     let px = p.x - camera.x;
                     if (px >= -30 && px <= width + 30) {
                         for(let i = 0; i < p.blades; i++) {
-                            let bend = Math.sin(performance.now() * 0.0015 + p.x) * 12;
                             ctx.fillRect(px + (i * 8), sandY - p.height, 4, p.height);
                         }
                     }
@@ -884,7 +900,9 @@
             player.y = WORLD_HEIGHT / 2;
             fishes = [];
 
+            // Startvoraussetzungen festlegen
             player.rank = powerups.greenStart ? 1 : 0;
+            player.exp = 0;
             lives = powerups.extraLife ? 2 : 1;
             magnetActive = powerups.magnet;
 
