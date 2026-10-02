@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Fishup</title>
+    
+    <!-- iOS Fullscreen & PWA Settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Fishup">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a2a3a">
+    
+    <!-- App Icon -->
+    <link rel="apple-touch-icon" href="https://img.icons8.com/emoji/192/fish-emoji.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a2a3a;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, #101c28 0%, #1a3a5c 100%);
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        #header {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .score-board {
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        #canvas-container {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        canvas {
+            touch-action: none;
+        }
+
+        #controls {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            active: scale(0.95);
+            cursor: pointer;
+        }
+
+        #start-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+
+        #start-overlay h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            color: #4da6ff;
+        }
+
+        #start-overlay p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: #cccccc;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="header">
+            <div class="score-board">Punkte: <span id="score">0</span></div>
+            <div class="score-board">Rekord: <span id="high-score">0</span></div>
+        </div>
+
+        <div id="canvas-container">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <div id="start-overlay">
+            <h1>Fishup 🐟</h1>
+            <p>Tippe auf den Bildschirm zum Schwimmen!</p>
+            <button class="btn" id="start-btn">Spiel Starten</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const highScoreEl = document.getElementById('high-score');
+        const startOverlay = document.getElementById('start-overlay');
+        const startBtn = document.getElementById('start-btn');
+
+        let width, height;
+        let gameRunning = false;
+        let score = 0;
+        let highScore = localStorage.getItem('fishup_highscore') || 0;
+        highScoreEl.innerText = highScore;
+
+        function resizeCanvas() {
+            const container = document.getElementById('canvas-container');
+            width = container.clientWidth;
+            height = container.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let fish = {
+            x: 80,
+            y: 0,
+            radius: 20,
+            velocity: 0,
+            gravity: 0.4,
+            jump: -7.5
+        };
+
+        let obstacles = [];
+        let frame = 0;
+
+        function resetGame() {
+            fish.y = height / 2;
+            fish.velocity = 0;
+            obstacles = [];
+            score = 0;
+            scoreEl.innerText = score;
+            frame = 0;
+        }
+
+        function jump() {
+            if (!gameRunning) return;
+            fish.velocity = fish.jump;
+        }
+
+        window.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            jump();
+        }, { passive: false });
+
+        window.addEventListener('mousedown', jump);
+
+        startBtn.addEventListener('click', () => {
+            resetGame();
+            gameRunning = true;
+            startOverlay.style.display = 'none';
+            gameLoop();
+        });
+
+        function createObstacle() {
+            let gap = 160;
+            let minHeight = 50;
+            let topHeight = Math.random() * (height - gap - (minHeight * 2)) + minHeight;
+
+            obstacles.push({
+                x: width,
+                top: topHeight,
+                bottom: height - topHeight - gap,
+                width: 50,
+                passed: false
+            });
+        }
+
+        function update() {
+            fish.velocity += fish.gravity;
+            fish.y += fish.velocity;
+
+            if (fish.y + fish.radius > height || fish.y - fish.radius < 0) {
+                gameOver();
+            }
+
+            if (frame % 120 === 0) {
+                createObstacle();
+            }
+
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                obs.x -= 2.5;
+
+                if (
+                    fish.x + fish.radius > obs.x &&
+                    fish.x - fish.radius < obs.x + obs.width &&
+                    (fish.y - fish.radius < obs.top || fish.y + fish.radius > height - obs.bottom)
+                ) {
+                    gameOver();
+                }
+
+                if (!obs.passed && obs.x + obs.width < fish.x) {
+                    obs.passed = true;
+                    score++;
+                    scoreEl.innerText = score;
+                    if (score > highScore) {
+                        highScore = score;
+                        highScoreEl.innerText = highScore;
+                        localStorage.setItem('fishup_highscore', highScore);
+                    }
+                }
+
+                if (obs.x + obs.width < 0) {
+                    obstacles.splice(i, 1);
+                }
+            }
+
+            frame++;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Fisch zeichnen
+            ctx.fillStyle = '#ff9f43';
+            ctx.beginPath();
+            ctx.arc(fish.x, fish.y, fish.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Auge
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(fish.x + 8, fish.y - 5, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(fish.x + 10, fish.y - 5, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hindernisse
+            ctx.fillStyle = '#10ac84';
+            for (let obs of obstacles) {
+                ctx.fillRect(obs.x, 0, obs.width, obs.top);
+                ctx.fillRect(obs.x, height - obs.bottom, obs.width, obs.bottom);
+            }
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            startOverlay.style.display = 'flex';
+            document.querySelector('#start-overlay h1').innerText = 'Game Over! 💥';
+            document.querySelector('#start-overlay p').innerText = `Punkte: ${score}`;
+            startBtn.innerText = 'Nochmal versuchen';
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>
