@@ -10,11 +10,9 @@
     <meta name="theme-color" content="#4a90e2">
     <link rel="apple-touch-icon" href="https://img.icons8.com/emoji/192/fish-emoji.png">
     <title>Fishup - Mobile Online</title>
-    
     <!-- Firebase Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
     <style>
         * {
             box-sizing: border-box;
@@ -36,11 +34,17 @@
             height: 100vh;
             display: block;
         }
-
         .modal-overlay {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(180deg, rgba(20, 60, 100, 0.85) 0%, rgba(10, 35, 65, 0.9) 100%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                180deg,
+                rgba(20, 60, 100, 0.85) 0%,
+                rgba(10, 35, 65, 0.9) 100%
+            );
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -49,8 +53,9 @@
             color: white;
             padding: 20px;
         }
-        .hidden { display: none !important; }
-
+        .hidden {
+            display: none !important;
+        }
         h1 {
             font-size: 38px;
             color: #00d2ff;
@@ -59,8 +64,11 @@
             letter-spacing: 2px;
             font-weight: 900;
         }
-        h2 { font-size: 22px; margin-bottom: 15px; color: #ffd700; }
-
+        h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
         .input-group {
             display: flex;
             flex-direction: column;
@@ -69,7 +77,11 @@
             max-width: 280px;
             margin-bottom: 20px;
         }
-        .input-group label { font-size: 13px; color: #aaa; text-align: center; }
+        .input-group label {
+            font-size: 13px;
+            color: #aaa;
+            text-align: center;
+        }
         .input-group input {
             padding: 12px 16px;
             border-radius: 12px;
@@ -80,7 +92,6 @@
             text-align: center;
             outline: none;
         }
-
         .menu-btn-group {
             display: flex;
             flex-direction: column;
@@ -104,7 +115,6 @@
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-
         .card {
             background: rgba(0, 20, 45, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -114,7 +124,6 @@
             max-width: 320px;
             margin-bottom: 12px;
         }
-
         .setting-row {
             display: flex;
             flex-direction: column;
@@ -137,11 +146,12 @@
             accent-color: #00d2ff;
             cursor: pointer;
         }
-
-        /* HUD OVERLAY */
+        /* HUD */
         #uiOverlay {
             position: absolute;
-            top: 0; left: 0; width: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
             pointer-events: none;
             padding: 12px 16px;
             padding-top: max(12px, env(safe-area-inset-top));
@@ -149,15 +159,15 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            z-index: 50;
         }
-
         .hud-top-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
+            gap: 8px;
         }
-
         .hud-level-badge {
             display: flex;
             align-items: center;
@@ -170,20 +180,27 @@
             color: #fff;
         }
         .hud-level-circle {
-            width: 32px; height: 32px;
+            width: 32px;
+            height: 32px;
             background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
             border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 16px; color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 16px;
+            color: #000;
         }
         .hud-level-name {
-            font-size: 13px; font-weight: bold; color: #00d2ff; text-transform: uppercase;
+            font-size: 13px;
+            font-weight: bold;
+            color: #00d2ff;
+            text-transform: uppercase;
         }
-
         .hud-xp-container {
             flex: 1;
             max-width: 180px;
-            margin: 0 10px;
+            margin: 0 5px;
             background: rgba(0,0,0,0.6);
             border: 2px solid rgba(255,255,255,0.4);
             border-radius: 15px;
@@ -197,7 +214,6 @@
             background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
             transition: width 0.2s ease-out;
         }
-
         .hud-score-box {
             background: rgba(10, 30, 50, 0.7);
             border: 2px solid #5a738e;
@@ -209,19 +225,47 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .hud-score-p-icon {
-            width: 24px; height: 24px;
+            width: 24px;
+            height: 24px;
             background: linear-gradient(135deg, #4a6572 0%, #2c3e50 100%);
             border: 1.5px solid #7f9cb0;
             border-radius: 50%;
             color: #dbebf5;
             font-weight: 900;
             font-size: 13px;
-            font-family: sans-serif;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .hud-score-val { color: #ffffff; font-weight: 900; font-size: 18px; }
-
+        .hud-score-val {
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 18px;
+        }
+        /* PAUSE BUTTON */
+        #pauseButton {
+            pointer-events: auto;
+            position: absolute;
+            top: max(65px, calc(env(safe-area-inset-top) + 55px));
+            right: 16px;
+            z-index: 60;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.7);
+            background: rgba(10, 30, 50, 0.8);
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        #pauseButton:active {
+            transform: scale(0.92);
+            background: rgba(220, 60, 60, 0.9);
+        }
         .hud-banner {
             align-self: center;
             background: rgba(2, 10, 20, 0.75);
@@ -233,25 +277,44 @@
             font-weight: 600;
             text-align: center;
         }
-
-        .leaderboard-list { list-style: none; font-size: 13px; width: 100%; margin-top: 10px; }
-        .leaderboard-item { display: flex; justify-content: space-between; margin-bottom: 5px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 6px; }
-        .leaderboard-item.highlight { color: #00d2ff; font-weight: bold; background: rgba(0, 210, 255, 0.15); }
-
+        .leaderboard-list {
+            list-style: none;
+            font-size: 13px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding: 4px 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+        }
+        .leaderboard-item.highlight {
+            color: #00d2ff;
+            font-weight: bold;
+            background: rgba(0, 210, 255, 0.15);
+        }
         #joystickContainer {
             position: absolute;
-            bottom: 40px; left: 40px;
-            width: 100px; height: 100px;
+            bottom: 40px;
+            left: 40px;
+            width: 100px;
+            height: 100px;
             background: rgba(255, 255, 255, 0.08);
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             pointer-events: auto;
             display: none;
+            z-index: 70;
         }
         #joystickKnob {
             position: absolute;
-            top: 50%; left: 50%;
-            width: 40px; height: 40px;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
             background: rgba(255, 255, 255, 0.4);
             border-radius: 50%;
             transform: translate(-50%, -50%);
@@ -260,31 +323,54 @@
     </style>
 </head>
 <body>
-
     <!-- HAUPTMENÜ -->
     <div id="startMenu" class="modal-overlay">
         <h1>FISHUP</h1>
-        <div id="lastScoreBox" class="card hidden" style="text-align: center; max-width: 280px; padding: 10px;">
-            <span style="font-size: 12px; color: #aaa;">Letzter Score:</span>
-            <div id="lastScoreVal" style="font-size: 20px; font-weight: bold; color: #ffd700;">0</div>
+        <div id="lastScoreBox"
+             class="card hidden"
+             style="text-align: center; max-width: 280px; padding: 10px;">
+            <span style="font-size: 12px; color: #aaa;">
+                Letzter Score:
+            </span>
+            <div id="lastScoreVal"
+                 style="font-size: 20px; font-weight: bold; color: #ffd700;">
+                0
+            </div>
         </div>
         <div class="input-group">
             <label for="playerNameInput">DEIN SPIELERNAME:</label>
-            <input type="text" id="playerNameInput" maxlength="12" placeholder="Name...">
+            <input
+                type="text"
+                id="playerNameInput"
+                maxlength="12"
+                placeholder="Name..."
+            >
         </div>
         <div class="menu-btn-group">
-            <button class="btn" onclick="startGame()">Spielen</button>
-            <button class="btn btn-secondary" onclick="showModal('settingsModal')">⚙️️ Einstellungen</button>
+            <button class="btn" onclick="startGame()">
+                Spielen
+            </button>
+            <button
+                class="btn btn-secondary"
+                onclick="showModal('settingsModal')">
+                ⚙️ Einstellungen
+            </button>
         </div>
-
         <div class="card" style="max-width: 280px; margin-top: 15px;">
-            <div style="font-size: 12px; font-weight: bold; color: #ffd700; text-align: center;">🏆 TOP 5 HIGH SCORES</div>
+            <div style="
+                font-size: 12px;
+                font-weight: bold;
+                color: #ffd700;
+                text-align: center;">
+                🏆 TOP 5 HIGH SCORES
+            </div>
             <ul id="leaderboardList" class="leaderboard-list">
-                <li class="leaderboard-item"><span>Lade...</span></li>
+                <li class="leaderboard-item">
+                    <span>Lade...</span>
+                </li>
             </ul>
         </div>
     </div>
-
     <!-- EINSTELLUNGEN -->
     <div id="settingsModal" class="modal-overlay hidden">
         <h2>EINSTELLUNGEN</h2>
@@ -294,47 +380,91 @@
                     <span>🎵 Musiklautstärke</span>
                     <span id="volumeVal">50%</span>
                 </div>
-                <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="50" oninput="updateVolume(this.value)">
+                <input
+                    type="range"
+                    id="volumeSlider"
+                    class="volume-slider"
+                    min="0"
+                    max="100"
+                    value="50"
+                    oninput="updateVolume(this.value)"
+                >
             </div>
-            <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">PERFORMANCE</div>
+            <div style="
+                font-size: 13px;
+                font-weight: bold;
+                margin-bottom: 8px;">
+                PERFORMANCE
+            </div>
             <div class="menu-btn-group" style="max-width: 100%;">
-                <button id="btn30fps" class="btn btn-secondary" onclick="setFPS(30)">🔋 30 FPS</button>
-                <button id="btn60fps" class="btn" onclick="setFPS(60)">⚡ MAX FPS</button>
+                <button
+                    id="btn30fps"
+                    class="btn btn-secondary"
+                    onclick="setFPS(30)">
+                    🔋 30 FPS
+                </button>
+                <button
+                    id="btn60fps"
+                    class="btn"
+                    onclick="setFPS(60)">
+                    ⚡ MAX FPS
+                </button>
             </div>
         </div>
-        <button class="btn btn-secondary" onclick="hideModals()">Zurück</button>
+        <button
+            class="btn btn-secondary"
+            onclick="hideModals()">
+            Zurück
+        </button>
     </div>
-
     <canvas id="gameCanvas"></canvas>
-
-    <!-- BUNTE HUD -->
+    <!-- HUD -->
     <div id="uiOverlay" class="hidden">
         <div class="hud-top-row">
             <div class="hud-level-badge">
-                <div class="hud-level-circle" id="hudLvlNum">0</div>
-                <div class="hud-level-name" id="hudLvlName">Grau</div>
+                <div class="hud-level-circle" id="hudLvlNum">
+                    0
+                </div>
+                <div class="hud-level-name" id="hudLvlName">
+                    Grau
+                </div>
             </div>
-
             <div class="hud-xp-container">
-                <div class="hud-xp-bar" id="hudXpBar"></div>
+                <div
+                    class="hud-xp-bar"
+                    id="hudXpBar">
+                </div>
             </div>
-
             <div class="hud-score-box">
-                <div class="hud-score-p-icon">P</div>
-                <span class="hud-score-val" id="scoreVal">0</span>
+                <div class="hud-score-p-icon">
+                    P
+                </div>
+                <span
+                    class="hud-score-val"
+                    id="scoreVal">
+                    0
+                </span>
             </div>
         </div>
-
         <div class="hud-banner">
             ISS KLEINERE FISCHE, UM GRÖSSER ZU WERDEN!
         </div>
     </div>
-
+    <!-- PAUSE BUTTON -->
+    <button
+        id="pauseButton"
+        class="hidden"
+        onclick="pauseGame()">
+        ⏸
+    </button>
+    <!-- JOYSTICK -->
     <div id="joystickContainer">
         <div id="joystickKnob"></div>
     </div>
-
     <script>
+        /* =========================================================
+           FIREBASE
+        ========================================================= */
         const firebaseConfig = {
             apiKey: "AIzaSyBTXBIaZsXWpDaigQAPBiOwuXouz2UlcyQ",
             authDomain: "fishup-9bc99.firebaseapp.com",
@@ -344,583 +474,1386 @@
             appId: "1:366958128305:web:f74d82c3c7d9c980f10690",
             databaseURL: "https://fishup-9bc99-default-rtdb.europe-west1.firebasedatabase.app"
         };
-
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
+        /* =========================================================
+           CANVAS
+        ========================================================= */
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
-
-        // LEVELEINSTELLUNGEN
+        const ctx = canvas.getContext('2d', {
+            alpha: false,
+            desynchronized: true
+        });
+        /* =========================================================
+           RANKS
+        ========================================================= */
         const RANKS = [
-            { id: 0, name: 'Grau', color: '#8a99ad', darkColor: '#5c6b7e', radius: 18, expNeeded: 10 },
-            { id: 1, name: 'Grün', color: '#2ed573', darkColor: '#1e9b50', radius: 26, expNeeded: 25 },
-            { id: 2, name: 'Blau', color: '#1e90ff', darkColor: '#0058b3', radius: 38, expNeeded: 50 },
-            { id: 3, name: 'Lila', color: '#a55eea', darkColor: '#6f30a0', radius: 54, expNeeded: 100 },
-            { id: 4, name: 'Gold', color: '#ffa502', darkColor: '#cc7a00', radius: 80, expNeeded: Infinity }
+            {
+                id: 0,
+                name: 'Grau',
+                color: '#8a99ad',
+                darkColor: '#5c6b7e',
+                radius: 18,
+                expNeeded: 10
+            },
+            {
+                id: 1,
+                name: 'Grün',
+                color: '#2ed573',
+                darkColor: '#1e9b50',
+                radius: 26,
+                expNeeded: 25
+            },
+            {
+                id: 2,
+                name: 'Blau',
+                color: '#1e90ff',
+                darkColor: '#0058b3',
+                radius: 38,
+                expNeeded: 50
+            },
+            {
+                id: 3,
+                name: 'Lila',
+                color: '#a55eea',
+                darkColor: '#6f30a0',
+                radius: 54,
+                expNeeded: 100
+            },
+            {
+                id: 4,
+                name: 'Gold',
+                color: '#ffa502',
+                darkColor: '#cc7a00',
+                radius: 80,
+                expNeeded: Infinity
+            }
         ];
-
+        /* =========================================================
+           SPIEL EINSTELLUNGEN
+        ========================================================= */
         const WORLD_WIDTH = 3200;
         const WORLD_HEIGHT = 2400;
-        const SAND_HEIGHT = 80; // Niedrigerer Sandboden
-        const MAX_FISHES = 55;
-
-        let width, height;
-        let camera = { x: 0, y: 0 };
+        const SAND_HEIGHT = 80;
+        /*
+         * VORHER:
+         * MAX_FISHES = 55
+         *
+         * JETZT:
+         * MAX_FISHES = 70
+         *
+         * Das sind 15 zusätzliche Fische.
+         */
+        const MAX_FISHES = 70;
+        /*
+         * 25 % langsamer:
+         *
+         * Vorher Spieler:
+         * 5.5
+         *
+         * Jetzt:
+         * 4.125
+         *
+         * 5.5 * 0.75 = 4.125
+         */
+        const PLAYER_SPEED = 5.5 * 0.75;
+        /*
+         * NPC-Geschwindigkeit ebenfalls 25 % langsamer.
+         */
+        const NPC_SPEED_MULTIPLIER = 0.75;
+        let width;
+        let height;
+        let camera = {
+            x: 0,
+            y: 0
+        };
         let isGameRunning = false;
         let score = 0;
         let targetFPS = 60;
-
-        let playerName = localStorage.getItem('fishup_player_name') || '';
-        document.getElementById('playerNameInput').value = playerName;
-
-        // AUDIO SYSTEM (Web Audio API Synthesizer)
-        let audioCtx = null;
-        let mainGainNode = null;
-        let musicVolume = 0.5;
-        let isMusicPlaying = false;
-        let musicTimer = null;
-
-        const MELODY_NOTES = [
-            { note: "E5", duration: 0.18 }, { note: "B4", duration: 0.18 }, { note: "C5", duration: 0.18 }, { note: "D5", duration: 0.18 },
-            { note: "C5", duration: 0.18 }, { note: "B4", duration: 0.18 }, { note: "A4", duration: 0.18 }, { note: "A4", duration: 0.18 },
-            { note: "C5", duration: 0.18 }, { note: "E5", duration: 0.18 }, { note: "D5", duration: 0.18 }, { note: "C5", duration: 0.18 },
-            { note: "B4", duration: 0.28 }, { note: "C5", duration: 0.18 }, { note: "D5", duration: 0.18 }, { note: "E5", duration: 0.28 },
-            { note: "C5", duration: 0.28 }, { note: "A4", duration: 0.28 }, { note: "A4", duration: 0.4 },
-            
-            { note: "D5", duration: 0.22 }, { note: "F5", duration: 0.18 }, { note: "A5", duration: 0.18 }, { note: "G5", duration: 0.18 },
-            { note: "F5", duration: 0.18 }, { note: "E5", duration: 0.28 }, { note: "C5", duration: 0.18 }, { note: "E5", duration: 0.18 },
-            { note: "D5", duration: 0.18 }, { note: "C5", duration: 0.18 }, { note: "B4", duration: 0.22 }, { note: "B4", duration: 0.18 },
-            { note: "C5", duration: 0.18 }, { note: "D5", duration: 0.28 }, { note: "E5", duration: 0.28 }, { note: "C5", duration: 0.28 },
-            { note: "A4", duration: 0.28 }, { note: "A4", duration: 0.4 }
-        ];
-
-        function getNoteFrequency(note) {
-            const notes = {
-                "A4": 440.00, "B4": 493.88, "C5": 523.25, "D5": 587.33,
-                "E5": 659.25, "F5": 698.46, "G5": 783.99, "A5": 880.00
-            };
-            return notes[note] || 440;
-        }
-
-        async function initAudio() {
-            try {
-                if (!audioCtx) {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    audioCtx = new AudioContext();
-                    mainGainNode = audioCtx.createGain();
-                    mainGainNode.gain.setValueAtTime(musicVolume, audioCtx.currentTime);
-                    mainGainNode.connect(audioCtx.destination);
-                }
-                if (audioCtx.state === 'suspended') {
-                    await audioCtx.resume();
-                }
-            } catch(e) {
-                console.log("Audio Init Warning:", e);
-            }
-        }
-
-        function playTone(freq, duration) {
-            if (!audioCtx || musicVolume <= 0) return;
-            try {
-                const osc = audioCtx.createOscillator();
-                const noteGain = audioCtx.createGain();
-                
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-                noteGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                noteGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration - 0.02);
-
-                osc.connect(noteGain);
-                noteGain.connect(mainGainNode);
-
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-            } catch(e){}
-        }
-
-        async function startMusic() {
-            await initAudio();
-            if (isMusicPlaying) return;
-            isMusicPlaying = true;
-
-            let step = 0;
-            function playNextNote() {
-                if (!isMusicPlaying) return;
-                const noteData = MELODY_NOTES[step];
-                playTone(getNoteFrequency(noteData.note), noteData.duration);
-                step = (step + 1) % MELODY_NOTES.length;
-                musicTimer = setTimeout(playNextNote, noteData.duration * 1000);
-            }
-            playNextNote();
-        }
-
-        function stopMusic() {
-            isMusicPlaying = false;
-            if (musicTimer) clearTimeout(musicTimer);
-        }
-
-        function updateVolume(val) {
-            musicVolume = val / 100;
-            document.getElementById('volumeVal').innerText = val + '%';
-            if (mainGainNode && audioCtx) {
-                mainGainNode.gain.setValueAtTime(musicVolume, audioCtx.currentTime);
-            }
-        }
-
+        /* =========================================================
+           SPIELER
+        ========================================================= */
+        let playerName =
+            localStorage.getItem('fishup_player_name') || '';
+        document.getElementById('playerNameInput').value =
+            playerName;
         let player = {
             x: WORLD_WIDTH / 2,
             y: WORLD_HEIGHT / 2,
             rank: 0,
             exp: 0,
-            vx: 0, vy: 0,
-            speed: 5.5,
+            vx: 0,
+            vy: 0,
+            speed: PLAYER_SPEED,
             angle: 0,
             targetAngle: 0
         };
-
+        /* =========================================================
+           AUDIO
+        ========================================================= */
+        let audioCtx = null;
+        let mainGainNode = null;
+        let musicVolume = 0.5;
+        let isMusicPlaying = false;
+        let musicTimer = null;
+        const MELODY_NOTES = [
+            { note: "E5", duration: 0.18 },
+            { note: "B4", duration: 0.18 },
+            { note: "C5", duration: 0.18 },
+            { note: "D5", duration: 0.18 },
+            { note: "C5", duration: 0.18 },
+            { note: "B4", duration: 0.18 },
+            { note: "A4", duration: 0.18 },
+            { note: "A4", duration: 0.18 },
+            { note: "C5", duration: 0.18 },
+            { note: "E5", duration: 0.18 },
+            { note: "D5", duration: 0.18 },
+            { note: "C5", duration: 0.18 },
+            { note: "B4", duration: 0.28 },
+            { note: "C5", duration: 0.18 },
+            { note: "D5", duration: 0.18 },
+            { note: "E5", duration: 0.28 },
+            { note: "C5", duration: 0.28 },
+            { note: "A4", duration: 0.28 },
+            { note: "A4", duration: 0.4 },
+            { note: "D5", duration: 0.22 },
+            { note: "F5", duration: 0.18 },
+            { note: "A5", duration: 0.18 },
+            { note: "G5", duration: 0.18 },
+            { note: "F5", duration: 0.18 },
+            { note: "E5", duration: 0.28 },
+            { note: "C5", duration: 0.18 },
+            { note: "E5", duration: 0.18 },
+            { note: "D5", duration: 0.18 },
+            { note: "C5", duration: 0.18 },
+            { note: "B4", duration: 0.22 },
+            { note: "B4", duration: 0.18 },
+            { note: "C5", duration: 0.18 },
+            { note: "D5", duration: 0.28 },
+            { note: "E5", duration: 0.28 },
+            { note: "C5", duration: 0.28 },
+            { note: "A4", duration: 0.28 },
+            { note: "A4", duration: 0.4 }
+        ];
+        function getNoteFrequency(note) {
+            const notes = {
+                "A4": 440.00,
+                "B4": 493.88,
+                "C5": 523.25,
+                "D5": 587.33,
+                "E5": 659.25,
+                "F5": 698.46,
+                "G5": 783.99,
+                "A5": 880.00
+            };
+            return notes[note] || 440;
+        }
+        async function initAudio() {
+            try {
+                if (!audioCtx) {
+                    const AudioContext =
+                        window.AudioContext ||
+                        window.webkitAudioContext;
+                    audioCtx = new AudioContext();
+                    mainGainNode =
+                        audioCtx.createGain();
+                    mainGainNode.gain.setValueAtTime(
+                        musicVolume,
+                        audioCtx.currentTime
+                    );
+                    mainGainNode.connect(
+                        audioCtx.destination
+                    );
+                }
+                if (audioCtx.state === 'suspended') {
+                    await audioCtx.resume();
+                }
+            } catch(e) {
+                console.log(
+                    "Audio Init Warning:",
+                    e
+                );
+            }
+        }
+        function playTone(freq, duration) {
+            if (!audioCtx || musicVolume <= 0) {
+                return;
+            }
+            try {
+                const osc =
+                    audioCtx.createOscillator();
+                const noteGain =
+                    audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(
+                    freq,
+                    audioCtx.currentTime
+                );
+                noteGain.gain.setValueAtTime(
+                    0.2,
+                    audioCtx.currentTime
+                );
+                noteGain.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    audioCtx.currentTime +
+                    duration -
+                    0.02
+                );
+                osc.connect(noteGain);
+                noteGain.connect(mainGainNode);
+                osc.start();
+                osc.stop(
+                    audioCtx.currentTime +
+                    duration
+                );
+            } catch(e) {}
+        }
+        async function startMusic() {
+            await initAudio();
+            if (isMusicPlaying) {
+                return;
+            }
+            isMusicPlaying = true;
+            let step = 0;
+            function playNextNote() {
+                if (!isMusicPlaying) {
+                    return;
+                }
+                const noteData =
+                    MELODY_NOTES[step];
+                playTone(
+                    getNoteFrequency(noteData.note),
+                    noteData.duration
+                );
+                step =
+                    (step + 1) %
+                    MELODY_NOTES.length;
+                musicTimer =
+                    setTimeout(
+                        playNextNote,
+                        noteData.duration * 1000
+                    );
+            }
+            playNextNote();
+        }
+        function stopMusic() {
+            isMusicPlaying = false;
+            if (musicTimer) {
+                clearTimeout(musicTimer);
+                musicTimer = null;
+            }
+        }
+        function updateVolume(val) {
+            musicVolume = val / 100;
+            document.getElementById(
+                'volumeVal'
+            ).innerText = val + '%';
+            if (mainGainNode && audioCtx) {
+                mainGainNode.gain.setValueAtTime(
+                    musicVolume,
+                    audioCtx.currentTime
+                );
+            }
+        }
+        /* =========================================================
+           FISCHE
+        ========================================================= */
         let fishes = [];
         let bubbles = [];
         let plants = [];
-
-        for(let x = 100; x < WORLD_WIDTH; x += 220 + Math.random() * 200) {
+        for (
+            let x = 100;
+            x < WORLD_WIDTH;
+            x += 220 + Math.random() * 200
+        ) {
             plants.push({
                 x: x,
-                height: 50 + Math.random() * 40,
-                blades: 3 + Math.floor(Math.random() * 3)
+                height:
+                    50 +
+                    Math.random() * 40,
+                blades:
+                    3 +
+                    Math.floor(
+                        Math.random() * 3
+                    )
             });
         }
-
-        for(let i = 0; i < 25; i++) {
+        for (let i = 0; i < 25; i++) {
             bubbles.push({
-                x: Math.random() * WORLD_WIDTH,
-                y: Math.random() * WORLD_HEIGHT,
-                r: 2 + Math.random() * 3,
-                speed: 0.8 + Math.random() * 1.2,
-                wobble: Math.random() * Math.PI * 2
+                x:
+                    Math.random() *
+                    WORLD_WIDTH,
+                y:
+                    Math.random() *
+                    WORLD_HEIGHT,
+                r:
+                    2 +
+                    Math.random() * 3,
+                speed:
+                    0.8 +
+                    Math.random() * 1.2,
+                wobble:
+                    Math.random() *
+                    Math.PI *
+                    2
             });
         }
-
-        let touchActive = false;
-        let touchStartPos = { x: 0, y: 0 };
-        let touchCurrentPos = { x: 0, y: 0 };
-        const joystickContainer = document.getElementById('joystickContainer');
-        const joystickKnob = document.getElementById('joystickKnob');
-
+        /* =========================================================
+           RESIZE
+        ========================================================= */
         function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+            width =
+                canvas.width =
+                window.innerWidth;
+            height =
+                canvas.height =
+                window.innerHeight;
         }
-        window.addEventListener('resize', resize);
+        window.addEventListener(
+            'resize',
+            resize
+        );
         resize();
-
+        /* =========================================================
+           LEADERBOARD
+        ========================================================= */
         function listenToOnlineLeaderboard() {
-            database.ref('highscores').orderByChild('score').limitToLast(5).on('value', (snapshot) => {
-                let scores = [];
-                snapshot.forEach((child) => { scores.push(child.val()); });
-                scores.reverse();
-                renderLeaderboardUI(scores);
-            });
+            database
+                .ref('highscores')
+                .orderByChild('score')
+                .limitToLast(5)
+                .on('value', snapshot => {
+                    let scores = [];
+                    snapshot.forEach(child => {
+                        scores.push(
+                            child.val()
+                        );
+                    });
+                    scores.reverse();
+                    renderLeaderboardUI(
+                        scores
+                    );
+                });
         }
-
         function renderLeaderboardUI(list) {
-            const listEl = document.getElementById('leaderboardList');
+            const listEl =
+                document.getElementById(
+                    'leaderboardList'
+                );
             listEl.innerHTML = '';
             if (list.length === 0) {
-                listEl.innerHTML = '<li class="leaderboard-item">Noch keine Rekorde</li>';
+                listEl.innerHTML =
+                    '<li class="leaderboard-item">' +
+                    'Noch keine Rekorde' +
+                    '</li>';
                 return;
             }
             list.forEach((item, i) => {
-                const li = document.createElement('li');
-                li.className = `leaderboard-item ${item.name === playerName ? 'highlight' : ''}`;
-                li.innerHTML = `<span>${i + 1}. ${item.name}</span><span>${item.score}</span>`;
+                const li =
+                    document.createElement('li');
+                li.className =
+                    `leaderboard-item ${
+                        item.name === playerName
+                            ? 'highlight'
+                            : ''
+                    }`;
+                li.innerHTML =
+                    `<span>${i + 1}. ${item.name}</span>` +
+                    `<span>${item.score}</span>`;
                 listEl.appendChild(li);
             });
         }
-
-        function saveScoreOnline(name, finalScore) {
-            if (!name) return;
-            const userRef = database.ref('highscores/' + name);
-            userRef.once('value', (snapshot) => {
-                const data = snapshot.val();
-                if (!data || finalScore > data.score) {
-                    userRef.set({ name: name, score: finalScore });
+        function saveScoreOnline(
+            name,
+            finalScore
+        ) {
+            if (!name) {
+                return;
+            }
+            const userRef =
+                database.ref(
+                    'highscores/' +
+                    name
+                );
+            userRef.once(
+                'value',
+                snapshot => {
+                    const data =
+                        snapshot.val();
+                    if (
+                        !data ||
+                        finalScore > data.score
+                    ) {
+                        userRef.set({
+                            name: name,
+                            score: finalScore
+                        });
+                    }
                 }
-            });
+            );
         }
-
         listenToOnlineLeaderboard();
-
+        /* =========================================================
+           MENÜ
+        ========================================================= */
         function showModal(id) {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
+            document
+                .querySelectorAll(
+                    '.modal-overlay'
+                )
+                .forEach(m =>
+                    m.classList.add('hidden')
+                );
+            document
+                .getElementById(id)
+                .classList.remove('hidden');
         }
-
         function hideModals() {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
-            if (!isGameRunning) document.getElementById('startMenu').classList.remove('hidden');
-        }
-
-        function setFPS(fps) {
-            targetFPS = fps;
-            document.getElementById('btn30fps').className = fps === 30 ? 'btn' : 'btn btn-secondary';
-            document.getElementById('btn60fps').className = fps === 60 ? 'btn' : 'btn btn-secondary';
-        }
-
-        window.addEventListener('touchstart', e => {
-            if (!isGameRunning) return;
-            touchActive = true;
-            const t = e.touches[0];
-            touchStartPos = { x: t.clientX, y: t.clientY };
-            touchCurrentPos = { x: t.clientX, y: t.clientY };
-            joystickContainer.style.display = 'block';
-            updateJoystick();
-        }, { passive: false });
-
-        window.addEventListener('touchmove', e => {
-            if (!touchActive) return;
-            const t = e.touches[0];
-            touchCurrentPos = { x: t.clientX, y: t.clientY };
-            updateJoystick();
-        }, { passive: false });
-
-        window.addEventListener('touchend', () => {
-            touchActive = false;
-            player.vx = 0; player.vy = 0;
-            joystickContainer.style.display = 'none';
-        });
-
-        function updateJoystick() {
-            const dx = touchCurrentPos.x - touchStartPos.x;
-            const dy = touchCurrentPos.y - touchStartPos.y;
-            const dist = Math.hypot(dx, dy);
-            const maxR = 40;
-            const angle = Math.atan2(dy, dx);
-            const moveD = Math.min(dist, maxR);
-
-            const kX = Math.cos(angle) * moveD;
-            const kY = Math.sin(angle) * moveD;
-            joystickKnob.style.transform = `translate(calc(-50% + ${kX}px), calc(-50% + ${kY}px))`;
-
-            if (dist > 5) {
-                const speedMult = Math.min(dist / maxR, 1);
-                player.vx = Math.cos(angle) * player.speed * speedMult;
-                player.vy = Math.sin(angle) * player.speed * speedMult;
-                player.targetAngle = angle;
-            } else {
-                player.vx = 0; player.vy = 0;
+            document
+                .querySelectorAll(
+                    '.modal-overlay'
+                )
+                .forEach(m =>
+                    m.classList.add('hidden')
+                );
+            if (!isGameRunning) {
+                document
+                    .getElementById('startMenu')
+                    .classList.remove('hidden');
             }
         }
-
+        function setFPS(fps) {
+            targetFPS = fps;
+            document.getElementById(
+                'btn30fps'
+            ).className =
+                fps === 30
+                    ? 'btn'
+                    : 'btn btn-secondary';
+            document.getElementById(
+                'btn60fps'
+            ).className =
+                fps === 60
+                    ? 'btn'
+                    : 'btn btn-secondary';
+        }
+        /* =========================================================
+           JOYSTICK
+        ========================================================= */
+        let touchActive = false;
+        let touchStartPos = {
+            x: 0,
+            y: 0
+        };
+        let touchCurrentPos = {
+            x: 0,
+            y: 0
+        };
+        const joystickContainer =
+            document.getElementById(
+                'joystickContainer'
+            );
+        const joystickKnob =
+            document.getElementById(
+                'joystickKnob'
+            );
+        window.addEventListener(
+            'touchstart',
+            e => {
+                if (!isGameRunning) {
+                    return;
+                }
+                touchActive = true;
+                const t =
+                    e.touches[0];
+                touchStartPos = {
+                    x: t.clientX,
+                    y: t.clientY
+                };
+                touchCurrentPos = {
+                    x: t.clientX,
+                    y: t.clientY
+                };
+                joystickContainer.style.display =
+                    'block';
+                updateJoystick();
+            },
+            {
+                passive: false
+            }
+        );
+        window.addEventListener(
+            'touchmove',
+            e => {
+                if (!touchActive) {
+                    return;
+                }
+                const t =
+                    e.touches[0];
+                touchCurrentPos = {
+                    x: t.clientX,
+                    y: t.clientY
+                };
+                updateJoystick();
+            },
+            {
+                passive: false
+            }
+        );
+        window.addEventListener(
+            'touchend',
+            () => {
+                touchActive = false;
+                player.vx = 0;
+                player.vy = 0;
+                joystickContainer.style.display =
+                    'none';
+            }
+        );
+        function updateJoystick() {
+            const dx =
+                touchCurrentPos.x -
+                touchStartPos.x;
+            const dy =
+                touchCurrentPos.y -
+                touchStartPos.y;
+            const dist =
+                Math.hypot(dx, dy);
+            const maxR = 40;
+            const angle =
+                Math.atan2(dy, dx);
+            const moveD =
+                Math.min(
+                    dist,
+                    maxR
+                );
+            const kX =
+                Math.cos(angle) *
+                moveD;
+            const kY =
+                Math.sin(angle) *
+                moveD;
+            joystickKnob.style.transform =
+                `translate(
+                    calc(-50% + ${kX}px),
+                    calc(-50% + ${kY}px)
+                )`;
+            if (dist > 5) {
+                const speedMult =
+                    Math.min(
+                        dist / maxR,
+                        1
+                    );
+                player.vx =
+                    Math.cos(angle) *
+                    player.speed *
+                    speedMult;
+                player.vy =
+                    Math.sin(angle) *
+                    player.speed *
+                    speedMult;
+                player.targetAngle =
+                    angle;
+            } else {
+                player.vx = 0;
+                player.vy = 0;
+            }
+        }
+        /* =========================================================
+           FISCHE SPAWNEN
+        ========================================================= */
         function spawnFish() {
-            const rand = Math.random();
+            const rand =
+                Math.random();
             let rank = 0;
-            if (rand < 0.008) rank = 4;
-            else if (rand < 0.08) rank = 3;
-            else if (rand < 0.22) rank = 2;
-            else if (rand < 0.48) rank = 1;
-
+            if (rand < 0.008) {
+                rank = 4;
+            }
+            else if (rand < 0.08) {
+                rank = 3;
+            }
+            else if (rand < 0.22) {
+                rank = 2;
+            }
+            else if (rand < 0.48) {
+                rank = 1;
+            }
             const margin = 120;
-            let x = Math.random() < 0.5 ? camera.x - margin : camera.x + width + margin;
-            let y = Math.random() * (WORLD_HEIGHT - SAND_HEIGHT - 80);
-
-            x = Math.max(50, Math.min(WORLD_WIDTH - 50, x));
-            y = Math.max(50, y);
-
-            const dir = Math.random() * Math.PI * 2;
-            const spd = Math.max(1.5, 3.8 - rank * 0.4);
-
+            let x =
+                Math.random() < 0.5
+                    ? camera.x - margin
+                    : camera.x + width + margin;
+            let y =
+                Math.random() *
+                (
+                    WORLD_HEIGHT -
+                    SAND_HEIGHT -
+                    80
+                );
+            x =
+                Math.max(
+                    50,
+                    Math.min(
+                        WORLD_WIDTH - 50,
+                        x
+                    )
+                );
+            y =
+                Math.max(
+                    50,
+                    y
+                );
+            const dir =
+                Math.random() *
+                Math.PI *
+                2;
+            /*
+             * NPC ist jetzt 25 % langsamer.
+             */
+            const spd =
+                Math.max(
+                    1.5,
+                    3.8 -
+                    rank * 0.4
+                ) *
+                NPC_SPEED_MULTIPLIER;
             fishes.push({
-                x: x, y: y,
+                x: x,
+                y: y,
                 rank: rank,
-                radius: RANKS[rank].radius,
+                radius:
+                    RANKS[rank].radius,
                 speed: spd,
                 angle: dir,
                 targetAngle: dir,
-                turnTimer: Math.random() * 100,
-                cycle: Math.random() * 10
+                turnTimer:
+                    Math.random() *
+                    100,
+                cycle:
+                    Math.random() *
+                    10
             });
         }
-
+        /* =========================================================
+           UPDATE
+        ========================================================= */
         function update() {
-            if (!isGameRunning) return;
-
+            if (!isGameRunning) {
+                return;
+            }
             player.x += player.vx;
             player.y += player.vy;
-            player.x = Math.max(30, Math.min(WORLD_WIDTH - 30, player.x));
-            player.y = Math.max(30, Math.min(WORLD_HEIGHT - SAND_HEIGHT, player.y));
-
-            let diff = player.targetAngle - player.angle;
-            while (diff < -Math.PI) diff += Math.PI * 2;
-            while (diff > Math.PI) diff -= Math.PI * 2;
-            player.angle += diff * 0.15;
-
-            camera.x = player.x - width / 2;
-            camera.y = player.y - height / 2;
-
+            player.x =
+                Math.max(
+                    30,
+                    Math.min(
+                        WORLD_WIDTH - 30,
+                        player.x
+                    )
+                );
+            player.y =
+                Math.max(
+                    30,
+                    Math.min(
+                        WORLD_HEIGHT -
+                        SAND_HEIGHT,
+                        player.y
+                    )
+                );
+            let diff =
+                player.targetAngle -
+                player.angle;
+            while (diff < -Math.PI) {
+                diff += Math.PI * 2;
+            }
+            while (diff > Math.PI) {
+                diff -= Math.PI * 2;
+            }
+            player.angle +=
+                diff * 0.15;
+            camera.x =
+                player.x -
+                width / 2;
+            camera.y =
+                player.y -
+                height / 2;
             bubbles.forEach(b => {
                 b.y -= b.speed;
                 b.wobble += 0.05;
-                b.x += Math.sin(b.wobble) * 0.4;
+                b.x +=
+                    Math.sin(
+                        b.wobble
+                    ) * 0.4;
                 if (b.y < 0) {
-                    b.y = WORLD_HEIGHT;
-                    b.x = Math.random() * WORLD_WIDTH;
+                    b.y =
+                        WORLD_HEIGHT;
+                    b.x =
+                        Math.random() *
+                        WORLD_WIDTH;
                 }
             });
-
-            while (fishes.length < MAX_FISHES) spawnFish();
-
-            const pRad = RANKS[player.rank].radius;
-
-            for (let i = fishes.length - 1; i >= 0; i--) {
-                let f = fishes[i];
-
+            /*
+             * Jetzt werden bis zu 70 Fische
+             * gleichzeitig erzeugt.
+             */
+            while (
+                fishes.length <
+                MAX_FISHES
+            ) {
+                spawnFish();
+            }
+            const pRad =
+                RANKS[player.rank].radius;
+            for (
+                let i = fishes.length - 1;
+                i >= 0;
+                i--
+            ) {
+                let f =
+                    fishes[i];
                 f.turnTimer--;
                 if (f.turnTimer <= 0) {
-                    f.turnTimer = 100 + Math.random() * 200;
-                    if (Math.random() < 0.25) {
-                        f.targetAngle = f.angle + (Math.random() - 0.5) * 0.8;
+                    f.turnTimer =
+                        100 +
+                        Math.random() *
+                        200;
+                    if (
+                        Math.random() <
+                        0.25
+                    ) {
+                        f.targetAngle =
+                            f.angle +
+                            (
+                                Math.random() -
+                                0.5
+                            ) *
+                            0.8;
                     }
                 }
-
-                let fDiff = f.targetAngle - f.angle;
-                while (fDiff < -Math.PI) fDiff += Math.PI * 2;
-                while (fDiff > Math.PI) fDiff -= Math.PI * 2;
-                f.angle += fDiff * 0.05;
-
-                f.vx = Math.cos(f.angle) * f.speed;
-                f.vy = Math.sin(f.angle) * f.speed;
-
-                f.x += f.vx; f.y += f.vy;
+                let fDiff =
+                    f.targetAngle -
+                    f.angle;
+                while (
+                    fDiff <
+                    -Math.PI
+                ) {
+                    fDiff +=
+                        Math.PI * 2;
+                }
+                while (
+                    fDiff >
+                    Math.PI
+                ) {
+                    fDiff -=
+                        Math.PI * 2;
+                }
+                f.angle +=
+                    fDiff * 0.05;
+                f.vx =
+                    Math.cos(f.angle) *
+                    f.speed;
+                f.vy =
+                    Math.sin(f.angle) *
+                    f.speed;
+                f.x += f.vx;
+                f.y += f.vy;
                 f.cycle += 0.08;
-
-                if (f.x < 30 || f.x > WORLD_WIDTH - 30) {
-                    f.targetAngle = Math.PI - f.angle;
-                    f.angle = f.targetAngle;
+                if (
+                    f.x < 30 ||
+                    f.x >
+                    WORLD_WIDTH - 30
+                ) {
+                    f.targetAngle =
+                        Math.PI -
+                        f.angle;
+                    f.angle =
+                        f.targetAngle;
                 }
-                if (f.y < 30 || f.y > WORLD_HEIGHT - SAND_HEIGHT) {
-                    f.targetAngle = -f.angle;
-                    f.angle = f.targetAngle;
+                if (
+                    f.y < 30 ||
+                    f.y >
+                    WORLD_HEIGHT -
+                    SAND_HEIGHT
+                ) {
+                    f.targetAngle =
+                        -f.angle;
+                    f.angle =
+                        f.targetAngle;
                 }
-
-                const dist = Math.hypot(player.x - f.x, player.y - f.y);
-                if (dist < pRad + f.radius * 0.7) {
-                    if (player.rank >= f.rank) {
-                        score += (f.rank + 1) * 10;
+                const dist =
+                    Math.hypot(
+                        player.x - f.x,
+                        player.y - f.y
+                    );
+                if (
+                    dist <
+                    pRad +
+                    f.radius * 0.7
+                ) {
+                    if (
+                        player.rank >=
+                        f.rank
+                    ) {
+                        score +=
+                            (f.rank + 1) *
+                            10;
                         player.exp += 1;
-                        fishes.splice(i, 1);
-                        
-                        if (player.exp >= RANKS[player.rank].expNeeded && player.rank < RANKS.length - 1) {
+                        fishes.splice(
+                            i,
+                            1
+                        );
+                        if (
+                            player.exp >=
+                            RANKS[
+                                player.rank
+                            ].expNeeded &&
+                            player.rank <
+                            RANKS.length - 1
+                        ) {
                             player.exp = 0;
                             player.rank++;
                         }
                         updateHUD();
-                    } else {
+                    }
+                    else {
                         gameOver();
                     }
                 }
             }
         }
-
+        /* =========================================================
+           HUD
+        ========================================================= */
         function updateHUD() {
-            document.getElementById('scoreVal').innerText = score;
-            document.getElementById('hudLvlNum').innerText = player.rank;
-            document.getElementById('hudLvlName').innerText = RANKS[player.rank].name;
-
-            const needed = RANKS[player.rank].expNeeded;
+            document.getElementById(
+                'scoreVal'
+            ).innerText =
+                score;
+            document.getElementById(
+                'hudLvlNum'
+            ).innerText =
+                player.rank;
+            document.getElementById(
+                'hudLvlName'
+            ).innerText =
+                RANKS[
+                    player.rank
+                ].name;
+            const needed =
+                RANKS[
+                    player.rank
+                ].expNeeded;
             let pct = 100;
-            if (needed !== Infinity) {
-                pct = Math.min(100, Math.max(0, (player.exp / needed) * 100));
+            if (
+                needed !== Infinity
+            ) {
+                pct =
+                    Math.min(
+                        100,
+                        Math.max(
+                            0,
+                            (
+                                player.exp /
+                                needed
+                            ) * 100
+                        )
+                    );
             }
-            document.getElementById('hudXpBar').style.width = pct + '%';
+            document.getElementById(
+                'hudXpBar'
+            ).style.width =
+                pct + '%';
         }
-
-        function drawFish(x, y, rankIndex, angle, cycle) {
-            let screenX = x - camera.x;
-            let screenY = y - camera.y;
-            const rank = RANKS[rankIndex];
-            const radius = rank.radius;
-
-            if (screenX < -radius * 2 || screenX > width + radius * 2 ||
-                screenY < -radius * 2 || screenY > height + radius * 2) {
+        /* =========================================================
+           FISCH ZEICHNEN
+        ========================================================= */
+        function drawFish(
+            x,
+            y,
+            rankIndex,
+            angle,
+            cycle
+        ) {
+            let screenX =
+                x - camera.x;
+            let screenY =
+                y - camera.y;
+            const rank =
+                RANKS[rankIndex];
+            const radius =
+                rank.radius;
+            if (
+                screenX <
+                    -radius * 2 ||
+                screenX >
+                    width +
+                    radius * 2 ||
+                screenY <
+                    -radius * 2 ||
+                screenY >
+                    height +
+                    radius * 2
+            ) {
                 return;
             }
-
             ctx.save();
-            ctx.translate(screenX, screenY);
-
-            let normAngle = angle;
-            while (normAngle < -Math.PI) normAngle += Math.PI * 2;
-            while (normAngle > Math.PI) normAngle -= Math.PI * 2;
-            
-            const isFacingLeft = Math.abs(normAngle) > Math.PI / 2;
-
-            if (isFacingLeft) {
-                ctx.scale(1, -1);
-                ctx.rotate(-angle);
-            } else {
-                ctx.rotate(angle);
+            ctx.translate(
+                screenX,
+                screenY
+            );
+            let normAngle =
+                angle;
+            while (
+                normAngle <
+                -Math.PI
+            ) {
+                normAngle +=
+                    Math.PI * 2;
             }
-
-            const tailWiggle = Math.sin(cycle) * 0.2;
-
-            // Schwanzflosse
+            while (
+                normAngle >
+                Math.PI
+            ) {
+                normAngle -=
+                    Math.PI * 2;
+            }
+            const isFacingLeft =
+                Math.abs(
+                    normAngle
+                ) >
+                Math.PI / 2;
+            if (isFacingLeft) {
+                ctx.scale(
+                    1,
+                    -1
+                );
+                ctx.rotate(
+                    -angle
+                );
+            }
+            else {
+                ctx.rotate(
+                    angle
+                );
+            }
+            const tailWiggle =
+                Math.sin(cycle) *
+                0.2;
+            /* Schwanz */
             ctx.beginPath();
-            ctx.fillStyle = rank.darkColor;
-            ctx.moveTo(-radius * 0.7, 0);
-            ctx.quadraticCurveTo(-radius * 1.3, -radius * 0.6 + tailWiggle * 8, -radius * 1.4, -radius * 0.6 + tailWiggle * 8);
-            ctx.quadraticCurveTo(-radius * 1.1, 0, -radius * 1.4, radius * 0.6 + tailWiggle * 8);
-            ctx.quadraticCurveTo(-radius * 1.3, radius * 0.6 + tailWiggle * 8, -radius * 0.7, 0);
+            ctx.fillStyle =
+                rank.darkColor;
+            ctx.moveTo(
+                -radius * 0.7,
+                0
+            );
+            ctx.quadraticCurveTo(
+                -radius * 1.3,
+                -radius * 0.6 +
+                    tailWiggle * 8,
+                -radius * 1.4,
+                -radius * 0.6 +
+                    tailWiggle * 8
+            );
+            ctx.quadraticCurveTo(
+                -radius * 1.1,
+                0,
+                -radius * 1.4,
+                radius * 0.6 +
+                    tailWiggle * 8
+            );
+            ctx.quadraticCurveTo(
+                -radius * 1.3,
+                radius * 0.6 +
+                    tailWiggle * 8,
+                -radius * 0.7,
+                0
+            );
             ctx.fill();
-
-            // Körper
+            /* Körper */
             ctx.beginPath();
-            ctx.fillStyle = rank.color;
-            ctx.ellipse(0, 0, radius, radius * 0.55, 0, 0, Math.PI * 2);
+            ctx.fillStyle =
+                rank.color;
+            ctx.ellipse(
+                0,
+                0,
+                radius,
+                radius * 0.55,
+                0,
+                0,
+                Math.PI * 2
+            );
             ctx.fill();
-
-            // Kiemen
+            /* Kiemen */
             if (rankIndex >= 1) {
                 ctx.beginPath();
-                ctx.strokeStyle = rank.darkColor;
-                ctx.lineWidth = 1.5;
-                ctx.arc(radius * 0.1, 0, radius * 0.35, Math.PI * 0.7, Math.PI * 1.3);
+                ctx.strokeStyle =
+                    rank.darkColor;
+                ctx.lineWidth =
+                    1.5;
+                ctx.arc(
+                    radius * 0.1,
+                    0,
+                    radius * 0.35,
+                    Math.PI * 0.7,
+                    Math.PI * 1.3
+                );
                 ctx.stroke();
             }
-
-            // Auge
-            const eyeX = radius * 0.45;
-            const eyeY = -radius * 0.2;
-            const eyeRadius = Math.max(2.5, radius * 0.15);
-
+            /* Auge */
+            const eyeX =
+                radius * 0.45;
+            const eyeY =
+                -radius * 0.2;
+            const eyeRadius =
+                Math.max(
+                    2.5,
+                    radius * 0.15
+                );
             ctx.beginPath();
-            ctx.arc(eyeX, eyeY, eyeRadius, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
+            ctx.arc(
+                eyeX,
+                eyeY,
+                eyeRadius,
+                0,
+                Math.PI * 2
+            );
+            ctx.fillStyle =
+                '#ffffff';
             ctx.fill();
-
             ctx.beginPath();
-            ctx.arc(eyeX + eyeRadius * 0.25, eyeY, eyeRadius * 0.5, 0, Math.PI * 2);
-            ctx.fillStyle = '#000000';
+            ctx.arc(
+                eyeX +
+                    eyeRadius * 0.25,
+                eyeY,
+                eyeRadius * 0.5,
+                0,
+                Math.PI * 2
+            );
+            ctx.fillStyle =
+                '#000000';
             ctx.fill();
-
             ctx.beginPath();
-            ctx.arc(eyeX + eyeRadius * 0.1, eyeY - eyeRadius * 0.2, eyeRadius * 0.2, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
+            ctx.arc(
+                eyeX +
+                    eyeRadius * 0.1,
+                eyeY -
+                    eyeRadius * 0.2,
+                eyeRadius * 0.2,
+                0,
+                Math.PI * 2
+            );
+            ctx.fillStyle =
+                '#ffffff';
             ctx.fill();
-
             ctx.restore();
         }
-
+        /* =========================================================
+           SONNENSTRAHLEN
+        ========================================================= */
         function drawSunRays() {
             ctx.save();
-            const time = performance.now() * 0.0005;
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-
-            for (let i = 0; i < 4; i++) {
+            const time =
+                performance.now() *
+                0.0005;
+            ctx.fillStyle =
+                'rgba(255,255,255,0.08)';
+            for (
+                let i = 0;
+                i < 4;
+                i++
+            ) {
                 ctx.beginPath();
-                let xStart = (width / 3) * i + Math.sin(time + i) * 20;
-                ctx.moveTo(xStart, 0);
-                ctx.lineTo(xStart + 100, 0);
-                ctx.lineTo(xStart - 200, height);
-                ctx.lineTo(xStart - 320, height);
+                let xStart =
+                    (width / 3) *
+                    i +
+                    Math.sin(
+                        time + i
+                    ) *
+                    20;
+                ctx.moveTo(
+                    xStart,
+                    0
+                );
+                ctx.lineTo(
+                    xStart + 100,
+                    0
+                );
+                ctx.lineTo(
+                    xStart - 200,
+                    height
+                );
+                ctx.lineTo(
+                    xStart - 320,
+                    height
+                );
                 ctx.closePath();
                 ctx.fill();
             }
             ctx.restore();
         }
-
+        /* =========================================================
+           BACKGROUND
+        ========================================================= */
         function drawBackground() {
-            // Hellblauer Ozean-Hintergrund
-            ctx.fillStyle = '#4a90e2';
-            ctx.fillRect(0, 0, width, height);
-
+            ctx.fillStyle =
+                '#4a90e2';
+            ctx.fillRect(
+                0,
+                0,
+                width,
+                height
+            );
             drawSunRays();
-
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fillStyle =
+                'rgba(255,255,255,0.3)';
             bubbles.forEach(b => {
-                let bx = b.x - camera.x;
-                let by = b.y - camera.y;
-                if (bx >= 0 && bx <= width && by >= 0 && by <= height) {
+                let bx =
+                    b.x -
+                    camera.x;
+                let by =
+                    b.y -
+                    camera.y;
+                if (
+                    bx >= 0 &&
+                    bx <= width &&
+                    by >= 0 &&
+                    by <= height
+                ) {
                     ctx.beginPath();
-                    ctx.arc(bx, by, b.r, 0, Math.PI * 2);
+                    ctx.arc(
+                        bx,
+                        by,
+                        b.r,
+                        0,
+                        Math.PI * 2
+                    );
                     ctx.fill();
                 }
             });
-
-            const sandY = WORLD_HEIGHT - SAND_HEIGHT - camera.y;
+            const sandY =
+                WORLD_HEIGHT -
+                SAND_HEIGHT -
+                camera.y;
             if (sandY < height) {
-                ctx.fillStyle = '#10ac84';
+                ctx.fillStyle =
+                    '#10ac84';
                 plants.forEach(p => {
-                    let px = p.x - camera.x;
-                    if (px >= -30 && px <= width + 30) {
-                        for(let i = 0; i < p.blades; i++) {
-                            ctx.fillRect(px + (i * 8), sandY - p.height, 4, p.height);
+                    let px =
+                        p.x -
+                        camera.x;
+                    if (
+                        px >= -30 &&
+                        px <= width + 30
+                    ) {
+                        for (
+                            let i = 0;
+                            i < p.blades;
+                            i++
+                        ) {
+                            ctx.fillRect(
+                                px +
+                                    (i * 8),
+                                sandY -
+                                    p.height,
+                                4,
+                                p.height
+                            );
                         }
                     }
                 });
-
-                ctx.fillStyle = '#e5c158';
-                ctx.fillRect(0, sandY, width, height - sandY);
+                ctx.fillStyle =
+                    '#e5c158';
+                ctx.fillRect(
+                    0,
+                    sandY,
+                    width,
+                    height - sandY
+                );
             }
         }
-
+        /* =========================================================
+           DRAW
+        ========================================================= */
         function draw() {
             drawBackground();
-            fishes.forEach(f => drawFish(f.x, f.y, f.rank, f.angle, f.cycle));
+            fishes.forEach(f => {
+                drawFish(
+                    f.x,
+                    f.y,
+                    f.rank,
+                    f.angle,
+                    f.cycle
+                );
+            });
             if (isGameRunning) {
-                drawFish(player.x, player.y, player.rank, player.angle, performance.now() * 0.01);
+                drawFish(
+                    player.x,
+                    player.y,
+                    player.rank,
+                    player.angle,
+                    performance.now() *
+                    0.01
+                );
             }
         }
-
+        /* =========================================================
+           GAME OVER
+        ========================================================= */
         function gameOver() {
             isGameRunning = false;
             stopMusic();
-            saveScoreOnline(playerName, score);
-
-            document.getElementById('lastScoreBox').classList.remove('hidden');
-            document.getElementById('lastScoreVal').innerText = score;
-            document.getElementById('uiOverlay').classList.add('hidden');
-
+            player.vx = 0;
+            player.vy = 0;
+            joystickContainer.style.display =
+                'none';
+            touchActive = false;
+            /*
+             * Score wird gespeichert.
+             */
+            saveScoreOnline(
+                playerName,
+                score
+            );
+            document.getElementById(
+                'lastScoreBox'
+            ).classList.remove('hidden');
+            document.getElementById(
+                'lastScoreVal'
+            ).innerText =
+                score;
+            document.getElementById(
+                'uiOverlay'
+            ).classList.add('hidden');
+            document.getElementById(
+                'pauseButton'
+            ).classList.add('hidden');
+            /*
+             * Hauptmenü wieder anzeigen.
+             */
             showModal('startMenu');
         }
-
-        function startGame() {
-            const input = document.getElementById('playerNameInput').value.trim();
-            if (!input) {
-                alert("Bitte gib deinen Namen ein!");
+        /* =========================================================
+           PAUSE / RUNDE BEENDEN
+        ========================================================= */
+        function pauseGame() {
+            if (!isGameRunning) {
                 return;
             }
-            playerName = input;
-            localStorage.setItem('fishup_player_name', playerName);
-
-            hideModals();
-            document.getElementById('uiOverlay').classList.remove('hidden');
-
+            /*
+             * Der Pause-Button beendet die Runde
+             * sofort und speichert den Score.
+             */
+            gameOver();
+        }
+        /* =========================================================
+           START GAME
+        ========================================================= */
+        function startGame() {
+            const input =
+                document
+                    .getElementById(
+                        'playerNameInput'
+                    )
+                    .value
+                    .trim();
+            if (!input) {
+                alert(
+                    "Bitte gib deinen Namen ein!"
+                );
+                return;
+            }
+            playerName =
+                input;
+            localStorage.setItem(
+                'fishup_player_name',
+                playerName
+            );
+            /*
+             * WICHTIG:
+             *
+             * Das Hauptmenü wird NICHT mehr
+             * ausgeblendet.
+             *
+             * Es bleibt im Hintergrund.
+             *
+             * Damit das Spiel trotzdem sichtbar
+             * ist, bekommt das Menü eine niedrigere
+             * Priorität und wird vom Canvas überdeckt.
+             */
+            const startMenu =
+                document.getElementById(
+                    'startMenu'
+                );
+            startMenu.style.zIndex =
+                '1';
+            const settingsModal =
+                document.getElementById(
+                    'settingsModal'
+                );
+            settingsModal.classList.add(
+                'hidden'
+            );
+            /*
+             * Spiel starten.
+             */
             isGameRunning = true;
             score = 0;
-            player.x = WORLD_WIDTH / 2;
-            player.y = WORLD_HEIGHT / 2;
-            fishes = [];
-
+            player.x =
+                WORLD_WIDTH / 2;
+            player.y =
+                WORLD_HEIGHT / 2;
             player.rank = 0;
             player.exp = 0;
-
+            player.vx = 0;
+            player.vy = 0;
+            fishes = [];
             updateHUD();
+            document.getElementById(
+                'uiOverlay'
+            ).classList.remove(
+                'hidden'
+            );
+            document.getElementById(
+                'pauseButton'
+            ).classList.remove(
+                'hidden'
+            );
             startMusic();
         }
-
-        let lastTime = performance.now();
+        /* =========================================================
+           GAME LOOP
+        ========================================================= */
+        let lastTime =
+            performance.now();
         function loop(now) {
-            let dt = now - lastTime;
-            if (dt >= 1000 / targetFPS) {
+            let dt =
+                now -
+                lastTime;
+            if (
+                dt >=
+                1000 /
+                targetFPS
+            ) {
                 update();
                 draw();
-                lastTime = now - (dt % (1000 / targetFPS));
+                lastTime =
+                    now -
+                    (
+                        dt %
+                        (
+                            1000 /
+                            targetFPS
+                        )
+                    );
             }
-            requestAnimationFrame(loop);
+            requestAnimationFrame(
+                loop
+            );
         }
-        requestAnimationFrame(loop);
+        requestAnimationFrame(
+            loop
+        );
     </script>
 </body>
 </html>
