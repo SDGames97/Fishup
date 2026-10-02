@@ -397,13 +397,13 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 
-        // LEVELEINSTELLUNGEN
+        // LEVELEINSTELLUNGEN (+7 Fische pro Stufe angepasst)
         const RANKS = [
-            { id: 0, name: 'Grau', color: '#7f8c8d', darkColor: '#34495e', radius: 18, expNeeded: 4 },
-            { id: 1, name: 'Grün', color: '#2ecc71', darkColor: '#27ae60', radius: 26, expNeeded: 9 },
-            { id: 2, name: 'Blau', color: '#3498db', darkColor: '#2980b9', radius: 38, expNeeded: 18 },
-            { id: 3, name: 'Lila', color: '#9b59b6', darkColor: '#8e44ad', radius: 54, expNeeded: 29 },
-            { id: 4, name: 'Gold', color: '#f1c40f', darkColor: '#d35400', radius: 80, expNeeded: 40 }
+            { id: 0, name: 'Grau', color: '#7f8c8d', darkColor: '#34495e', radius: 18, expNeeded: 11 },
+            { id: 1, name: 'Grün', color: '#2ecc71', darkColor: '#27ae60', radius: 26, expNeeded: 16 },
+            { id: 2, name: 'Blau', color: '#3498db', darkColor: '#2980b9', radius: 38, expNeeded: 25 },
+            { id: 3, name: 'Lila', color: '#9b59b6', darkColor: '#8e44ad', radius: 54, expNeeded: 36 },
+            { id: 4, name: 'Gold', color: '#f1c40f', darkColor: '#d35400', radius: 80, expNeeded: 47 }
         ];
 
         const WORLD_WIDTH = 3200;
@@ -793,7 +793,6 @@
                                 player.exp = 0;
                                 player.rank++;
                             } else {
-                                alert("🏆 GLÜCKWUNSCH! Du bist der König des Ozeans geworden! Dein Score wird gespeichert.");
                                 gameOver();
                                 return;
                             }
