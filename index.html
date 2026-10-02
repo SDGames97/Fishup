@@ -3,309 +3,714 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Fishup</title>
-    
-    <!-- iOS Fullscreen & PWA Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Fishup">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#1a2a3a">
-    
-    <!-- App Icon -->
+    <meta name="theme-color" content="#031329">
     <link rel="apple-touch-icon" href="https://img.icons8.com/emoji/192/fish-emoji.png">
+    <title>Fishup - Mobile Online</title>
+    
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
         * {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
-            -webkit-touch-callout: none;
             margin: 0;
             padding: 0;
+            touch-action: none;
         }
-
         body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #1a2a3a;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #ffffff;
+            background-color: #031329;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-
-        #game-container {
-            position: relative;
+        #gameCanvas {
             width: 100vw;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(180deg, #101c28 0%, #1a3a5c 100%);
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
+            display: block;
         }
 
-        #header {
-            width: 100%;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-        }
-
-        .score-board {
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        #canvas-container {
-            flex-grow: 1;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        canvas {
-            touch-action: none;
-        }
-
-        #controls {
-            width: 100%;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            z-index: 10;
-        }
-
-        .btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            active: scale(0.95);
-            cursor: pointer;
-        }
-
-        #start-overlay {
+        .modal-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(2,10,20,0.95) 0%, rgba(8,32,64,0.95) 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 20;
+            z-index: 100;
+            color: white;
+            padding: 20px;
         }
+        .hidden { display: none !important; }
 
-        #start-overlay h1 {
-            font-size: 42px;
-            margin-bottom: 10px;
-            color: #4da6ff;
+        h1 {
+            font-size: 36px;
+            color: #00d2ff;
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
         }
+        h2 { font-size: 22px; margin-bottom: 15px; color: #ffd700; }
 
-        #start-overlay p {
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            max-width: 280px;
+            margin-bottom: 20px;
+        }
+        .input-group label { font-size: 13px; color: #aaa; text-align: center; }
+        .input-group input {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 2px solid #00d2ff;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
             font-size: 18px;
-            margin-bottom: 30px;
-            color: #cccccc;
+            text-align: center;
+            outline: none;
+        }
+
+        .menu-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 280px;
+        }
+        .btn {
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+            text-align: center;
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+            box-shadow: 0 4px 15px rgba(241, 196, 15, 0.4);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card {
+            background: rgba(0, 20, 45, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 15px;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 12px;
+        }
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .shop-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .shop-item-desc { font-size: 12px; color: #ccc; }
+        .shop-item-title { font-size: 14px; font-weight: bold; color: #fff; }
+
+        #uiOverlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            padding-top: max(15px, env(safe-area-inset-top));
+        }
+
+        .hud-box {
+            background: rgba(0, 15, 35, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: #fff;
+        }
+
+        .leaderboard-box { min-width: 140px; }
+        .leaderboard-box h3 {
+            font-size: 11px; color: #ffd700; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 4px;
+        }
+        .leaderboard-list { list-style: none; font-size: 12px; }
+        .leaderboard-item { display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .leaderboard-item.highlight { color: #00d2ff; font-weight: bold; }
+
+        #joystickContainer {
+            position: absolute;
+            bottom: 40px; left: 40px;
+            width: 110px; height: 110px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            pointer-events: auto;
+            display: none;
+        }
+        #joystickKnob {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 45px; height: 45px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        <div id="header">
-            <div class="score-board">Punkte: <span id="score">0</span></div>
-            <div class="score-board">Rekord: <span id="high-score">0</span></div>
+    <!-- HAUPTMENÜ -->
+    <div id="startMenu" class="modal-overlay">
+        <h1>FISHUP</h1>
+        <div class="input-group">
+            <label for="playerNameInput">DEIN SPIELERNAME:</label>
+            <input type="text" id="playerNameInput" maxlength="12" placeholder="Name...">
+        </div>
+        <div class="menu-btn-group">
+            <button class="btn" onclick="startGame()">Spielen</button>
+            <button class="btn btn-gold" onclick="showModal('shopModal')">🛒 Shop</button>
+            <button class="btn btn-secondary" onclick="showModal('settingsModal')">⚙️ Einstellungen</button>
+        </div>
+    </div>
+
+    <!-- SHOP MODAL -->
+    <div id="shopModal" class="modal-overlay hidden">
+        <h2>SHOP & REWARDS</h2>
+        <div class="card">
+            <div class="shop-item">
+                <div>
+                    <div class="shop-item-title">Werbung Entfernen</div>
+                    <div class="shop-item-desc">Keine automatischen Ads</div>
+                </div>
+                <button class="btn btn-gold" onclick="buyNoAds()" style="padding: 8px 12px; font-size: 13px;">1,99 €</button>
+            </div>
         </div>
 
-        <div id="canvas-container">
-            <canvas id="gameCanvas"></canvas>
+        <div class="card">
+            <div style="font-size: 13px; font-weight: bold; color: #00d2ff; margin-bottom: 10px;">POWER-UPS (ADS)</div>
+            <div class="shop-item">
+                <div>
+                    <div class="shop-item-title">Grüner Start-Fisch</div>
+                    <div class="shop-item-desc" id="statusGreenStart">Inaktiv</div>
+                </div>
+                <button class="btn" onclick="watchRewardAd('greenStart', 1)" style="padding: 6px 10px; font-size: 12px;">1 Ad ▶</button>
+            </div>
+            <div class="shop-item">
+                <div>
+                    <div class="shop-item-title">2x Leben</div>
+                    <div class="shop-item-desc" id="statusExtraLife">Inaktiv</div>
+                </div>
+                <button class="btn" onclick="watchRewardAd('extraLife', 2)" style="padding: 6px 10px; font-size: 12px;">2 Ads ▶</button>
+            </div>
+            <div class="shop-item">
+                <div>
+                    <div class="shop-item-title">Magnet (30 Sek)</div>
+                    <div class="shop-item-desc" id="statusMagnet">Inaktiv</div>
+                </div>
+                <button class="btn" onclick="watchRewardAd('magnet', 3)" style="padding: 6px 10px; font-size: 12px;">3 Ads ▶</button>
+            </div>
+        </div>
+        <button class="btn btn-secondary" onclick="hideModals()">Zurück</button>
+    </div>
+
+    <!-- EINSTELLUNGEN -->
+    <div id="settingsModal" class="modal-overlay hidden">
+        <h2>EINSTELLUNGEN</h2>
+        <div class="card">
+            <div style="font-size: 13px; font-weight: bold; margin-bottom: 12px;">PERFORMANCE</div>
+            <div class="menu-btn-group" style="max-width: 100%;">
+                <button id="btn30fps" class="btn btn-secondary" onclick="setFPS(30)">🔋 30 FPS</button>
+                <button id="btn60fps" class="btn" onclick="setFPS(60)">⚡ 60 FPS</button>
+            </div>
+        </div>
+        <button class="btn btn-secondary" onclick="hideModals()">Zurück</button>
+    </div>
+
+    <!-- FAKE AD -->
+    <div id="adOverlay" class="modal-overlay hidden" style="z-index: 200;">
+        <h2>WERBUNG...</h2>
+        <p style="margin-top: 10px; color: #aaa;">Schließt in <span id="adTimer" style="color: #00d2ff; font-weight: bold;">5</span> Sek.</p>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="gameOverModal" class="modal-overlay hidden">
+        <h1 style="color: #ff4757;">GEFRESSEN!</h1>
+        <p style="margin-bottom: 5px;">Punkte: <span id="finalScore" style="color:#ffd700; font-weight:bold;">0</span></p>
+        <p style="margin-bottom: 15px; font-size: 13px; color: #aaa;">Tode bis Ads: <span id="deathCounterVal" style="color:#fff;">5</span>/5</p>
+        <button class="btn" onclick="restartGame()">Nochmal Spielen</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- IN-GAME HUD -->
+    <div id="uiOverlay">
+        <div class="hud-box">
+            <div style="color: #fff; font-weight: bold; font-size: 16px;">Punkte: <span id="scoreVal" style="color: #ffd700;">0</span></div>
+            <div id="rankText" style="font-size: 12px; color: #aaa; margin-top: 2px;">Lvl 0 (Grau)</div>
+            <div id="magnetHud" style="color: #00d2ff; font-weight: bold; font-size: 11px; display: none; margin-top: 3px;">🧲 Magnet aktiv!</div>
         </div>
 
-        <div id="start-overlay">
-            <h1>Fishup 🐟</h1>
-            <p>Tippe auf den Bildschirm zum Schwimmen!</p>
-            <button class="btn" id="start-btn">Spiel Starten</button>
+        <div class="hud-box leaderboard-box">
+            <h3>🏆 TOP 5 ONLINE</h3>
+            <ul id="leaderboardList" class="leaderboard-list">
+                <li class="leaderboard-item"><span>Lade...</span></li>
+            </ul>
+        </div>
+
+        <div id="joystickContainer">
+            <div id="joystickKnob"></div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreEl = document.getElementById('score');
-        const highScoreEl = document.getElementById('high-score');
-        const startOverlay = document.getElementById('start-overlay');
-        const startBtn = document.getElementById('start-btn');
-
-        let width, height;
-        let gameRunning = false;
-        let score = 0;
-        let highScore = localStorage.getItem('fishup_highscore') || 0;
-        highScoreEl.innerText = highScore;
-
-        function resizeCanvas() {
-            const container = document.getElementById('canvas-container');
-            width = container.clientWidth;
-            height = container.clientHeight;
-            canvas.width = width;
-            canvas.height = height;
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        let fish = {
-            x: 80,
-            y: 0,
-            radius: 20,
-            velocity: 0,
-            gravity: 0.4,
-            jump: -7.5
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTXBIaZsXWpDaigQAPBiOwuXouz2UlcyQ",
+            authDomain: "fishup-9bc99.firebaseapp.com",
+            projectId: "fishup-9bc99",
+            storageBucket: "fishup-9bc99.firebasestorage.app",
+            messagingSenderId: "366958128305",
+            appId: "1:366958128305:web:f74d82c3c7d9c980f10690",
+            databaseURL: "https://fishup-9bc99-default-rtdb.europe-west1.firebasedatabase.app"
         };
 
-        let obstacles = [];
-        let frame = 0;
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-        function resetGame() {
-            fish.y = height / 2;
-            fish.velocity = 0;
-            obstacles = [];
-            score = 0;
-            scoreEl.innerText = score;
-            frame = 0;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const RANKS = [
+            { id: 0, name: 'Grau', color: '#a4b0be', radius: 18, expNeeded: 5 },
+            { id: 1, name: 'Grün', color: '#2ed573', radius: 26, expNeeded: 35 },
+            { id: 2, name: 'Blau', color: '#1e90ff', radius: 38, expNeeded: 80 },
+            { id: 3, name: 'Lila', color: '#9b59b6', radius: 54, expNeeded: 180 },
+            { id: 4, name: 'Gold/Mythisch', color: '#ffa502', radius: 80, expNeeded: Infinity }
+        ];
+
+        const WORLD_WIDTH = 4000;
+        const WORLD_HEIGHT = 2500;
+        const MAX_FISHES = 70;
+
+        let width, height;
+        let camera = { x: 0, y: 0 };
+        let isGameRunning = false;
+        let score = 0;
+        let deathsCount = 0;
+        let noAdsPurchased = false;
+        let targetFPS = 60;
+
+        let playerName = localStorage.getItem('fishup_player_name') || '';
+        document.getElementById('playerNameInput').value = playerName;
+
+        let powerups = { extraLife: false, greenStart: false, magnet: false };
+        let lives = 1;
+        let magnetActive = false;
+
+        let player = {
+            x: WORLD_WIDTH / 2,
+            y: WORLD_HEIGHT / 2,
+            rank: 0,
+            exp: 0,
+            vx: 0, vy: 0,
+            speed: 5.5,
+            angle: 0,
+            targetAngle: 0
+        };
+
+        let fishes = [];
+
+        let touchActive = false;
+        let touchStartPos = { x: 0, y: 0 };
+        let touchCurrentPos = { x: 0, y: 0 };
+        const joystickContainer = document.getElementById('joystickContainer');
+        const joystickKnob = document.getElementById('joystickKnob');
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function listenToOnlineLeaderboard() {
+            database.ref('highscores').orderByChild('score').limitToLast(5).on('value', (snapshot) => {
+                let scores = [];
+                snapshot.forEach((child) => { scores.push(child.val()); });
+                scores.reverse();
+                renderLeaderboardUI(scores);
+            });
         }
 
-        function jump() {
-            if (!gameRunning) return;
-            fish.velocity = fish.jump;
+        function renderLeaderboardUI(list) {
+            const listEl = document.getElementById('leaderboardList');
+            listEl.innerHTML = '';
+            if (list.length === 0) {
+                listEl.innerHTML = '<li class="leaderboard-item">Noch keine Rekorde</li>';
+                return;
+            }
+            list.forEach((item, i) => {
+                const li = document.createElement('li');
+                li.className = `leaderboard-item ${item.name === playerName ? 'highlight' : ''}`;
+                li.innerHTML = `<span>${i + 1}. ${item.name}</span><span>${item.score}</span>`;
+                listEl.appendChild(li);
+            });
         }
 
-        window.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            jump();
+        function saveScoreOnline(name, finalScore) {
+            if (!name) return;
+            const userRef = database.ref('highscores/' + name);
+            userRef.once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data || finalScore > data.score) {
+                    userRef.set({ name: name, score: finalScore });
+                }
+            });
+        }
+
+        listenToOnlineLeaderboard();
+
+        function showModal(id) {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function hideModals() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+            if (!isGameRunning) document.getElementById('startMenu').classList.remove('hidden');
+        }
+
+        function setFPS(fps) {
+            targetFPS = fps;
+            document.getElementById('btn30fps').className = fps === 30 ? 'btn' : 'btn btn-secondary';
+            document.getElementById('btn60fps').className = fps === 60 ? 'btn' : 'btn btn-secondary';
+        }
+
+        function buyNoAds() {
+            noAdsPurchased = true;
+            alert("Werbung deaktiviert!");
+            hideModals();
+        }
+
+        function watchRewardAd(type, requiredAds) {
+            let count = 0;
+            function runAd() {
+                showAdScreen(3, () => {
+                    count++;
+                    if (count < requiredAds) {
+                        runAd();
+                    } else {
+                        powerups[type] = true;
+                        updateShopUI();
+                        alert("Power-Up aktiviert!");
+                    }
+                });
+            }
+            runAd();
+        }
+
+        function updateShopUI() {
+            document.getElementById('statusGreenStart').innerText = powerups.greenStart ? "Aktiv" : "Inaktiv";
+            document.getElementById('statusExtraLife').innerText = powerups.extraLife ? "Aktiv" : "Inaktiv";
+            document.getElementById('statusMagnet').innerText = powerups.magnet ? "Aktiv (30s)" : "Inaktiv";
+        }
+
+        function showAdScreen(sec, callback) {
+            const adEl = document.getElementById('adOverlay');
+            const timerEl = document.getElementById('adTimer');
+            adEl.classList.remove('hidden');
+            let left = sec;
+            timerEl.innerText = left;
+            let inv = setInterval(() => {
+                left--;
+                timerEl.innerText = left;
+                if (left <= 0) {
+                    clearInterval(inv);
+                    adEl.classList.add('hidden');
+                    if (callback) callback();
+                }
+            }, 1000);
+        }
+
+        window.addEventListener('touchstart', e => {
+            if (!isGameRunning) return;
+            touchActive = true;
+            const t = e.touches[0];
+            touchStartPos = { x: t.clientX, y: t.clientY };
+            touchCurrentPos = { x: t.clientX, y: t.clientY };
+            joystickContainer.style.display = 'block';
+            updateJoystick();
         }, { passive: false });
 
-        window.addEventListener('mousedown', jump);
+        window.addEventListener('touchmove', e => {
+            if (!touchActive) return;
+            const t = e.touches[0];
+            touchCurrentPos = { x: t.clientX, y: t.clientY };
+            updateJoystick();
+        }, { passive: false });
 
-        startBtn.addEventListener('click', () => {
-            resetGame();
-            gameRunning = true;
-            startOverlay.style.display = 'none';
-            gameLoop();
+        window.addEventListener('touchend', () => {
+            touchActive = false;
+            player.vx = 0; player.vy = 0;
+            joystickContainer.style.display = 'none';
         });
 
-        function createObstacle() {
-            let gap = 160;
-            let minHeight = 50;
-            let topHeight = Math.random() * (height - gap - (minHeight * 2)) + minHeight;
+        function updateJoystick() {
+            const dx = touchCurrentPos.x - touchStartPos.x;
+            const dy = touchCurrentPos.y - touchStartPos.y;
+            const dist = Math.hypot(dx, dy);
+            const maxR = 45;
+            const angle = Math.atan2(dy, dx);
+            const moveD = Math.min(dist, maxR);
 
-            obstacles.push({
-                x: width,
-                top: topHeight,
-                bottom: height - topHeight - gap,
-                width: 50,
-                passed: false
+            const kX = Math.cos(angle) * moveD;
+            const kY = Math.sin(angle) * moveD;
+            joystickKnob.style.transform = `translate(calc(-50% + ${kX}px), calc(-50% + ${kY}px))`;
+
+            if (dist > 5) {
+                const speedMult = Math.min(dist / maxR, 1);
+                player.vx = Math.cos(angle) * player.speed * speedMult;
+                player.vy = Math.sin(angle) * player.speed * speedMult;
+                player.targetAngle = angle;
+            } else {
+                player.vx = 0; player.vy = 0;
+            }
+        }
+
+        function spawnFish() {
+            const rand = Math.random();
+            let rank = 0;
+            if (rand < 0.008) rank = 4;
+            else if (rand < 0.08) rank = 3;
+            else if (rand < 0.22) rank = 2;
+            else if (rand < 0.48) rank = 1;
+
+            const margin = 150;
+            let x = Math.random() < 0.5 ? camera.x - margin : camera.x + width + margin;
+            let y = Math.random() * WORLD_HEIGHT;
+
+            x = Math.max(50, Math.min(WORLD_WIDTH - 50, x));
+            y = Math.max(50, Math.min(WORLD_HEIGHT - 50, y));
+
+            const dir = Math.random() * Math.PI * 2;
+            const spd = Math.max(1.5, 4.0 - rank * 0.5);
+
+            fishes.push({
+                x: x, y: y,
+                rank: rank,
+                radius: RANKS[rank].radius,
+                vx: Math.cos(dir) * spd,
+                vy: Math.sin(dir) * spd,
+                color: RANKS[rank].color,
+                angle: dir,
+                cycle: Math.random() * 10
             });
         }
 
         function update() {
-            fish.velocity += fish.gravity;
-            fish.y += fish.velocity;
+            if (!isGameRunning) return;
 
-            if (fish.y + fish.radius > height || fish.y - fish.radius < 0) {
-                gameOver();
-            }
+            player.x += player.vx;
+            player.y += player.vy;
+            player.x = Math.max(30, Math.min(WORLD_WIDTH - 30, player.x));
+            player.y = Math.max(30, Math.min(WORLD_HEIGHT - 30, player.y));
 
-            if (frame % 120 === 0) {
-                createObstacle();
-            }
+            let diff = player.targetAngle - player.angle;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            player.angle += diff * 0.15;
 
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                let obs = obstacles[i];
-                obs.x -= 2.5;
+            camera.x = player.x - width / 2;
+            camera.y = player.y - height / 2;
 
-                if (
-                    fish.x + fish.radius > obs.x &&
-                    fish.x - fish.radius < obs.x + obs.width &&
-                    (fish.y - fish.radius < obs.top || fish.y + fish.radius > height - obs.bottom)
-                ) {
-                    gameOver();
-                }
+            while (fishes.length < MAX_FISHES) spawnFish();
 
-                if (!obs.passed && obs.x + obs.width < fish.x) {
-                    obs.passed = true;
-                    score++;
-                    scoreEl.innerText = score;
-                    if (score > highScore) {
-                        highScore = score;
-                        highScoreEl.innerText = highScore;
-                        localStorage.setItem('fishup_highscore', highScore);
+            const pRad = RANKS[player.rank].radius;
+
+            for (let i = fishes.length - 1; i >= 0; i--) {
+                let f = fishes[i];
+
+                if (magnetActive && f.rank <= player.rank) {
+                    const mDist = Math.hypot(player.x - f.x, player.y - f.y);
+                    if (mDist < 350) {
+                        const mAngle = Math.atan2(player.y - f.y, player.x - f.x);
+                        f.x += Math.cos(mAngle) * 3.5;
+                        f.y += Math.sin(mAngle) * 3.5;
                     }
                 }
 
-                if (obs.x + obs.width < 0) {
-                    obstacles.splice(i, 1);
+                f.x += f.vx; f.y += f.vy;
+                f.cycle += 0.1;
+
+                if (f.x < 30 || f.x > WORLD_WIDTH - 30) f.vx *= -1;
+                if (f.y < 30 || f.y > WORLD_HEIGHT - 30) f.vy *= -1;
+                f.angle = Math.atan2(f.vy, f.vx);
+
+                const dist = Math.hypot(player.x - f.x, player.y - f.y);
+                if (dist < pRad + f.radius * 0.7) {
+                    if (player.rank >= f.rank) {
+                        score += (f.rank + 1) * 10;
+                        player.exp += (f.rank + 1);
+                        fishes.splice(i, 1);
+                        
+                        if (player.exp >= RANKS[player.rank].expNeeded && player.rank < RANKS.length - 1) {
+                            player.exp -= RANKS[player.rank].expNeeded;
+                            player.rank++;
+                        }
+                        updateHUD();
+                    } else {
+                        if (lives > 1) {
+                            lives--;
+                            fishes.splice(i, 1);
+                        } else {
+                            gameOver();
+                        }
+                    }
                 }
             }
+        }
 
-            frame++;
+        function updateHUD() {
+            document.getElementById('scoreVal').innerText = score;
+            document.getElementById('rankText').innerText = `Lvl ${player.rank} (${RANKS[player.rank].name})`;
+        }
+
+        function drawFish(x, y, radius, color, angle, cycle) {
+            ctx.save();
+            ctx.translate(x - camera.x, y - camera.y);
+            ctx.rotate(angle);
+
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.ellipse(0, 0, radius, radius * 0.55, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            const tailWiggle = Math.sin(cycle) * 0.2;
+            ctx.beginPath();
+            ctx.moveTo(-radius * 0.8, 0);
+            ctx.lineTo(-radius * 1.4, -radius * 0.4 + tailWiggle * 8);
+            ctx.lineTo(-radius * 1.4, radius * 0.4 + tailWiggle * 8);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(radius * 0.4, -radius * 0.15, Math.max(2, radius * 0.12), 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(radius * 0.45, -radius * 0.15, Math.max(1, radius * 0.06), 0, Math.PI * 2);
+            ctx.fillStyle = '#000';
+            ctx.fill();
+
+            ctx.restore();
         }
 
         function draw() {
-            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#031329';
+            ctx.fillRect(0, 0, width, height);
 
-            // Fisch zeichnen
-            ctx.fillStyle = '#ff9f43';
-            ctx.beginPath();
-            ctx.arc(fish.x, fish.y, fish.radius, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 2;
+            const gSize = 180;
+            for (let x = -camera.x % gSize; x < width; x += gSize) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+            }
+            for (let y = -camera.y % gSize; y < height; y += gSize) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+            }
 
-            // Auge
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(fish.x + 8, fish.y - 5, 5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#000000';
-            ctx.beginPath();
-            ctx.arc(fish.x + 10, fish.y - 5, 2, 0, Math.PI * 2);
-            ctx.fill();
+            fishes.forEach(f => drawFish(f.x, f.y, f.radius, f.color, f.angle, f.cycle));
 
-            // Hindernisse
-            ctx.fillStyle = '#10ac84';
-            for (let obs of obstacles) {
-                ctx.fillRect(obs.x, 0, obs.width, obs.top);
-                ctx.fillRect(obs.x, height - obs.bottom, obs.width, obs.bottom);
+            if (isGameRunning) {
+                drawFish(player.x, player.y, RANKS[player.rank].radius, RANKS[player.rank].color, player.angle, performance.now() * 0.01);
             }
         }
 
         function gameOver() {
-            gameRunning = false;
-            startOverlay.style.display = 'flex';
-            document.querySelector('#start-overlay h1').innerText = 'Game Over! 💥';
-            document.querySelector('#start-overlay p').innerText = `Punkte: ${score}`;
-            startBtn.innerText = 'Nochmal versuchen';
+            isGameRunning = false;
+            deathsCount++;
+            document.getElementById('finalScore').innerText = score;
+            document.getElementById('deathCounterVal').innerText = 5 - (deathsCount % 5);
+
+            saveScoreOnline(playerName, score);
+
+            if (!noAdsPurchased && deathsCount % 5 === 0) {
+                showAdScreen(5, () => showModal('gameOverModal'));
+            } else {
+                showModal('gameOverModal');
+            }
         }
 
-        function gameLoop() {
-            if (!gameRunning) return;
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
+        function startGame() {
+            const input = document.getElementById('playerNameInput').value.trim();
+            if (!input) {
+                alert("Bitte gib deinen Namen ein!");
+                return;
+            }
+            playerName = input;
+            localStorage.setItem('fishup_player_name', playerName);
+
+            hideModals();
+            isGameRunning = true;
+            score = 0;
+            player.x = WORLD_WIDTH / 2;
+            player.y = WORLD_HEIGHT / 2;
+            fishes = [];
+
+            player.rank = powerups.greenStart ? 1 : 0;
+            lives = powerups.extraLife ? 2 : 1;
+            magnetActive = powerups.magnet;
+
+            if (magnetActive) {
+                document.getElementById('magnetHud').style.display = 'block';
+                setTimeout(() => {
+                    magnetActive = false;
+                    document.getElementById('magnetHud').style.display = 'none';
+                }, 30000);
+            } else {
+                document.getElementById('magnetHud').style.display = 'none';
+            }
+
+            powerups = { extraLife: false, greenStart: false, magnet: false };
+            updateShopUI();
+            updateHUD();
         }
+
+        function restartGame() {
+            startGame();
+        }
+
+        let lastTime = 0;
+        function loop(timestamp) {
+            if (timestamp - lastTime >= 1000 / targetFPS) {
+                update();
+                draw();
+                lastTime = timestamp;
+            }
+            requestAnimationFrame(loop);
+        }
+        requestAnimationFrame(loop);
     </script>
 </body>
 </html>
