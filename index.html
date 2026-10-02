@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fish Game</title>
+    <title>Fish Game - Extended</title>
     <style>
         body {
             margin: 0;
@@ -15,55 +15,168 @@
             align-items: center;
             height: 100vh;
             font-family: Arial, sans-serif;
+            color: white;
+            user-select: none;
+        }
+        #gameContainer {
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            overflow: hidden;
         }
         canvas {
-            border: 2px solid #1e3d59;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             background: linear-gradient(to bottom, #174d75, #081a2e);
+            display: block;
+        }
+        #uiOverlay {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        .ui-box {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #gameOverScreen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: #ff6b6b;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s, background 0.2s;
+        }
+        button:hover {
+            background: #ff5252;
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
 
-<canvas id="gameCanvas" width="800" height="600"></canvas>
+<div id="gameContainer">
+    <div id="uiOverlay">
+        <div class="ui-box">Punktestand: <span id="scoreVal">0</span></div>
+        <div class="ui-box">Highscore: <span id="highScoreVal">0</span></div>
+    </div>
+
+    <div id="gameOverScreen">
+        <h1 style="font-size: 42px; margin-bottom: 10px; color: #ff6b6b;">Game Over</h1>
+        <p style="font-size: 20px; margin-bottom: 20px;">Erreichte Punkte: <span id="finalScore">0</span></p>
+        <button id="restartBtn">Noch einmal spielen</button>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+</div>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const scoreVal = document.getElementById('scoreVal');
+const highScoreVal = document.getElementById('highScoreVal');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const finalScore = document.getElementById('finalScore');
+const restartBtn = document.getElementById('restartBtn');
 
 const width = canvas.width;
 const height = canvas.height;
 
-// Ränge/Stufen der Fische
+// Ränge / Stufen der Fische
 const RANKS = [
-    { radius: 15, color: '#ff6b6b', darkColor: '#c0392b' },
-    { radius: 25, color: '#4ecdc4', darkColor: '#16a085' },
-    { radius: 38, color: '#ffeaa7', darkColor: '#d35400' },
-    { radius: 55, color: '#a29bfe', darkColor: '#6c5ce7' }
+    { radius: 12, color: '#ff6b6b', darkColor: '#c0392b', points: 10 },
+    { radius: 20, color: '#4ecdc4', darkColor: '#16a085', points: 25 },
+    { radius: 32, color: '#ffeaa7', darkColor: '#d35400', points: 50 },
+    { radius: 48, color: '#a29bfe', darkColor: '#6c5ce7', points: 100 }
 ];
 
-// Kamera & Zustand
-const camera = { x: 0, y: 0 };
-let swimCycle = 0;
+// Spielzustand
+let score = 0;
+let highScore = localStorage.getItem('fishGame_highScore') || 0;
+highScoreVal.textContent = highScore;
 
-// Test-Fisch Objekt
-const fish = {
-    x: 400,
-    y: 300,
-    rankIndex: 1,
+let isGameOver = false;
+let swimCycle = 0;
+const camera = { x: 0, y: 0 };
+
+// Spieler-Objekt
+const player = {
+    x: width / 2,
+    y: height / 2,
+    rankIndex: 0,
     angle: 0,
-    targetX: 400,
-    targetY: 300
+    targetX: width / 2,
+    targetY: height / 2
 };
 
-// Maussteuerung für die Bewegung
+// Gegner-Array
+let enemies = [];
+
+// Steuerung
 canvas.addEventListener('mousemove', (e) => {
+    if (isGameOver) return;
     const rect = canvas.getBoundingClientRect();
-    fish.targetX = e.clientX - rect.left;
-    fish.targetY = e.clientY - rect.top;
+    player.targetX = e.clientX - rect.left;
+    player.targetY = e.clientY - rect.top;
 });
 
-// --- DIE ÜBERARBEITETE DRAW-FUNKTION (MIT 3D-FLIP FÜR DAS AUGE) ---
+// Gegner erzeugen
+function spawnEnemy() {
+    const rankIndex = Math.floor(Math.random() * Math.min(player.rankIndex + 2, RANKS.length));
+    const side = Math.floor(Math.random() * 4);
+    let x, y;
+
+    if (side === 0) { x = -50; y = Math.random() * height; }
+    else if (side === 1) { x = width + 50; y = Math.random() * height; }
+    else if (side === 2) { x = Math.random() * width; y = -50; }
+    else { x = Math.random() * width; y = height + 50; }
+
+    const targetX = Math.random() * width;
+    const targetY = Math.random() * height;
+    const angle = Math.atan2(targetY - y, targetX - x);
+
+    enemies.push({
+        x, y,
+        rankIndex,
+        angle,
+        speed: 1 + Math.random() * 1.5,
+        swimCycle: Math.random() * Math.PI * 2
+    });
+}
+
+// -------------------------------------------------------------
+// DIE PRÄZISE DRAW-FUNKTION (SAUBERE 3D-DREHUNG OHNE AUGEN-VERZERRUNG)
+// -------------------------------------------------------------
 function drawFish(x, y, rankIndex, angle, cycle) {
     let screenX = x - camera.x;
     let screenY = y - camera.y;
@@ -78,14 +191,14 @@ function drawFish(x, y, rankIndex, angle, cycle) {
     ctx.save();
     ctx.translate(screenX, screenY);
 
-    // BERECHNUNG DER RICHTUNG (Links vs. Rechts)
+    // Winkel-Berechnung für Richtungswechsel
     let normAngle = angle;
     while (normAngle < -Math.PI) normAngle += Math.PI * 2;
     while (normAngle > Math.PI) normAngle -= Math.PI * 2;
     
     const isFacingLeft = Math.abs(normAngle) > Math.PI / 2;
 
-    // 3D-SP IEGELUNG: Dreht das gesamte Modell sauber um, wenn der Fisch nach links schwimmt
+    // 3D-FLIP EFFECT (Körper wird umgeklappt, Gesicht bleibt sauber)
     if (isFacingLeft) {
         ctx.scale(1, -1);
         ctx.rotate(-angle);
@@ -119,24 +232,24 @@ function drawFish(x, y, rankIndex, angle, cycle) {
         ctx.stroke();
     }
 
-    // SAUBERES COMIC-AUGE (Fest verankert, wird beim Wenden automatisch mitgespiegelt)
+    // STABILE UND KLARE COMIC-AUGEN
     const eyeX = radius * 0.45;
     const eyeY = -radius * 0.2;
     const eyeRadius = Math.max(2.5, radius * 0.15);
 
-    // Weißer Augapfel
+    // Augapfel
     ctx.beginPath();
     ctx.arc(eyeX, eyeY, eyeRadius, 0, Math.PI * 2);
     ctx.fillStyle = '#ffffff';
     ctx.fill();
 
-    // Schwarze Pupille
+    // Pupille
     ctx.beginPath();
     ctx.arc(eyeX + eyeRadius * 0.25, eyeY, eyeRadius * 0.5, 0, Math.PI * 2);
     ctx.fillStyle = '#000000';
     ctx.fill();
 
-    // Licht-Glanzpunkt
+    // Lichtpunkt
     ctx.beginPath();
     ctx.arc(eyeX + eyeRadius * 0.1, eyeY - eyeRadius * 0.2, eyeRadius * 0.2, 0, Math.PI * 2);
     ctx.fillStyle = '#ffffff';
@@ -145,27 +258,117 @@ function drawFish(x, y, rankIndex, angle, cycle) {
     ctx.restore();
 }
 
-// Game Loop
-function gameLoop() {
-    ctx.clearRect(0, 0, width, height);
+// -------------------------------------------------------------
+// GAME LOOP & LOGIK
+// -------------------------------------------------------------
+function update() {
+    if (isGameOver) return;
 
-    // Bewegung berechnen
-    const dx = fish.targetX - fish.x;
-    const dy = fish.targetY - fish.y;
-    
-    if (Math.hypot(dx, dy) > 5) {
-        fish.angle = Math.atan2(dy, dx);
-        fish.x += dx * 0.05;
-        fish.y += dy * 0.05;
+    // Spieler-Bewegung
+    const dx = player.targetX - player.x;
+    const dy = player.targetY - player.y;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist > 5) {
+        player.angle = Math.atan2(dy, dx);
+        player.x += dx * 0.08;
+        player.y += dy * 0.08;
         swimCycle += 0.15;
     }
 
-    // Fisch zeichnen
-    drawFish(fish.x, fish.y, fish.rankIndex, fish.angle, swimCycle);
+    // Gegnerschwarm verwalten
+    if (enemies.length < 12 && Math.random() < 0.04) {
+        spawnEnemy();
+    }
 
+    // Gegner bewegen und Kollisionen prüfen
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        const e = enemies[i];
+        e.x += Math.cos(e.angle) * e.speed;
+        e.y += Math.sin(e.angle) * e.speed;
+        e.swimCycle += 0.1;
+
+        // Distanz zum Spieler
+        const collDist = Math.hypot(player.x - e.x, player.y - e.y);
+        const playerRadius = RANKS[player.rankIndex].radius;
+        const enemyRadius = RANKS[e.rankIndex].radius;
+
+        if (collDist < playerRadius + enemyRadius * 0.7) {
+            // Fressen oder Gefressen werden
+            if (player.rankIndex >= e.rankIndex) {
+                // Punktzahl erhöhen
+                score += RANKS[e.rankIndex].points;
+                scoreVal.textContent = score;
+
+                if (score > highScore) {
+                    highScore = score;
+                    highScoreVal.textContent = highScore;
+                    localStorage.setItem('fishGame_highScore', highScore);
+                }
+
+                // Level-Up System
+                if (score > 150 && player.rankIndex < 1) player.rankIndex = 1;
+                if (score > 400 && player.rankIndex < 2) player.rankIndex = 2;
+                if (score > 900 && player.rankIndex < 3) player.rankIndex = 3;
+
+                enemies.splice(i, 1);
+                continue;
+            } else {
+                // Game Over auslösen
+                endGame();
+                break;
+            }
+        }
+
+        // Aus dem Bild gelaufene Gegner entfernen
+        if (e.x < -100 || e.x > width + 100 || e.y < -100 || e.y > height + 100) {
+            enemies.splice(i, 1);
+        }
+    }
+}
+
+function render() {
+    ctx.clearRect(0, 0, width, height);
+
+    // Gegner zeichnen
+    enemies.forEach(e => {
+        drawFish(e.x, e.y, e.rankIndex, e.angle, e.swimCycle);
+    });
+
+    // Spieler zeichnen
+    if (!isGameOver) {
+        drawFish(player.x, player.y, player.rankIndex, player.angle, swimCycle);
+    }
+}
+
+function gameLoop() {
+    update();
+    render();
     requestAnimationFrame(gameLoop);
 }
 
+function endGame() {
+    isGameOver = true;
+    finalScore.textContent = score;
+    gameOverScreen.classList.add('active');
+}
+
+function resetGame() {
+    score = 0;
+    scoreVal.textContent = 0;
+    player.rankIndex = 0;
+    player.x = width / 2;
+    player.y = height / 2;
+    player.targetX = width / 2;
+    player.targetY = height / 2;
+    enemies = [];
+    isGameOver = false;
+    gameOverScreen.classList.remove('active');
+}
+
+restartBtn.addEventListener('click', resetGame);
+
+// Spiel starten
 gameLoop();
 </script>
 </body>
