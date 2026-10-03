@@ -1,3328 +1,694 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Fishup">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#a9cee6">
-
-    <link rel="apple-touch-icon" href="https://img.icons8.com/emoji/192/fish-emoji.png">
-
-    <title>Fishup - Mobile Online</title>
-
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
-    <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            margin: 0;
-            padding: 0;
-            touch-action: none;
-        }
-
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #a9cee6;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        #gameCanvas {
-            width: 100vw;
-            height: 100vh;
-            display: block;
-        }
-
-        /* =========================
-           MODAL
-        ========================= */
-
-        .modal-overlay {
-            position: absolute;
-            inset: 0;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(30, 80, 120, 0.88),
-                    rgba(15, 45, 70, 0.94)
-                );
-
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-
-            z-index: 100;
-            color: white;
-            padding: 20px;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        h1 {
-            font-size: 38px;
-            color: #00d2ff;
-            text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-            font-weight: 900;
-        }
-
-        h2 {
-            font-size: 22px;
-            margin-bottom: 15px;
-            color: #ffd700;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-            max-width: 280px;
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            font-size: 13px;
-            color: #aaa;
-            text-align: center;
-        }
-
-        .input-group input {
-            padding: 12px 16px;
-            border-radius: 12px;
-            border: 2px solid #00d2ff;
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            font-size: 18px;
-            text-align: center;
-            outline: none;
-        }
-
-        .menu-btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
-            max-width: 280px;
-        }
-
-        .btn {
-            padding: 14px 24px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
-            text-align: center;
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ff4b4b, #c40000);
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-        }
-
-        .card {
-            background: rgba(0, 20, 45, 0.85);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 16px;
-            padding: 15px;
-            width: 100%;
-            max-width: 320px;
-            margin-bottom: 12px;
-        }
-
-        /* =========================
-           SETTINGS
-        ========================= */
-
-        .setting-row {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .setting-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .volume-slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: rgba(255,255,255,0.2);
-            outline: none;
-            accent-color: #00d2ff;
-            cursor: pointer;
-        }
-
-        /* =========================
-           HUD
-        ========================= */
-
-        #uiOverlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-
-            pointer-events: none;
-
-            padding: 12px 16px;
-            padding-top: max(12px, env(safe-area-inset-top));
-
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-
-            z-index: 20;
-        }
-
-        .hud-top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .hud-level-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-
-            border: 2px solid #ffd700;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-
-            border-radius: 25px;
-            padding: 4px 12px 4px 6px;
-
-            color: #fff;
-        }
-
-        .hud-level-circle {
-            width: 32px;
-            height: 32px;
-
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-
-            border-radius: 50%;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-weight: 900;
-            font-size: 16px;
-            color: #000;
-        }
-
-        .hud-level-name {
-            font-size: 13px;
-            font-weight: bold;
-            color: #00d2ff;
-            text-transform: uppercase;
-        }
-
-        .hud-xp-container {
-            flex: 1;
-            max-width: 180px;
-            margin: 0 10px;
-
-            background: rgba(0,0,0,0.6);
-
-            border: 2px solid rgba(255,255,255,0.4);
-
-            border-radius: 15px;
-
-            height: 18px;
-
-            overflow: hidden;
-        }
-
-        .hud-xp-bar {
-            height: 100%;
-            width: 0%;
-
-            background: linear-gradient(90deg, #11998e, #38ef7d);
-
-            transition: width 0.2s ease-out;
-        }
-
-        .hud-score-box {
-            background: rgba(10,30,50,0.7);
-
-            border: 2px solid #5a738e;
-
-            border-radius: 20px;
-
-            padding: 4px 12px;
-
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .hud-score-p-icon {
-            width: 24px;
-            height: 24px;
-
-            background: linear-gradient(135deg, #4a6572, #2c3e50);
-
-            border: 1.5px solid #7f9cb0;
-
-            border-radius: 50%;
-
-            color: #dbebf5;
-
-            font-weight: 900;
-            font-size: 13px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .hud-score-val {
-            color: #fff;
-            font-weight: 900;
-            font-size: 18px;
-        }
-
-        .hud-banner {
-            align-self: center;
-
-            background: rgba(2,10,20,0.72);
-
-            border: 1px solid rgba(0,210,255,0.4);
-
-            border-radius: 12px;
-
-            padding: 6px 16px;
-
-            color: #e0f7fc;
-
-            font-size: 12px;
-            font-weight: 600;
-
-            text-align: center;
-        }
-
-        /* =========================
-           EATABLE FISH PANEL
-        ========================= */
-
-        #eatPanel {
-            position: absolute;
-
-            left: 14px;
-            top: 105px;
-
-            z-index: 30;
-
-            background: rgba(5,25,45,0.78);
-
-            border: 1px solid rgba(255,255,255,0.25);
-
-            border-radius: 12px;
-
-            padding: 8px 10px;
-
-            color: white;
-
-            font-size: 10px;
-
-            pointer-events: none;
-
-            backdrop-filter: blur(4px);
-        }
-
-        #eatTitle {
-            color: #ffd700;
-            font-weight: 900;
-            margin-bottom: 4px;
-            font-size: 10px;
-        }
-
-        .eat-row {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin: 2px 0;
-        }
-
-        .eat-dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-
-        .eat-row.locked {
-            opacity: 0.3;
-        }
-
-        /* =========================
-           PAUSE BUTTON
-        ========================= */
-
-        #pauseButton {
-            position: absolute;
-
-            right: 15px;
-            top: max(15px, env(safe-area-inset-top));
-
-            width: 48px;
-            height: 48px;
-
-            z-index: 50;
-
-            border-radius: 50%;
-
-            border: 2px solid rgba(255,255,255,0.6);
-
-            background: rgba(0,20,40,0.78);
-
-            color: white;
-
-            font-size: 22px;
-            font-weight: bold;
-
-            display: none;
-
-            align-items: center;
-            justify-content: center;
-
-            pointer-events: auto;
-        }
-
-        /* =========================
-           PAUSE MENU
-        ========================= */
-
-        #pauseModal {
-            z-index: 200;
-        }
-
-        /* =========================
-           LEADERBOARD
-        ========================= */
-
-        .leaderboard-list {
-            list-style: none;
-            font-size: 13px;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-
-            margin-bottom: 5px;
-
-            padding: 4px 8px;
-
-            background: rgba(255,255,255,0.05);
-
-            border-radius: 6px;
-        }
-
-        .leaderboard-item.highlight {
-            color: #00d2ff;
-            font-weight: bold;
-            background: rgba(0,210,255,0.15);
-        }
-
-        /* =========================
-           JOYSTICK
-        ========================= */
-
-        #joystickContainer {
-            position: absolute;
-
-            bottom: 40px;
-            left: 40px;
-
-            width: 100px;
-            height: 100px;
-
-            background: rgba(255,255,255,0.08);
-
-            border: 2px solid rgba(255,255,255,0.2);
-
-            border-radius: 50%;
-
-            pointer-events: auto;
-
-            display: none;
-
-            z-index: 60;
-        }
-
-        #joystickKnob {
-            position: absolute;
-
-            top: 50%;
-            left: 50%;
-
-            width: 40px;
-            height: 40px;
-
-            background: rgba(255,255,255,0.4);
-
-            border-radius: 50%;
-
-            transform: translate(-50%, -50%);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Bee Rush 3D</title>
+
+  <!-- iOS / Safari Web-App (PWA) Meta-Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bee Rush">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #1a1a1a;
+      touch-action: none;
+    }
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    #ui-overlay {
+      position: absolute;
+      top: env(safe-area-inset-top, 20px);
+      left: 20px;
+      right: 20px;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      font-size: 18px;
+      font-weight: bold;
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    #powerup-status {
+      font-size: 16px;
+      color: #ffeb3b;
+      margin-top: 4px;
+    }
+
+    /* On-Screen Touch-Steuerung */
+    #touch-controls {
+      position: absolute;
+      bottom: env(safe-area-inset-bottom, 30px);
+      left: 0;
+      width: 100%;
+      height: 160px;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      pointer-events: none;
+    }
+
+    .touch-btn-group {
+      display: flex;
+      gap: 15px;
+      pointer-events: auto;
+    }
+
+    .t-btn {
+      width: 65px;
+      height: 65px;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(5px);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      color: white;
+      font-size: 26px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    #game-over-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      z-index: 30;
+      padding: 20px;
+      text-align: center;
+    }
+
+    #game-over-screen h1 {
+      font-size: 42px;
+      color: #ffcc00;
+      margin-bottom: 10px;
+    }
+
+    #game-over-screen p {
+      font-size: 20px;
+      margin: 8px 0;
+    }
+
+    #restart-btn {
+      margin-top: 25px;
+      padding: 16px 40px;
+      font-size: 20px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #ff9900, #ff5500);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
-
 <body>
 
-    <!-- =========================
-         HAUPTMENÜ
-    ========================= -->
+  <div id="canvas-container"></div>
+  
+  <div id="ui-overlay">
+    <div>Punkte: <span id="score">0</span>m</div>
+    <div>🪙 Pollen: <span id="pollen">0</span></div>
+    <div>🍯 Honig: <span id="honey">0</span></div>
+    <div id="powerup-status"></div>
+  </div>
 
-    <div id="startMenu" class="modal-overlay">
-
-        <h1>FISHUP</h1>
-
-        <div id="lastScoreBox"
-             class="card hidden"
-             style="text-align:center; max-width:280px; padding:10px;">
-
-            <span style="font-size:12px;color:#aaa;">
-                Letzter Score:
-            </span>
-
-            <div id="lastScoreVal"
-                 style="font-size:20px;font-weight:bold;color:#ffd700;">
-                0
-            </div>
-        </div>
-
-        <div class="input-group">
-
-            <label for="playerNameInput">
-                DEIN SPIELERNAME:
-            </label>
-
-            <input
-                type="text"
-                id="playerNameInput"
-                maxlength="12"
-                placeholder="Name..."
-            >
-
-        </div>
-
-        <div class="menu-btn-group">
-
-            <button class="btn" onclick="startGame()">
-                Spielen
-            </button>
-
-            <button
-                class="btn btn-secondary"
-                onclick="showModal('settingsModal')">
-
-                ⚙️ Einstellungen
-
-            </button>
-
-        </div>
-
-        <div
-            class="card"
-            style="max-width:280px;margin-top:15px;">
-
-            <div
-                style="
-                font-size:12px;
-                font-weight:bold;
-                color:#ffd700;
-                text-align:center;">
-
-                🏆 TOP 5 HIGH SCORES
-
-            </div>
-
-            <ul
-                id="leaderboardList"
-                class="leaderboard-list">
-
-                <li class="leaderboard-item">
-                    <span>Lade...</span>
-                </li>
-
-            </ul>
-
-        </div>
-
+  <!-- Touch Buttons am unteren Bildschirmrand -->
+  <div id="touch-controls">
+    <div class="touch-btn-group">
+      <div class="t-btn" id="btn-left">⬅️</div>
+      <div class="t-btn" id="btn-right">➡️</div>
     </div>
-
-
-    <!-- =========================
-         EINSTELLUNGEN
-    ========================= -->
-
-    <div
-        id="settingsModal"
-        class="modal-overlay hidden">
-
-        <h2>EINSTELLUNGEN</h2>
-
-        <div class="card">
-
-            <div class="setting-row">
-
-                <div class="setting-label">
-
-                    <span>🎵 Musiklautstärke</span>
-
-                    <span id="volumeVal">
-                        50%
-                    </span>
-
-                </div>
-
-                <input
-                    type="range"
-                    id="volumeSlider"
-                    class="volume-slider"
-                    min="0"
-                    max="100"
-                    value="50"
-                    oninput="updateVolume(this.value)"
-                >
-
-            </div>
-
-            <div
-                style="
-                font-size:13px;
-                font-weight:bold;
-                margin-bottom:8px;">
-
-                PERFORMANCE
-
-            </div>
-
-            <div
-                class="menu-btn-group"
-                style="max-width:100%;">
-
-                <button
-                    id="btn30fps"
-                    class="btn btn-secondary"
-                    onclick="setFPS(30)">
-
-                    🔋 30 FPS
-
-                </button>
-
-                <button
-                    id="btn60fps"
-                    class="btn"
-                    onclick="setFPS(60)">
-
-                    ⚡ MAX FPS
-
-                </button>
-
-            </div>
-
-        </div>
-
-        <button
-            class="btn btn-secondary"
-            onclick="hideModals()">
-
-            Zurück
-
-        </button>
-
+    <div class="touch-btn-group">
+      <div class="t-btn" id="btn-up">⬆️</div>
+      <div class="t-btn" id="btn-down">⬇️</div>
     </div>
-
-
-    <!-- =========================
-         PAUSE MENÜ
-    ========================= -->
-
-    <div
-        id="pauseModal"
-        class="modal-overlay hidden">
-
-        <h2>⏸ PAUSE</h2>
-
-        <div class="card">
-
-            <div class="setting-row">
-
-                <div class="setting-label">
-
-                    <span>🎵 Musiklautstärke</span>
-
-                    <span id="pauseVolumeVal">
-                        50%
-                    </span>
-
-                </div>
-
-                <input
-                    type="range"
-                    id="pauseVolumeSlider"
-                    class="volume-slider"
-                    min="0"
-                    max="100"
-                    value="50"
-                    oninput="updatePauseVolume(this.value)"
-                >
-
-            </div>
-
-            <button
-                class="btn"
-                style="width:100%;margin-bottom:12px;"
-                onclick="resumeGame()">
-
-                ▶️ Weiterspielen
-
-            </button>
-
-            <button
-                class="btn btn-danger"
-                style="width:100%;"
-                onclick="endRound()">
-
-                🛑 Runde beenden
-
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <!-- =========================
-         GAME
-    ========================= -->
-
-    <canvas id="gameCanvas"></canvas>
-
-
-    <!-- =========================
-         HUD
-    ========================= -->
-
-    <div id="uiOverlay" class="hidden">
-
-        <div class="hud-top-row">
-
-            <div class="hud-level-badge">
-
-                <div
-                    class="hud-level-circle"
-                    id="hudLvlNum">
-
-                    0
-
-                </div>
-
-                <div
-                    class="hud-level-name"
-                    id="hudLvlName">
-
-                    Grau
-
-                </div>
-
-            </div>
-
-
-            <div class="hud-xp-container">
-
-                <div
-                    class="hud-xp-bar"
-                    id="hudXpBar">
-
-                </div>
-
-            </div>
-
-
-            <div class="hud-score-box">
-
-                <div class="hud-score-p-icon">
-                    P
-                </div>
-
-                <span
-                    class="hud-score-val"
-                    id="scoreVal">
-
-                    0
-
-                </span>
-
-            </div>
-
-        </div>
-
-        <div class="hud-banner">
-
-            ISS KLEINERE FISCHE,
-            UM GRÖSSER ZU WERDEN!
-
-        </div>
-
-    </div>
-
-
-    <!-- ESSBARE FISCHE -->
-
-    <div id="eatPanel" class="hidden">
-
-        <div id="eatTitle">
-            🐟 DU KANNST ESSEN:
-        </div>
-
-        <div id="eatList"></div>
-
-    </div>
-
-
-    <!-- PAUSE BUTTON -->
-
-    <button
-        id="pauseButton"
-        onclick="pauseGame()">
-
-        ⏸
-
-    </button>
-
-
-    <!-- JOYSTICK -->
-
-    <div id="joystickContainer">
-
-        <div id="joystickKnob"></div>
-
-    </div>
-
-
-<script>
-
-    /* =========================================================
-       FIREBASE
-    ========================================================= */
-
-    const firebaseConfig = {
-
-        apiKey: "AIzaSyBTXBIaZsXWpDaigQAPBiOwuXouz2UlcyQ",
-
-        authDomain:
-            "fishup-9bc99.firebaseapp.com",
-
-        projectId:
-            "fishup-9bc99",
-
-        storageBucket:
-            "fishup-9bc99.firebasestorage.app",
-
-        messagingSenderId:
-            "366958128305",
-
-        appId:
-            "1:366958128305:web:f74d82c3c7d9c980f10690",
-
-        databaseURL:
-            "https://fishup-9bc99-default-rtdb.europe-west1.firebasedatabase.app"
-    };
-
-
-    firebase.initializeApp(firebaseConfig);
-
-    const database =
-        firebase.database();
-
-
-    /* =========================================================
-       CANVAS
-    ========================================================= */
-
-    const canvas =
-        document.getElementById('gameCanvas');
-
-    const ctx =
-        canvas.getContext(
-            '2d',
-            {
-                alpha: false,
-                desynchronized: true
-            }
-        );
-
-
-    /* =========================================================
-       RÄNGE
-    ========================================================= */
-
-    const RANKS = [
-
-        {
-            id: 0,
-            name: 'Grau',
-            color: '#9aa5ad',
-            darkColor: '#59636a',
-            radius: 18,
-            expNeeded: 10
-        },
-
-        {
-            id: 1,
-            name: 'Grün',
-            color: '#4dbb70',
-            darkColor: '#267343',
-            radius: 26,
-            expNeeded: 25
-        },
-
-        {
-            id: 2,
-            name: 'Blau',
-            color: '#4c91d8',
-            darkColor: '#245b91',
-            radius: 38,
-            expNeeded: 50
-        },
-
-        {
-            id: 3,
-            name: 'Lila',
-            color: '#9664c9',
-            darkColor: '#583681',
-            radius: 54,
-            expNeeded: 100
-        },
-
-        {
-            id: 4,
-            name: 'Gold',
-            color: '#d7a52d',
-            darkColor: '#8a6413',
-            radius: 80,
-            expNeeded: Infinity
-        }
-
-    ];
-
-
-    /* =========================================================
-       WORLD
-    ========================================================= */
-
-    const WORLD_WIDTH = 3200;
-    const WORLD_HEIGHT = 2400;
-
-    const SAND_HEIGHT = 80;
-
-    /*
-       Vorher 55.
-       Jetzt 70 = 15 zusätzliche Fische.
-    */
-
-    const MAX_FISHES = 70;
-
-
-    let width;
-    let height;
-
-    let camera = {
-        x: 0,
-        y: 0
-    };
-
-
-    let isGameRunning = false;
-    let isPaused = false;
-
+  </div>
+
+  <div id="game-over-screen" class="hidden">
+    <h1>Game Over!</h1>
+    <p>Strecke: <span id="final-score">0</span>m</p>
+    <p>Gesammelte Pollen: <span id="final-pollen">0</span></p>
+    <button id="restart-btn" onclick="resetGame()">Nochmal fliegen</button>
+  </div>
+
+  <script>
+    // --- EINSTELLUNGEN & VARIABLEN ---
+    const LANES = [-3.2, 0, 3.2];
+    let currentLane = 1;
+    
     let score = 0;
+    let pollenCount = 0;
+    let honeyCount = 0;
+    let baseSpeed = 0.55;
+    let speed = baseSpeed;
+    let isGameOver = false;
+    
+    // Höhen-Mechanik
+    let beeY = 1.2;
+    let baseBeeY = 1.2;
+    let verticalVelocity = 0;
+    let isJumping = false;
+    let isDucking = false;
+    let duckTimer = 0;
 
-    let targetFPS = 60;
+    // Power-Up Zustände
+    let activePowerup = null;
+    let powerupTimer = 0;
 
+    // Szenen-Aufbau
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x7ec8e3);
+    scene.fog = new THREE.Fog(0x7ec8e3, 30, 110);
 
-    /* =========================================================
-       PLAYER
-    ========================================================= */
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    let playerName =
-        localStorage.getItem(
-            'fishup_player_name'
-        ) || '';
+    // Licht
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
 
-    document.getElementById(
-        'playerNameInput'
-    ).value = playerName;
+    const dirLight = new THREE.DirectionalLight(0xfff5cc, 1.0);
+    dirLight.position.set(15, 30, 10);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
 
+    // --- ENDLOSER BODEN & ZÄUNE ---
+    const floorSegments = [];
+    const segmentLength = 200;
 
-    let player = {
+    function createFloorSegment(zPos) {
+      const group = new THREE.Group();
 
-        x: WORLD_WIDTH / 2,
-        y: WORLD_HEIGHT / 2,
+      // Grüne Wiese / Weg
+      const floorGeo = new THREE.PlaneGeometry(12, segmentLength);
+      const floorMat = new THREE.MeshStandardMaterial({ color: 0x55a846, roughness: 0.8 });
+      const floor = new THREE.Mesh(floorGeo, floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      group.add(floor);
 
-        rank: 0,
+      // Zäune links/rechts
+      for (let z = segmentLength / 2; z > -segmentLength / 2; z -= 15) {
+        const fenceGeo = new THREE.BoxGeometry(0.4, 1.4, 12);
+        const fenceMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
+        
+        const leftFence = new THREE.Mesh(fenceGeo, fenceMat);
+        leftFence.position.set(-6.5, 0.7, z);
+        group.add(leftFence);
 
-        exp: 0,
+        const rightFence = leftFence.clone();
+        rightFence.position.x = 6.5;
+        group.add(rightFence);
+      }
 
-        vx: 0,
-        vy: 0,
-
-        /*
-           20% langsamer:
-           5.5 -> 4.4
-        */
-
-        speed: 4.4,
-
-        angle: 0,
-
-        targetAngle: 0
-    };
-
-
-    /* =========================================================
-       AUDIO
-    ========================================================= */
-
-    let audioCtx = null;
-
-    let mainGainNode = null;
-
-    let musicVolume = 0.5;
-
-    let isMusicPlaying = false;
-
-    let musicTimer = null;
-
-
-    const MELODY_NOTES = [
-
-        { note:"E5", duration:0.18 },
-        { note:"B4", duration:0.18 },
-        { note:"C5", duration:0.18 },
-        { note:"D5", duration:0.18 },
-
-        { note:"C5", duration:0.18 },
-        { note:"B4", duration:0.18 },
-        { note:"A4", duration:0.18 },
-        { note:"A4", duration:0.18 },
-
-        { note:"C5", duration:0.18 },
-        { note:"E5", duration:0.18 },
-        { note:"D5", duration:0.18 },
-        { note:"C5", duration:0.18 },
-
-        { note:"B4", duration:0.28 },
-        { note:"C5", duration:0.18 },
-        { note:"D5", duration:0.18 },
-        { note:"E5", duration:0.28 },
-
-        { note:"C5", duration:0.28 },
-        { note:"A4", duration:0.28 },
-        { note:"A4", duration:0.4 },
-
-        { note:"D5", duration:0.22 },
-        { note:"F5", duration:0.18 },
-        { note:"A5", duration:0.18 },
-        { note:"G5", duration:0.18 },
-
-        { note:"F5", duration:0.18 },
-        { note:"E5", duration:0.28 },
-        { note:"C5", duration:0.18 },
-        { note:"E5", duration:0.18 },
-
-        { note:"D5", duration:0.18 },
-        { note:"C5", duration:0.18 },
-        { note:"B4", duration:0.22 },
-        { note:"B4", duration:0.18 },
-
-        { note:"C5", duration:0.18 },
-        { note:"D5", duration:0.28 },
-        { note:"E5", duration:0.28 },
-        { note:"C5", duration:0.28 },
-
-        { note:"A4", duration:0.28 },
-        { note:"A4", duration:0.4 }
-
-    ];
-
-
-    function getNoteFrequency(note) {
-
-        const notes = {
-
-            A4:440,
-            B4:493.88,
-            C5:523.25,
-            D5:587.33,
-            E5:659.25,
-            F5:698.46,
-            G5:783.99,
-            A5:880
-
-        };
-
-        return notes[note] || 440;
+      group.position.z = zPos;
+      scene.add(group);
+      floorSegments.push(group);
     }
 
+    createFloorSegment(0);
+    createFloorSegment(-segmentLength);
 
-    async function initAudio() {
+    // --- BIENE (PLAYER) ---
+    const beeGroup = new THREE.Group();
 
-        try {
+    const bodyGeo = new THREE.SphereGeometry(0.7, 16, 16);
+    bodyGeo.scale(1, 1, 1.3);
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0xffcc00 });
+    const beeBody = new THREE.Mesh(bodyGeo, bodyMat);
+    beeBody.castShadow = true;
+    beeGroup.add(beeBody);
 
-            if (!audioCtx) {
+    const stripeGeo = new THREE.CylinderGeometry(0.71, 0.71, 0.25, 16);
+    const stripeMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+    const s1 = new THREE.Mesh(stripeGeo, stripeMat);
+    s1.rotation.x = Math.PI / 2;
+    s1.position.z = -0.15;
+    beeGroup.add(s1);
 
-                const AudioContext =
-                    window.AudioContext ||
-                    window.webkitAudioContext;
+    const s2 = s1.clone();
+    s2.position.z = 0.25;
+    beeGroup.add(s2);
 
-                audioCtx =
-                    new AudioContext();
+    const shieldGeo = new THREE.SphereGeometry(1.3, 16, 16);
+    const shieldMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.4, wireframe: true });
+    const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+    shieldMesh.visible = false;
+    beeGroup.add(shieldMesh);
 
-                mainGainNode =
-                    audioCtx.createGain();
+    const wingGeo = new THREE.SphereGeometry(0.45, 8, 8);
+    wingGeo.scale(1, 0.05, 0.5);
+    const wingMat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+    
+    const leftWing = new THREE.Mesh(wingGeo, wingMat);
+    leftWing.position.set(-0.6, 0.5, 0);
+    leftWing.rotation.z = 0.3;
+    beeGroup.add(leftWing);
 
-                mainGainNode.gain.setValueAtTime(
-                    musicVolume,
-                    audioCtx.currentTime
-                );
+    const rightWing = leftWing.clone();
+    rightWing.position.x = 0.6;
+    rightWing.rotation.z = -0.3;
+    beeGroup.add(rightWing);
 
-                mainGainNode.connect(
-                    audioCtx.destination
-                );
-            }
+    beeGroup.position.set(LANES[currentLane], beeY, 0);
+    scene.add(beeGroup);
 
-            if (audioCtx.state === 'suspended') {
+    // --- OBJEKTE & SPINNER-LOGIK ---
+    const obstacles = [];
+    const collectables = [];
+    const powerups = [];
+    let nextSpawnZ = -40;
 
-                await audioCtx.resume();
+    // DEUTLICHES HINDERNIS 1: Baumstamm am Boden (DRÜBER SPRINGEN)
+    function createLowObstacle(x, z) {
+      const group = new THREE.Group();
+      
+      const logGeo = new THREE.CylinderGeometry(0.5, 0.5, 2.8, 12);
+      const logMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.9 });
+      const log = new THREE.Mesh(logGeo, logMat);
+      log.rotation.z = Math.PI / 2;
+      log.position.y = 0.5;
+      log.castShadow = true;
+      group.add(log);
 
-            }
+      // Rotes Schild "DRÜBER"
+      const signGeo = new THREE.BoxGeometry(1.2, 0.4, 0.1);
+      const signMat = new THREE.MeshBasicMaterial({ color: 0xff2222 });
+      const sign = new THREE.Mesh(signGeo, signMat);
+      sign.position.set(0, 1.2, 0);
+      group.add(sign);
 
-        } catch(e) {
-
-            console.log(
-                "Audio Init Warning:",
-                e
-            );
-
-        }
+      group.position.set(x, 0, z);
+      scene.add(group);
+      obstacles.push({ mesh: group, type: 'low', box: new THREE.Box3() });
     }
 
+    // DEUTLICHES HINDERNIS 2: Spinnennetz oben (DRUNTER DUCKEN)
+    function createHighObstacle(x, z) {
+      const group = new THREE.Group();
 
-    function playTone(freq, duration) {
+      // Pfosten links & rechts
+      const poleGeo = new THREE.CylinderGeometry(0.1, 0.1, 3.5, 8);
+      const poleMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+      const p1 = new THREE.Mesh(poleGeo, poleMat);
+      p1.position.set(-1.2, 1.75, 0);
+      const p2 = p1.clone();
+      p2.position.x = 1.2;
+      group.add(p1);
+      group.add(p2);
 
-        if (!audioCtx ||
-            musicVolume <= 0) return;
+      // Netz in der Luft
+      const webGeo = new THREE.BoxGeometry(2.4, 1.5, 0.1);
+      const webMat = new THREE.MeshStandardMaterial({ color: 0xaa00ff, transparent: true, opacity: 0.7 });
+      const web = new THREE.Mesh(webGeo, webMat);
+      web.position.set(0, 2.2, 0);
+      group.add(web);
 
-        try {
-
-            const osc =
-                audioCtx.createOscillator();
-
-            const noteGain =
-                audioCtx.createGain();
-
-            osc.type = 'triangle';
-
-            osc.frequency.setValueAtTime(
-                freq,
-                audioCtx.currentTime
-            );
-
-            noteGain.gain.setValueAtTime(
-                0.2,
-                audioCtx.currentTime
-            );
-
-            noteGain.gain.exponentialRampToValueAtTime(
-                0.001,
-                audioCtx.currentTime +
-                duration -
-                0.02
-            );
-
-            osc.connect(noteGain);
-
-            noteGain.connect(
-                mainGainNode
-            );
-
-            osc.start();
-
-            osc.stop(
-                audioCtx.currentTime +
-                duration
-            );
-
-        } catch(e) {}
-
+      group.position.set(x, 0, z);
+      scene.add(group);
+      obstacles.push({ mesh: group, type: 'high', box: new THREE.Box3() });
     }
 
+    // Rampen
+    function createRampObstacle(x, z) {
+      const group = new THREE.Group();
+      const woodGeo = new THREE.BoxGeometry(2.6, 1.2, 5);
+      const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+      const wood = new THREE.Mesh(woodGeo, woodMat);
+      wood.position.y = 0.6;
+      wood.rotation.x = -0.2;
+      group.add(wood);
 
-    async function startMusic() {
-
-        await initAudio();
-
-        if (isMusicPlaying) return;
-
-        isMusicPlaying = true;
-
-        let step = 0;
-
-        function playNextNote() {
-
-            if (!isMusicPlaying) return;
-
-            const noteData =
-                MELODY_NOTES[step];
-
-            playTone(
-                getNoteFrequency(
-                    noteData.note
-                ),
-                noteData.duration
-            );
-
-            step =
-                (step + 1) %
-                MELODY_NOTES.length;
-
-            musicTimer =
-                setTimeout(
-                    playNextNote,
-                    noteData.duration * 1000
-                );
-        }
-
-        playNextNote();
+      group.position.set(x, 0, z);
+      scene.add(group);
+      obstacles.push({ mesh: group, type: 'ramp', box: new THREE.Box3() });
     }
 
-
-    function stopMusic() {
-
-        isMusicPlaying = false;
-
-        if (musicTimer) {
-
-            clearTimeout(
-                musicTimer
-            );
-
-            musicTimer = null;
-        }
+    function createPollen(x, y, z) {
+      const geo = new THREE.SphereGeometry(0.3, 12, 12);
+      const mat = new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.2 });
+      const pollen = new THREE.Mesh(geo, mat);
+      pollen.position.set(x, y, z);
+      scene.add(pollen);
+      collectables.push({ mesh: pollen, type: 'pollen', box: new THREE.Box3() });
     }
 
-
-    function updateVolume(val) {
-
-        musicVolume =
-            val / 100;
-
-        document.getElementById(
-            'volumeVal'
-        ).innerText =
-            val + '%';
-
-        document.getElementById(
-            'pauseVolumeVal'
-        ).innerText =
-            val + '%';
-
-        document.getElementById(
-            'pauseVolumeSlider'
-        ).value = val;
-
-        if (mainGainNode &&
-            audioCtx) {
-
-            mainGainNode.gain.setValueAtTime(
-                musicVolume,
-                audioCtx.currentTime
-            );
-        }
+    function createHoneyDrop(x, z) {
+      const dropGeo = new THREE.SphereGeometry(0.35, 12, 12);
+      dropGeo.scale(1, 1.4, 1);
+      const dropMat = new THREE.MeshStandardMaterial({ color: 0xff8c00, roughness: 0.1 });
+      const drop = new THREE.Mesh(dropGeo, dropMat);
+      drop.position.set(x, 1.3, z);
+      scene.add(drop);
+      collectables.push({ mesh: drop, type: 'honey', box: new THREE.Box3() });
     }
 
+    function createPowerUp(x, z) {
+      const types = ['magnet', 'shield', 'turbo'];
+      const chosenType = types[Math.floor(Math.random() * types.length)];
+      
+      let color = 0x0000ff;
+      if (chosenType === 'shield') color = 0x00ff00;
+      if (chosenType === 'turbo') color = 0xffff00;
 
-    function updatePauseVolume(val) {
-
-        document.getElementById(
-            'volumeSlider'
-        ).value = val;
-
-        updateVolume(val);
+      const geo = new THREE.OctahedronGeometry(0.45);
+      const mat = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.6 });
+      const pUp = new THREE.Mesh(geo, mat);
+      pUp.position.set(x, 1.4, z);
+      scene.add(pUp);
+      powerups.push({ mesh: pUp, pType: chosenType, box: new THREE.Box3() });
     }
 
-
-    /* =========================================================
-       WORLD OBJECTS
-    ========================================================= */
-
-    let fishes = [];
-
-    let bubbles = [];
-
-    let plants = [];
-
-
-    for (
-        let x = 100;
-        x < WORLD_WIDTH;
-        x += 220 + Math.random() * 200
-    ) {
-
-        plants.push({
-
-            x:x,
-
-            height:
-                50 + Math.random() * 40,
-
-            blades:
-                3 + Math.floor(
-                    Math.random() * 3
-                )
-        });
-    }
-
-
-    for (let i = 0; i < 25; i++) {
-
-        bubbles.push({
-
-            x:
-                Math.random() *
-                WORLD_WIDTH,
-
-            y:
-                Math.random() *
-                WORLD_HEIGHT,
-
-            r:
-                2 + Math.random() * 3,
-
-            speed:
-                0.8 +
-                Math.random() * 1.2,
-
-            wobble:
-                Math.random() *
-                Math.PI * 2
-        });
-    }
-
-
-    /* =========================================================
-       JOYSTICK
-    ========================================================= */
-
-    let touchActive = false;
-
-    let touchStartPos = {
-        x:0,
-        y:0
-    };
-
-    let touchCurrentPos = {
-        x:0,
-        y:0
-    };
-
-
-    const joystickContainer =
-        document.getElementById(
-            'joystickContainer'
-        );
-
-    const joystickKnob =
-        document.getElementById(
-            'joystickKnob'
-        );
-
-
-    /* =========================================================
-       RESIZE
-    ========================================================= */
-
-    function resize() {
-
-        width =
-            canvas.width =
-            window.innerWidth;
-
-        height =
-            canvas.height =
-            window.innerHeight;
-    }
-
-
-    window.addEventListener(
-        'resize',
-        resize
-    );
-
-    resize();
-
-
-    /* =========================================================
-       LEADERBOARD
-    ========================================================= */
-
-    function listenToOnlineLeaderboard() {
-
-        database
-            .ref('highscores')
-            .orderByChild('score')
-            .limitToLast(5)
-            .on('value', snapshot => {
-
-                let scores = [];
-
-                snapshot.forEach(child => {
-
-                    scores.push(
-                        child.val()
-                    );
-
-                });
-
-                scores.reverse();
-
-                renderLeaderboardUI(
-                    scores
-                );
-            });
-    }
-
-
-    function renderLeaderboardUI(list) {
-
-        const listEl =
-            document.getElementById(
-                'leaderboardList'
-            );
-
-        listEl.innerHTML = '';
-
-        if (list.length === 0) {
-
-            listEl.innerHTML =
-                '<li class="leaderboard-item">Noch keine Rekorde</li>';
-
-            return;
-        }
-
-
-        list.forEach((item, i) => {
-
-            const li =
-                document.createElement(
-                    'li'
-                );
-
-            li.className =
-                `leaderboard-item ${
-                    item.name === playerName
-                    ? 'highlight'
-                    : ''
-                }`;
-
-            li.innerHTML =
-                `<span>${i + 1}. ${item.name}</span>
-                 <span>${item.score}</span>`;
-
-            listEl.appendChild(li);
-        });
-    }
-
-
-    function saveScoreOnline(
-        name,
-        finalScore
-    ) {
-
-        if (!name) return;
-
-        const safeName =
-            name.replace(
-                /[.#$[\]/]/g,
-                '_'
-            );
-
-        const userRef =
-            database.ref(
-                'highscores/' +
-                safeName
-            );
-
-        userRef.once(
-            'value',
-            snapshot => {
-
-                const data =
-                    snapshot.val();
-
-                if (
-                    !data ||
-                    finalScore >
-                    data.score
-                ) {
-
-                    userRef.set({
-
-                        name:name,
-
-                        score:finalScore
-
-                    });
-                }
-            }
-        );
-    }
-
-
-    listenToOnlineLeaderboard();
-
-
-    /* =========================================================
-       MODALS
-    ========================================================= */
-
-    function showModal(id) {
-
-        document
-            .querySelectorAll('.modal-overlay')
-            .forEach(m =>
-                m.classList.add('hidden')
-            );
-
-        document
-            .getElementById(id)
-            .classList.remove('hidden');
-    }
-
-
-    function hideModals() {
-
-        document
-            .querySelectorAll('.modal-overlay')
-            .forEach(m =>
-                m.classList.add('hidden')
-            );
-
-        /*
-           Wichtig:
-           Während eines Spiels wird das
-           Hauptmenü NICHT wieder geöffnet.
-        */
-
-        if (!isGameRunning) {
-
-            document
-                .getElementById('startMenu')
-                .classList.remove('hidden');
-        }
-    }
-
-
-    function setFPS(fps) {
-
-        targetFPS = fps;
-
-        document.getElementById(
-            'btn30fps'
-        ).className =
-            fps === 30
-            ? 'btn'
-            : 'btn btn-secondary';
-
-        document.getElementById(
-            'btn60fps'
-        ).className =
-            fps === 60
-            ? 'btn'
-            : 'btn btn-secondary';
-    }
-
-
-    /* =========================================================
-       PAUSE
-    ========================================================= */
-
-    function pauseGame() {
-
-        if (!isGameRunning) return;
-
-        isPaused = true;
-
-        player.vx = 0;
-        player.vy = 0;
-
-        joystickContainer.style.display =
-            'none';
-
-        document
-            .getElementById('pauseModal')
-            .classList.remove('hidden');
-
-        stopMusic();
-    }
-
-
-    function resumeGame() {
-
-        if (!isGameRunning) return;
-
-        isPaused = false;
-
-        document
-            .getElementById('pauseModal')
-            .classList.add('hidden');
-
-        startMusic();
-    }
-
-
-    function endRound() {
-
-        if (!isGameRunning) return;
-
-        /*
-           Score sofort speichern
-        */
-
-        saveScoreOnline(
-            playerName,
-            score
-        );
-
-        isGameRunning = false;
-
-        isPaused = false;
-
-        stopMusic();
-
-        player.vx = 0;
-        player.vy = 0;
-
-        joystickContainer.style.display =
-            'none';
-
-        document
-            .getElementById('pauseModal')
-            .classList.add('hidden');
-
-        document
-            .getElementById('uiOverlay')
-            .classList.add('hidden');
-
-        document
-            .getElementById('eatPanel')
-            .classList.add('hidden');
-
-        document
-            .getElementById('pauseButton')
-            .style.display =
-            'none';
-
-        document
-            .getElementById('lastScoreBox')
-            .classList.remove('hidden');
-
-        document
-            .getElementById('lastScoreVal')
-            .innerText =
-            score;
-
-        /*
-           Jetzt erst Hauptmenü anzeigen
-        */
-
-        document
-            .getElementById('startMenu')
-            .classList.remove('hidden');
-    }
-
-
-    /* =========================================================
-       TOUCH
-    ========================================================= */
-
-    window.addEventListener(
-        'touchstart',
-        e => {
-
-            if (
-                !isGameRunning ||
-                isPaused
-            ) return;
-
-            touchActive = true;
-
-            const t =
-                e.touches[0];
-
-            touchStartPos = {
-                x:t.clientX,
-                y:t.clientY
-            };
-
-            touchCurrentPos = {
-                x:t.clientX,
-                y:t.clientY
-            };
-
-            joystickContainer.style.display =
-                'block';
-
-            updateJoystick();
-
-        },
-        {
-            passive:false
-        }
-    );
-
-
-    window.addEventListener(
-        'touchmove',
-        e => {
-
-            if (
-                !touchActive ||
-                isPaused
-            ) return;
-
-            const t =
-                e.touches[0];
-
-            touchCurrentPos = {
-                x:t.clientX,
-                y:t.clientY
-            };
-
-            updateJoystick();
-
-        },
-        {
-            passive:false
-        }
-    );
-
-
-    window.addEventListener(
-        'touchend',
-        () => {
-
-            touchActive = false;
-
-            player.vx = 0;
-            player.vy = 0;
-
-            joystickContainer.style.display =
-                'none';
-        }
-    );
-
-
-    function updateJoystick() {
-
-        const dx =
-            touchCurrentPos.x -
-            touchStartPos.x;
-
-        const dy =
-            touchCurrentPos.y -
-            touchStartPos.y;
-
-        const dist =
-            Math.hypot(
-                dx,
-                dy
-            );
-
-        const maxR = 40;
-
-        const angle =
-            Math.atan2(
-                dy,
-                dx
-            );
-
-        const moveD =
-            Math.min(
-                dist,
-                maxR
-            );
-
-        const kX =
-            Math.cos(angle) *
-            moveD;
-
-        const kY =
-            Math.sin(angle) *
-            moveD;
-
-        joystickKnob.style.transform =
-            `translate(
-                calc(-50% + ${kX}px),
-                calc(-50% + ${kY}px)
-            )`;
-
-
-        if (dist > 5) {
-
-            const speedMult =
-                Math.min(
-                    dist / maxR,
-                    1
-                );
-
-            player.vx =
-                Math.cos(angle) *
-                player.speed *
-                speedMult;
-
-            player.vy =
-                Math.sin(angle) *
-                player.speed *
-                speedMult;
-
-            player.targetAngle =
-                angle;
-
+    // Endloses Spawnen vor dem Spieler
+    function spawnNextSection() {
+      while (nextSpawnZ > beeGroup.position.z - 180) {
+        const lane = LANES[Math.floor(Math.random() * 3)];
+        const rand = Math.random();
+
+        if (rand < 0.3) {
+          createLowObstacle(lane, nextSpawnZ);
+        } else if (rand < 0.55) {
+          createHighObstacle(lane, nextSpawnZ);
+        } else if (rand < 0.7) {
+          createRampObstacle(lane, nextSpawnZ);
+        } else if (rand < 0.9) {
+          if (Math.random() > 0.4) createPollen(lane, 1.2, nextSpawnZ);
+          else createHoneyDrop(lane, nextSpawnZ);
         } else {
-
-            player.vx = 0;
-            player.vy = 0;
+          createPowerUp(lane, nextSpawnZ);
         }
+        nextSpawnZ -= 18;
+      }
     }
 
-
-    /* =========================================================
-       FISH SPAWN
-    ========================================================= */
-
-    function spawnFish() {
-
-        const rand =
-            Math.random();
-
-        let rank = 0;
-
-
-        /*
-           Gold selten
-        */
-
-        if (rand < 0.008)
-            rank = 4;
-
-        else if (rand < 0.08)
-            rank = 3;
-
-        else if (rand < 0.22)
-            rank = 2;
-
-        else if (rand < 0.48)
-            rank = 1;
-
-
-        const margin = 120;
-
-
-        let x =
-            Math.random() < 0.5
-            ? camera.x - margin
-            : camera.x + width + margin;
-
-
-        let y =
-            Math.random() *
-            (
-                WORLD_HEIGHT -
-                SAND_HEIGHT -
-                80
-            );
-
-
-        x =
-            Math.max(
-                50,
-                Math.min(
-                    WORLD_WIDTH - 50,
-                    x
-                )
-            );
-
-
-        y =
-            Math.max(
-                50,
-                y
-            );
-
-
-        const dir =
-            Math.random() *
-            Math.PI *
-            2;
-
-
-        /*
-           NPC ebenfalls 20% langsamer.
-
-           Vorher ca. 3.8
-           Jetzt ca. 3.04
-        */
-
-        const spd =
-            Math.max(
-                1.2,
-                (3.8 - rank * 0.4) * 0.8
-            );
-
-
-        fishes.push({
-
-            x:x,
-            y:y,
-
-            rank:rank,
-
-            radius:
-                RANKS[rank].radius,
-
-            speed:spd,
-
-            angle:dir,
-
-            targetAngle:dir,
-
-            turnTimer:
-                Math.random() * 100,
-
-            cycle:
-                Math.random() * 10,
-
-            finCycle:
-                Math.random() * 10
-        });
+    // --- STEUERUNGS-AKTIONEN ---
+    function moveLeft() { if (!isGameOver && currentLane > 0) currentLane--; }
+    function moveRight() { if (!isGameOver && currentLane < LANES.length - 1) currentLane++; }
+    function jump() {
+      if (!isGameOver && !isJumping && !isDucking) {
+        isJumping = true;
+        verticalVelocity = 0.24;
+      }
+    }
+    function duck() {
+      if (!isGameOver && !isJumping && !isDucking) {
+        isDucking = true;
+        duckTimer = 35;
+      }
     }
 
+    // Touch Buttons
+    document.getElementById('btn-left').addEventListener('touchstart', (e) => { e.preventDefault(); moveLeft(); });
+    document.getElementById('btn-right').addEventListener('touchstart', (e) => { e.preventDefault(); moveRight(); });
+    document.getElementById('btn-up').addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+    document.getElementById('btn-down').addEventListener('touchstart', (e) => { e.preventDefault(); duck(); });
 
-    /* =========================================================
-       GAME UPDATE
-    ========================================================= */
+    // Touch Swipes
+    let touchStartX = 0, touchStartY = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: false });
 
-    function update() {
+    window.addEventListener('touchend', (e) => {
+      if (isGameOver) return;
+      const diffX = e.changedTouches[0].clientX - touchStartX;
+      const diffY = e.changedTouches[0].clientY - touchStartY;
 
-        if (
-            !isGameRunning ||
-            isPaused
-        ) return;
-
-
-        player.x +=
-            player.vx;
-
-        player.y +=
-            player.vy;
-
-
-        player.x =
-            Math.max(
-                30,
-                Math.min(
-                    WORLD_WIDTH - 30,
-                    player.x
-                )
-            );
-
-
-        player.y =
-            Math.max(
-                30,
-                Math.min(
-                    WORLD_HEIGHT -
-                    SAND_HEIGHT,
-                    player.y
-                )
-            );
-
-
-        let diff =
-            player.targetAngle -
-            player.angle;
-
-
-        while (
-            diff < -Math.PI
-        )
-            diff +=
-                Math.PI * 2;
-
-
-        while (
-            diff > Math.PI
-        )
-            diff -=
-                Math.PI * 2;
-
-
-        player.angle +=
-            diff * 0.15;
-
-
-        camera.x =
-            player.x -
-            width / 2;
-
-        camera.y =
-            player.y -
-            height / 2;
-
-
-        /* Bubbles */
-
-        bubbles.forEach(b => {
-
-            b.y -= b.speed;
-
-            b.wobble += 0.05;
-
-            b.x +=
-                Math.sin(
-                    b.wobble
-                ) * 0.4;
-
-
-            if (b.y < 0) {
-
-                b.y =
-                    WORLD_HEIGHT;
-
-                b.x =
-                    Math.random() *
-                    WORLD_WIDTH;
-            }
-        });
-
-
-        /* Fische nachfüllen */
-
-        while (
-            fishes.length <
-            MAX_FISHES
-        ) {
-
-            spawnFish();
-
+      if (Math.abs(diffX) > Math.abs(diffY)) {
+        if (Math.abs(diffX) > 30) {
+          if (diffX > 0) moveRight(); else moveLeft();
         }
-
-
-        const pRad =
-            RANKS[player.rank]
-                .radius;
-
-
-        /* NPC */
-
-        for (
-            let i = fishes.length - 1;
-            i >= 0;
-            i--
-        ) {
-
-            let f =
-                fishes[i];
-
-
-            f.turnTimer--;
-
-
-            if (f.turnTimer <= 0) {
-
-                f.turnTimer =
-                    100 +
-                    Math.random() *
-                    200;
-
-
-                if (
-                    Math.random() <
-                    0.25
-                ) {
-
-                    f.targetAngle =
-                        f.angle +
-                        (
-                            Math.random() -
-                            0.5
-                        ) *
-                        0.8;
-                }
-            }
-
-
-            let fDiff =
-                f.targetAngle -
-                f.angle;
-
-
-            while (
-                fDiff < -Math.PI
-            )
-                fDiff +=
-                    Math.PI * 2;
-
-
-            while (
-                fDiff > Math.PI
-            )
-                fDiff -=
-                    Math.PI * 2;
-
-
-            f.angle +=
-                fDiff * 0.05;
-
-
-            f.vx =
-                Math.cos(
-                    f.angle
-                ) *
-                f.speed;
-
-
-            f.vy =
-                Math.sin(
-                    f.angle
-                ) *
-                f.speed;
-
-
-            f.x += f.vx;
-            f.y += f.vy;
-
-
-            f.cycle += 0.08;
-            f.finCycle += 0.12;
-
-
-            /* Wände */
-
-            if (
-                f.x < 30 ||
-                f.x >
-                WORLD_WIDTH - 30
-            ) {
-
-                f.targetAngle =
-                    Math.PI -
-                    f.angle;
-
-                f.angle =
-                    f.targetAngle;
-            }
-
-
-            if (
-                f.y < 30 ||
-                f.y >
-                WORLD_HEIGHT -
-                SAND_HEIGHT
-            ) {
-
-                f.targetAngle =
-                    -f.angle;
-
-                f.angle =
-                    f.targetAngle;
-            }
-
-
-            /* Kollision */
-
-            const dist =
-                Math.hypot(
-                    player.x - f.x,
-                    player.y - f.y
-                );
-
-
-            if (
-                dist <
-                pRad +
-                f.radius * 0.7
-            ) {
-
-                if (
-                    player.rank >=
-                    f.rank
-                ) {
-
-                    score +=
-                        (f.rank + 1) *
-                        10;
-
-                    player.exp += 1;
-
-                    fishes.splice(
-                        i,
-                        1
-                    );
-
-
-                    if (
-                        player.exp >=
-                        RANKS[
-                            player.rank
-                        ].expNeeded &&
-
-                        player.rank <
-                        RANKS.length - 1
-                    ) {
-
-                        player.exp = 0;
-
-                        player.rank++;
-
-                        updateEatPanel();
-                    }
-
-
-                    updateHUD();
-
-                } else {
-
-                    gameOver();
-
-                    return;
-                }
-            }
+      } else {
+        if (Math.abs(diffY) > 30) {
+          if (diffY < 0) jump(); else duck();
         }
+      }
+    }, { passive: false });
+
+    // --- POWER-UPS ---
+    function activatePowerup(type) {
+      activePowerup = type;
+      powerupTimer = 300;
+      if (type === 'shield') shieldMesh.visible = true;
+      if (type === 'turbo') speed = baseSpeed * 1.8;
     }
 
-
-    /* =========================================================
-       HUD
-    ========================================================= */
-
-    function updateHUD() {
-
-        document.getElementById(
-            'scoreVal'
-        ).innerText =
-            score;
-
-
-        document.getElementById(
-            'hudLvlNum'
-        ).innerText =
-            player.rank;
-
-
-        document.getElementById(
-            'hudLvlName'
-        ).innerText =
-            RANKS[
-                player.rank
-            ].name;
-
-
-        const needed =
-            RANKS[
-                player.rank
-            ].expNeeded;
-
-
-        let pct = 100;
-
-
-        if (
-            needed !== Infinity
-        ) {
-
-            pct =
-                Math.min(
-                    100,
-                    Math.max(
-                        0,
-                        (
-                            player.exp /
-                            needed
-                        ) * 100
-                    )
-                );
-        }
-
-
-        document.getElementById(
-            'hudXpBar'
-        ).style.width =
-            pct + '%';
+    function updatePowerups() {
+      const statusDiv = document.getElementById('powerup-status');
+      if (powerupTimer > 0) {
+        powerupTimer--;
+        statusDiv.innerText = `🚀 Power-Up: ${activePowerup.toUpperCase()} (${Math.ceil(powerupTimer / 60)}s)`;
+      } else {
+        if (activePowerup === 'turbo') speed = baseSpeed;
+        if (activePowerup === 'shield') shieldMesh.visible = false;
+        activePowerup = null;
+        statusDiv.innerText = '';
+      }
     }
 
+    // --- GAME LOOP ---
+    let wingFlap = 0;
 
-    /* =========================================================
-       ESSBARE FISCHE
-    ========================================================= */
+    function animate() {
+      if (isGameOver) return;
 
-    function updateEatPanel() {
+      requestAnimationFrame(animate);
 
-        const list =
-            document.getElementById(
-                'eatList'
-            );
+      // Biene fliegt stetig nach vorne (-Z)
+      baseSpeed += 0.00002;
+      if (activePowerup !== 'turbo') speed = baseSpeed;
+      beeGroup.position.z -= speed;
 
-        list.innerHTML = '';
+      // Flügel-Animation
+      wingFlap += 0.35;
+      leftWing.rotation.z = 0.3 + Math.sin(wingFlap) * 0.35;
+      rightWing.rotation.z = -0.3 - Math.sin(wingFlap) * 0.35;
 
+      // Spurwechsel-Animation
+      beeGroup.position.x += (LANES[currentLane] - beeGroup.position.x) * 0.2;
 
-        RANKS.forEach(
-            (rank, index) => {
+      // Springen / Ducken
+      if (isJumping) {
+        beeY += verticalVelocity;
+        verticalVelocity -= 0.012;
+        if (beeY <= baseBeeY) {
+          beeY = baseBeeY;
+          isJumping = false;
+        }
+      } else if (isDucking) {
+        beeY = 0.3;
+        duckTimer--;
+        if (duckTimer <= 0) {
+          beeY = baseBeeY;
+          isDucking = false;
+        }
+      }
+      beeGroup.position.y = beeY;
 
-                const row =
-                    document.createElement(
-                        'div'
-                    );
+      // Kamera folgt der Biene von hinten (Subway Surfers Style)
+      camera.position.x = beeGroup.position.x * 0.3;
+      camera.position.y = beeGroup.position.y + 3.8;
+      camera.position.z = beeGroup.position.z + 6.5;
+      camera.lookAt(beeGroup.position.x * 0.5, beeGroup.position.y + 0.8, beeGroup.position.z - 10);
 
-                row.className =
-                    'eat-row';
+      // Endlose Boden-Segmente verschieben
+      floorSegments.forEach(seg => {
+        if (seg.position.z - segmentLength / 2 > beeGroup.position.z) {
+          seg.position.z -= segmentLength * 2;
+        }
+      });
 
+      // Neue Hindernisse spawnen
+      spawnNextSection();
+      updatePowerups();
 
-                if (
-                    index >
-                    player.rank
-                ) {
+      // Punkte = Geflogene Distanz
+      score = Math.floor(Math.abs(beeGroup.position.z));
+      document.getElementById('score').innerText = score;
 
-                    row.classList.add(
-                        'locked'
-                    );
-                }
+      const playerBox = new THREE.Box3().setFromObject(beeGroup);
 
+      // Hindernis-Kollision
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+        obs.box.setFromObject(obs.mesh);
 
-                const dot =
-                    document.createElement(
-                        'div'
-                    );
+        if (playerBox.intersectsBox(obs.box)) {
+          if (activePowerup === 'turbo') {
+            scene.remove(obs.mesh);
+            obstacles.splice(i, 1);
+            continue;
+          }
 
-                dot.className =
-                    'eat-dot';
+          if (activePowerup === 'shield') {
+            activePowerup = null;
+            shieldMesh.visible = false;
+            powerupTimer = 0;
+            scene.remove(obs.mesh);
+            obstacles.splice(i, 1);
+            continue;
+          }
 
-                dot.style.background =
-                    rank.color;
-
-
-                const text =
-                    document.createElement(
-                        'span'
-                    );
-
-
-                if (
-                    index <=
-                    player.rank
-                ) {
-
-                    text.innerText =
-                        rank.name;
-
-                } else {
-
-                    text.innerText =
-                        '🔒 ' +
-                        rank.name;
-                }
-
-
-                row.appendChild(dot);
-
-                row.appendChild(text);
-
-                list.appendChild(row);
-
-            }
-        );
-    }
-
-
-    /* =========================================================
-       REALISTISCHER FISCH
-    ========================================================= */
-
-    function drawFish(
-        x,
-        y,
-        rankIndex,
-        angle,
-        cycle
-    ) {
-
-        const screenX =
-            x - camera.x;
-
-        const screenY =
-            y - camera.y;
-
-
-        const rank =
-            RANKS[rankIndex];
-
-        const radius =
-            rank.radius;
-
-
-        if (
-            screenX <
-                -radius * 2 ||
-            screenX >
-                width +
-                radius * 2 ||
-            screenY <
-                -radius * 2 ||
-            screenY >
-                height +
-                radius * 2
-        ) {
-
-            return;
+          if (obs.type === 'low' && beeGroup.position.y > 1.0) {
+            // Drübergesprungen -> Sicher!
+          } else if (obs.type === 'high' && beeGroup.position.y < 0.6) {
+            // Druntergeduckt -> Sicher!
+          } else if (obs.type === 'ramp') {
+            beeGroup.position.y = 2.0;
+            isJumping = false;
+          } else {
+            endGame();
+          }
         }
 
-
-        ctx.save();
-
-        ctx.translate(
-            screenX,
-            screenY
-        );
-
-
-        /*
-           Der Körper wird normal mit
-           der Schwimmrichtung gedreht.
-
-           ABER:
-           Das Auge wird später separat
-           gezeichnet, damit es immer oben
-           bleibt.
-        */
-
-        ctx.rotate(angle);
-
-
-        const wiggle =
-            Math.sin(cycle) *
-            radius *
-            0.12;
-
-
-        /* =====================
-           SCHATTEN
-        ===================== */
-
-        ctx.beginPath();
-
-        ctx.ellipse(
-            0,
-            radius * 0.12,
-            radius * 1.02,
-            radius * 0.55,
-            0,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fillStyle =
-            'rgba(0,0,0,0.10)';
-
-        ctx.fill();
-
-
-        /* =====================
-           SCHWANZ
-        ===================== */
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            -radius * 0.55,
-            0
-        );
-
-        ctx.quadraticCurveTo(
-            -radius * 1.05,
-            -radius * 0.55 + wiggle,
-            -radius * 1.42,
-            -radius * 0.70
-        );
-
-        ctx.quadraticCurveTo(
-            -radius * 1.12,
-            0,
-            -radius * 1.42,
-            radius * 0.70
-        );
-
-        ctx.quadraticCurveTo(
-            -radius * 1.05,
-            radius * 0.55 + wiggle,
-            -radius * 0.55,
-            0
-        );
-
-        ctx.fillStyle =
-            rank.darkColor;
-
-        ctx.fill();
-
-
-        /* =====================
-           RÜCKENFLOSSE
-        ===================== */
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            -radius * 0.15,
-            -radius * 0.42
-        );
-
-        ctx.quadraticCurveTo(
-            0,
-            -radius * 0.95,
-            radius * 0.35,
-            -radius * 0.48
-        );
-
-        ctx.closePath();
-
-        ctx.fillStyle =
-            rank.darkColor;
-
-        ctx.fill();
-
-
-        /* =====================
-           BAUCHFLOSSE
-        ===================== */
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            -radius * 0.05,
-            radius * 0.38
-        );
-
-        ctx.quadraticCurveTo(
-            radius * 0.15,
-            radius * 0.85,
-            radius * 0.45,
-            radius * 0.43
-        );
-
-        ctx.closePath();
-
-        ctx.fillStyle =
-            rank.darkColor;
-
-        ctx.fill();
-
-
-        /* =====================
-           KÖRPER
-        ===================== */
-
-        ctx.beginPath();
-
-        ctx.ellipse(
-            0,
-            0,
-            radius,
-            radius * 0.58,
-            0,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fillStyle =
-            rank.color;
-
-        ctx.fill();
-
-
-        /* =====================
-           LICHT AUF KÖRPER
-        ===================== */
-
-        ctx.beginPath();
-
-        ctx.ellipse(
-            radius * 0.05,
-            -radius * 0.15,
-            radius * 0.78,
-            radius * 0.32,
-            0,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fillStyle =
-            'rgba(255,255,255,0.16)';
-
-        ctx.fill();
-
-
-        /* =====================
-           KIEMEN
-        ===================== */
-
-        ctx.beginPath();
-
-        ctx.strokeStyle =
-            rank.darkColor;
-
-        ctx.lineWidth =
-            Math.max(
-                1,
-                radius * 0.045
-            );
-
-        ctx.arc(
-            radius * 0.20,
-            0,
-            radius * 0.34,
-            Math.PI * 0.65,
-            Math.PI * 1.35
-        );
-
-        ctx.stroke();
-
-
-        /* =====================
-           SEITENLINIE
-        ===================== */
-
-        ctx.beginPath();
-
-        ctx.strokeStyle =
-            'rgba(255,255,255,0.25)';
-
-        ctx.lineWidth = 1;
-
-        ctx.moveTo(
-            -radius * 0.45,
-            radius * 0.05
-        );
-
-        ctx.quadraticCurveTo(
-            0,
-            radius * 0.15,
-            radius * 0.55,
-            radius * 0.04
-        );
-
-        ctx.stroke();
-
-
-        /* =====================
-           SCHUPPEN
-        ===================== */
-
-        if (radius >= 26) {
-
-            ctx.strokeStyle =
-                'rgba(0,0,0,0.12)';
-
-            ctx.lineWidth =
-                Math.max(
-                    0.6,
-                    radius * 0.018
-                );
-
-
-            for (
-                let sx = -radius * 0.55;
-                sx < radius * 0.48;
-                sx += radius * 0.22
-            ) {
-
-                ctx.beginPath();
-
-                ctx.arc(
-                    sx,
-                    radius * 0.12,
-                    radius * 0.11,
-                    Math.PI,
-                    Math.PI * 2
-                );
-
-                ctx.stroke();
-            }
+        // Entfernen, wenn hinter dem Spieler
+        if (obs.mesh.position.z > beeGroup.position.z + 10) {
+          scene.remove(obs.mesh);
+          obstacles.splice(i, 1);
+        }
+      }
+
+      // Sammelobjekte
+      for (let i = collectables.length - 1; i >= 0; i--) {
+        const item = collectables[i];
+        item.mesh.rotation.y += 0.04;
+
+        if (activePowerup === 'magnet' && item.type === 'pollen') {
+          item.mesh.position.x += (beeGroup.position.x - item.mesh.position.x) * 0.25;
+          item.mesh.position.y += (beeGroup.position.y - item.mesh.position.y) * 0.25;
+          item.mesh.position.z += (beeGroup.position.z - item.mesh.position.z) * 0.25;
         }
 
-
-        /*
-           Mund
-        */
-
-        ctx.beginPath();
-
-        ctx.strokeStyle =
-            rank.darkColor;
-
-        ctx.lineWidth =
-            Math.max(
-                1,
-                radius * 0.035
-            );
-
-        ctx.arc(
-            radius * 0.82,
-            radius * 0.05,
-            radius * 0.10,
-            0,
-            Math.PI * 0.9
-        );
-
-        ctx.stroke();
-
-
-        ctx.restore();
-
-
-        /* =================================================
-           AUGE
-
-           WICHTIG:
-
-           Das Auge wird NICHT mit dem Fisch
-           gedreht.
-
-           Dadurch bleibt es immer oben.
-        ================================================= */
-
-
-        /*
-           Kopfseite feststellen.
-
-           Wenn der Fisch nach rechts schwimmt,
-           liegt das Auge rechts oben.
-
-           Wenn er nach links schwimmt,
-           liegt es links oben.
-        */
-
-        const facingRight =
-            Math.cos(angle) >= 0;
-
-
-        const headX =
-            screenX +
-            (
-                facingRight
-                ? radius * 0.43
-                : -radius * 0.43
-            );
-
-
-        const eyeY =
-            screenY -
-            radius * 0.27;
-
-
-        const eyeRadius =
-            Math.max(
-                2.5,
-                radius * 0.15
-            );
-
-
-        /* Weiß */
-
-        ctx.beginPath();
-
-        ctx.arc(
-            headX,
-            eyeY,
-            eyeRadius,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fillStyle =
-            '#ffffff';
-
-        ctx.fill();
-
-
-        /* Pupille */
-
-        ctx.beginPath();
-
-        ctx.arc(
-            headX +
-                (
-                    facingRight
-                    ? eyeRadius * 0.18
-                    : -eyeRadius * 0.18
-                ),
-
-            eyeY,
-
-            eyeRadius * 0.52,
-
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fillStyle =
-            '#111';
-
-        ctx.fill();
-
-
-        /* Lichtpunkt */
-
-        ctx.beginPath();
-
-        ctx.arc(
-            headX +
-                (
-                    facingRight
-                    ? eyeRadius * 0.10
-                    : -eyeRadius * 0.10
-                ),
-
-            eyeY -
-                eyeRadius * 0.18,
-
-            eyeRadius * 0.20,
-
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fillStyle =
-            '#ffffff';
-
-        ctx.fill();
-    }
-
-
-    /* =========================================================
-       SONNENSTRAHLEN
-    ========================================================= */
-
-    function drawSunRays() {
-
-        ctx.save();
-
-        const time =
-            performance.now() *
-            0.0005;
-
-
-        ctx.fillStyle =
-            'rgba(255,255,255,0.12)';
-
-
-        for (
-            let i = 0;
-            i < 4;
-            i++
-        ) {
-
-            ctx.beginPath();
-
-
-            let xStart =
-                (width / 3) * i +
-                Math.sin(
-                    time + i
-                ) * 20;
-
-
-            ctx.moveTo(
-                xStart,
-                0
-            );
-
-
-            ctx.lineTo(
-                xStart + 100,
-                0
-            );
-
-
-            ctx.lineTo(
-                xStart - 200,
-                height
-            );
-
-
-            ctx.lineTo(
-                xStart - 320,
-                height
-            );
-
-
-            ctx.closePath();
-
-            ctx.fill();
+        item.box.setFromObject(item.mesh);
+
+        if (playerBox.intersectsBox(item.box)) {
+          if (item.type === 'pollen') {
+            pollenCount++;
+            document.getElementById('pollen').innerText = pollenCount;
+          } else {
+            honeyCount++;
+            document.getElementById('honey').innerText = honeyCount;
+          }
+          scene.remove(item.mesh);
+          collectables.splice(i, 1);
+        } else if (item.mesh.position.z > beeGroup.position.z + 10) {
+          scene.remove(item.mesh);
+          collectables.splice(i, 1);
         }
+      }
 
+      // Power-Ups
+      for (let i = powerups.length - 1; i >= 0; i--) {
+        const pUp = powerups[i];
+        pUp.mesh.rotation.y += 0.06;
+        pUp.box.setFromObject(pUp.mesh);
 
-        ctx.restore();
-    }
-
-
-    /* =========================================================
-       BACKGROUND
-    ========================================================= */
-
-    function drawBackground() {
-
-        /*
-           Mitte zwischen Weiß und Blau.
-           Viel heller als das ursprüngliche Blau.
-        */
-
-        ctx.fillStyle =
-            '#a9cee6';
-
-        ctx.fillRect(
-            0,
-            0,
-            width,
-            height
-        );
-
-
-        drawSunRays();
-
-
-        /* Wasserblasen */
-
-        ctx.fillStyle =
-            'rgba(255,255,255,0.32)';
-
-
-        bubbles.forEach(b => {
-
-            let bx =
-                b.x -
-                camera.x;
-
-            let by =
-                b.y -
-                camera.y;
-
-
-            if (
-                bx >= 0 &&
-                bx <= width &&
-                by >= 0 &&
-                by <= height
-            ) {
-
-                ctx.beginPath();
-
-                ctx.arc(
-                    bx,
-                    by,
-                    b.r,
-                    0,
-                    Math.PI * 2
-                );
-
-                ctx.fill();
-            }
-
-        });
-
-
-        /* Sandboden */
-
-        const sandY =
-            WORLD_HEIGHT -
-            SAND_HEIGHT -
-            camera.y;
-
-
-        if (sandY < height) {
-
-            /* Pflanzen */
-
-            ctx.fillStyle =
-                '#319c75';
-
-
-            plants.forEach(p => {
-
-                let px =
-                    p.x -
-                    camera.x;
-
-
-                if (
-                    px >= -30 &&
-                    px <= width + 30
-                ) {
-
-                    for (
-                        let i = 0;
-                        i < p.blades;
-                        i++
-                    ) {
-
-                        ctx.fillRect(
-
-                            px +
-                            (i * 8),
-
-                            sandY -
-                            p.height,
-
-                            4,
-
-                            p.height
-                        );
-                    }
-                }
-            });
-
-
-            /* Sand */
-
-            ctx.fillStyle =
-                '#e5c158';
-
-
-            ctx.fillRect(
-                0,
-                sandY,
-                width,
-                height - sandY
-            );
+        if (playerBox.intersectsBox(pUp.box)) {
+          activatePowerup(pUp.pType);
+          scene.remove(pUp.mesh);
+          powerups.splice(i, 1);
+        } else if (pUp.mesh.position.z > beeGroup.position.z + 10) {
+          scene.remove(pUp.mesh);
+          powerups.splice(i, 1);
         }
+      }
+
+      renderer.render(scene, camera);
     }
 
-
-    /* =========================================================
-       DRAW
-    ========================================================= */
-
-    function draw() {
-
-        drawBackground();
-
-
-        fishes.forEach(f => {
-
-            drawFish(
-                f.x,
-                f.y,
-                f.rank,
-                f.angle,
-                f.cycle
-            );
-
-        });
-
-
-        if (isGameRunning) {
-
-            drawFish(
-                player.x,
-                player.y,
-                player.rank,
-                player.angle,
-                performance.now() *
-                0.01
-            );
-        }
+    function endGame() {
+      isGameOver = true;
+      document.getElementById('final-score').innerText = score;
+      document.getElementById('final-pollen').innerText = pollenCount;
+      document.getElementById('game-over-screen').classList.remove('hidden');
     }
 
+    function resetGame() {
+      obstacles.forEach(o => scene.remove(o.mesh));
+      collectables.forEach(c => scene.remove(c.mesh));
+      powerups.forEach(p => scene.remove(p.mesh));
+      
+      obstacles.length = 0;
+      collectables.length = 0;
+      powerups.length = 0;
 
-    /* =========================================================
-       GAME OVER
-    ========================================================= */
+      score = 0;
+      pollenCount = 0;
+      honeyCount = 0;
+      baseSpeed = 0.55;
+      speed = baseSpeed;
+      currentLane = 1;
+      nextSpawnZ = -40;
+      activePowerup = null;
+      powerupTimer = 0;
+      shieldMesh.visible = false;
 
-    function gameOver() {
+      beeGroup.position.set(LANES[currentLane], baseBeeY, 0);
 
-        isGameRunning = false;
+      document.getElementById('score').innerText = 0;
+      document.getElementById('pollen').innerText = 0;
+      document.getElementById('honey').innerText = 0;
+      document.getElementById('game-over-screen').classList.add('hidden');
 
-        isPaused = false;
-
-        stopMusic();
-
-        saveScoreOnline(
-            playerName,
-            score
-        );
-
-
-        document
-            .getElementById('lastScoreBox')
-            .classList.remove('hidden');
-
-
-        document
-            .getElementById('lastScoreVal')
-            .innerText =
-            score;
-
-
-        document
-            .getElementById('uiOverlay')
-            .classList.add('hidden');
-
-
-        document
-            .getElementById('eatPanel')
-            .classList.add('hidden');
-
-
-        document
-            .getElementById('pauseButton')
-            .style.display =
-            'none';
-
-
-        document
-            .getElementById('pauseModal')
-            .classList.add('hidden');
-
-
-        joystickContainer.style.display =
-            'none';
-
-
-        document
-            .getElementById('startMenu')
-            .classList.remove('hidden');
+      isGameOver = false;
+      animate();
     }
 
-
-    /* =========================================================
-       START GAME
-    ========================================================= */
-
-    function startGame() {
-
-        const input =
-            document
-                .getElementById(
-                    'playerNameInput'
-                )
-                .value
-                .trim();
-
-
-        if (!input) {
-
-            alert(
-                "Bitte gib deinen Namen ein!"
-            );
-
-            return;
-        }
-
-
-        playerName =
-            input;
-
-
-        localStorage.setItem(
-            'fishup_player_name',
-            playerName
-        );
-
-
-        /*
-           SEHR WICHTIG:
-
-           isGameRunning wird VOR hideModals
-           gesetzt.
-
-           Dadurch kann hideModals()
-           das Hauptmenü nicht wieder öffnen.
-        */
-
-        isGameRunning = true;
-
-        isPaused = false;
-
-
-        /*
-           Alle Menüs wirklich entfernen.
-        */
-
-        document
-            .querySelectorAll('.modal-overlay')
-            .forEach(m =>
-                m.classList.add('hidden')
-            );
-
-
-        document
-            .getElementById('uiOverlay')
-            .classList.remove('hidden');
-
-
-        document
-            .getElementById('eatPanel')
-            .classList.remove('hidden');
-
-
-        document
-            .getElementById('pauseButton')
-            .style.display =
-            'flex';
-
-
-        score = 0;
-
-
-        player.x =
-            WORLD_WIDTH / 2;
-
-        player.y =
-            WORLD_HEIGHT / 2;
-
-
-        player.rank = 0;
-
-        player.exp = 0;
-
-        player.vx = 0;
-
-        player.vy = 0;
-
-        player.angle = 0;
-
-        player.targetAngle = 0;
-
-
-        fishes = [];
-
-
-        updateHUD();
-
-        updateEatPanel();
-
-
-        /*
-           Direkt viele Fische erzeugen,
-           damit beim Start sofort welche
-           vorhanden sind.
-        */
-
-        while (
-            fishes.length <
-            MAX_FISHES
-        ) {
-
-            spawnFish();
-
-        }
-
-
-        startMusic();
-    }
-
-
-    /* =========================================================
-       GAME LOOP
-    ========================================================= */
-
-    let lastTime =
-        performance.now();
-
-
-    function loop(now) {
-
-        const dt =
-            now -
-            lastTime;
-
-
-        if (
-            dt >=
-            1000 / targetFPS
-        ) {
-
-            update();
-
-            draw();
-
-
-            lastTime =
-                now -
-                (
-                    dt %
-                    (
-                        1000 /
-                        targetFPS
-                    )
-                );
-        }
-
-
-        requestAnimationFrame(
-            loop
-        );
-    }
-
-
-    requestAnimationFrame(
-        loop
-    );
-
-</script>
-
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+  </script>
 </body>
 </html>
