@@ -2,18 +2,38 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    >
+
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Fishup">
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent"
+    >
+    <meta
+        name="apple-mobile-web-app-title"
+        content="Fishup"
+    >
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#4a90e2">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/emoji/192/fish-emoji.png">
+
+    <link
+        rel="apple-touch-icon"
+        href="https://img.icons8.com/emoji/192/fish-emoji.png"
+    >
+
     <title>Fishup - Mobile Online</title>
-    <!-- Firebase Compat SDKs -->
+
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+
     <style>
+
         * {
             box-sizing: border-box;
             user-select: none;
@@ -22,364 +42,773 @@
             padding: 0;
             touch-action: none;
         }
-        body, html {
+
+        html,
+        body {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #4a90e2;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #4a90e2;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                'Segoe UI',
+                Roboto,
+                sans-serif;
         }
+
         #gameCanvas {
             width: 100vw;
             height: 100vh;
             display: block;
         }
+
+
+        /* =========================
+           MODALS
+           ========================= */
+
         .modal-overlay {
             position: absolute;
+
             top: 0;
             left: 0;
+
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                180deg,
-                rgba(20, 60, 100, 0.85) 0%,
-                rgba(10, 35, 65, 0.9) 100%
-            );
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(20, 60, 100, 0.85) 0%,
+                    rgba(10, 35, 65, 0.9) 100%
+                );
+
             display: flex;
             flex-direction: column;
+
             justify-content: center;
             align-items: center;
+
             z-index: 100;
+
             color: white;
+
             padding: 20px;
         }
+
         .hidden {
             display: none !important;
         }
+
+
         h1 {
             font-size: 38px;
+
             color: #00d2ff;
-            text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+
+            text-shadow:
+                0 0 15px rgba(0, 210, 255, 0.6);
+
             margin-bottom: 20px;
+
             letter-spacing: 2px;
+
             font-weight: 900;
         }
+
         h2 {
             font-size: 22px;
             margin-bottom: 15px;
             color: #ffd700;
         }
+
+
+        /* =========================
+           INPUT
+           ========================= */
+
         .input-group {
             display: flex;
             flex-direction: column;
+
             gap: 8px;
+
             width: 100%;
             max-width: 280px;
+
             margin-bottom: 20px;
         }
+
         .input-group label {
             font-size: 13px;
             color: #aaa;
             text-align: center;
         }
+
         .input-group input {
             padding: 12px 16px;
+
             border-radius: 12px;
+
             border: 2px solid #00d2ff;
+
             background: rgba(255,255,255,0.1);
+
             color: #fff;
+
             font-size: 18px;
+
             text-align: center;
+
             outline: none;
         }
+
+
+        /* =========================
+           BUTTONS
+           ========================= */
+
         .menu-btn-group {
             display: flex;
+
             flex-direction: column;
+
             gap: 12px;
+
             width: 100%;
+
             max-width: 280px;
         }
+
         .btn {
             padding: 14px 24px;
+
             font-size: 16px;
+
             font-weight: bold;
+
             color: #fff;
-            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #00c6ff 0%,
+                    #0072ff 100%
+                );
+
             border: none;
+
             border-radius: 20px;
+
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+
+            box-shadow:
+                0 4px 15px rgba(0, 198, 255, 0.3);
+
             text-align: center;
         }
+
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background:
+                rgba(255, 255, 255, 0.15);
+
+            border:
+                1px solid rgba(255,255,255,0.3);
         }
+
+
+        /* =========================
+           CARD
+           ========================= */
+
         .card {
-            background: rgba(0, 20, 45, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background:
+                rgba(0, 20, 45, 0.85);
+
+            border:
+                1px solid rgba(255,255,255,0.2);
+
             border-radius: 16px;
+
             padding: 15px;
+
             width: 100%;
+
             max-width: 320px;
+
             margin-bottom: 12px;
         }
+
+
+        /* =========================
+           SETTINGS
+           ========================= */
+
         .setting-row {
             display: flex;
+
             flex-direction: column;
+
             gap: 8px;
+
             margin-bottom: 15px;
         }
+
         .setting-label {
             display: flex;
+
             justify-content: space-between;
+
             font-size: 14px;
+
             font-weight: bold;
+
             color: #fff;
         }
+
         .volume-slider {
             width: 100%;
+
             height: 8px;
+
             border-radius: 4px;
-            background: rgba(255, 255, 255, 0.2);
+
+            background:
+                rgba(255,255,255,0.2);
+
             outline: none;
+
             accent-color: #00d2ff;
+
             cursor: pointer;
         }
-        /* HUD */
+
+
+        /* =========================
+           HUD
+           ========================= */
+
         #uiOverlay {
             position: absolute;
+
             top: 0;
             left: 0;
+
             width: 100%;
+
             pointer-events: none;
+
             padding: 12px 16px;
-            padding-top: max(12px, env(safe-area-inset-top));
-            box-sizing: border-box;
+
+            padding-top:
+                max(
+                    12px,
+                    env(safe-area-inset-top)
+                );
+
             display: flex;
+
             flex-direction: column;
+
             gap: 10px;
-            z-index: 50;
+
+            z-index: 20;
         }
+
         .hud-top-row {
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
             width: 100%;
-            gap: 8px;
         }
+
+
+        /* LEVEL */
+
         .hud-level-badge {
             display: flex;
+
             align-items: center;
+
             gap: 8px;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            border: 2px solid #ffd700;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1e3c72 0%,
+                    #2a5298 100%
+                );
+
+            border:
+                2px solid #ffd700;
+
+            box-shadow:
+                0 4px 10px rgba(0,0,0,0.4);
+
             border-radius: 25px;
-            padding: 4px 12px 4px 6px;
+
+            padding:
+                4px 12px 4px 6px;
+
             color: #fff;
         }
+
         .hud-level-circle {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffd700 0%,
+                    #ff8c00 100%
+                );
+
             border-radius: 50%;
+
             display: flex;
+
             align-items: center;
             justify-content: center;
+
             font-weight: 900;
+
             font-size: 16px;
+
             color: #000;
         }
+
         .hud-level-name {
             font-size: 13px;
+
             font-weight: bold;
+
             color: #00d2ff;
+
             text-transform: uppercase;
         }
+
+
+        /* XP */
+
         .hud-xp-container {
             flex: 1;
+
             max-width: 180px;
-            margin: 0 5px;
-            background: rgba(0,0,0,0.6);
-            border: 2px solid rgba(255,255,255,0.4);
+
+            margin: 0 10px;
+
+            background:
+                rgba(0,0,0,0.6);
+
+            border:
+                2px solid rgba(255,255,255,0.4);
+
             border-radius: 15px;
+
             height: 18px;
+
             overflow: hidden;
+
             position: relative;
         }
+
         .hud-xp-bar {
             height: 100%;
+
             width: 0%;
-            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
-            transition: width 0.2s ease-out;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #11998e 0%,
+                    #38ef7d 100%
+                );
+
+            transition:
+                width 0.2s ease-out;
         }
+
+
+        /* SCORE */
+
         .hud-score-box {
-            background: rgba(10, 30, 50, 0.7);
-            border: 2px solid #5a738e;
+            background:
+                rgba(10,30,50,0.7);
+
+            border:
+                2px solid #5a738e;
+
             border-radius: 20px;
+
             padding: 4px 12px;
+
             display: flex;
+
             align-items: center;
+
             gap: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+
+            box-shadow:
+                0 4px 10px rgba(0,0,0,0.3);
         }
+
         .hud-score-p-icon {
             width: 24px;
             height: 24px;
-            background: linear-gradient(135deg, #4a6572 0%, #2c3e50 100%);
-            border: 1.5px solid #7f9cb0;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4a6572 0%,
+                    #2c3e50 100%
+                );
+
+            border:
+                1.5px solid #7f9cb0;
+
             border-radius: 50%;
+
             color: #dbebf5;
+
             font-weight: 900;
+
             font-size: 13px;
+
             display: flex;
+
             align-items: center;
             justify-content: center;
         }
+
         .hud-score-val {
-            color: #ffffff;
+            color: #fff;
+
             font-weight: 900;
+
             font-size: 18px;
         }
-        /* PAUSE BUTTON */
-        #pauseButton {
-            pointer-events: auto;
-            position: absolute;
-            top: max(65px, calc(env(safe-area-inset-top) + 55px));
-            right: 16px;
-            z-index: 60;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.7);
-            background: rgba(10, 30, 50, 0.8);
-            color: white;
-            font-size: 22px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-        #pauseButton:active {
-            transform: scale(0.92);
-            background: rgba(220, 60, 60, 0.9);
-        }
+
+
+        /* BANNER */
+
         .hud-banner {
             align-self: center;
-            background: rgba(2, 10, 20, 0.75);
-            border: 1px solid rgba(0, 210, 255, 0.4);
+
+            background:
+                rgba(2,10,20,0.75);
+
+            border:
+                1px solid rgba(0,210,255,0.4);
+
             border-radius: 12px;
+
             padding: 6px 16px;
+
             color: #e0f7fc;
+
             font-size: 12px;
+
             font-weight: 600;
+
             text-align: center;
         }
+
+
+        /* =========================
+           PAUSE / END BUTTON
+           ========================= */
+
+        #pauseButton {
+            position: absolute;
+
+            top:
+                max(
+                    65px,
+                    calc(
+                        env(safe-area-inset-top) + 55px
+                    )
+                );
+
+            right: 16px;
+
+            width: 48px;
+            height: 48px;
+
+            border-radius: 50%;
+
+            border:
+                2px solid rgba(255,255,255,0.5);
+
+            background:
+                rgba(10,20,35,0.78);
+
+            color: #fff;
+
+            font-size: 22px;
+
+            font-weight: 900;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            z-index: 50;
+
+            pointer-events: auto;
+
+            box-shadow:
+                0 4px 15px rgba(0,0,0,0.35);
+        }
+
+        #pauseButton:active {
+            transform: scale(0.9);
+
+            background:
+                rgba(220,40,40,0.9);
+        }
+
+
+        /* =========================
+           LEADERBOARD
+           ========================= */
+
         .leaderboard-list {
             list-style: none;
+
             font-size: 13px;
+
             width: 100%;
+
             margin-top: 10px;
         }
+
         .leaderboard-item {
             display: flex;
+
             justify-content: space-between;
+
             margin-bottom: 5px;
+
             padding: 4px 8px;
-            background: rgba(255,255,255,0.05);
+
+            background:
+                rgba(255,255,255,0.05);
+
             border-radius: 6px;
         }
+
         .leaderboard-item.highlight {
             color: #00d2ff;
+
             font-weight: bold;
-            background: rgba(0, 210, 255, 0.15);
+
+            background:
+                rgba(0,210,255,0.15);
         }
+
+
+        /* =========================
+           JOYSTICK
+           ========================= */
+
         #joystickContainer {
             position: absolute;
+
             bottom: 40px;
             left: 40px;
+
             width: 100px;
             height: 100px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+
+            background:
+                rgba(255,255,255,0.08);
+
+            border:
+                2px solid rgba(255,255,255,0.2);
+
             border-radius: 50%;
+
             pointer-events: auto;
+
             display: none;
-            z-index: 70;
+
+            z-index: 40;
         }
+
         #joystickKnob {
             position: absolute;
+
             top: 50%;
             left: 50%;
+
             width: 40px;
             height: 40px;
-            background: rgba(255, 255, 255, 0.4);
+
+            background:
+                rgba(255,255,255,0.4);
+
             border-radius: 50%;
-            transform: translate(-50%, -50%);
+
+            transform:
+                translate(-50%, -50%);
+
             will-change: transform;
         }
+
     </style>
 </head>
+
+
 <body>
-    <!-- HAUPTMENÜ -->
+
+
+    <!-- =========================
+         HAUPTMENÜ
+         ========================= -->
+
     <div id="startMenu" class="modal-overlay">
+
         <h1>FISHUP</h1>
-        <div id="lastScoreBox"
-             class="card hidden"
-             style="text-align: center; max-width: 280px; padding: 10px;">
-            <span style="font-size: 12px; color: #aaa;">
+
+
+        <div
+            id="lastScoreBox"
+            class="card hidden"
+            style="
+                text-align:center;
+                max-width:280px;
+                padding:10px;
+            "
+        >
+
+            <span
+                style="
+                    font-size:12px;
+                    color:#aaa;
+                "
+            >
                 Letzter Score:
             </span>
-            <div id="lastScoreVal"
-                 style="font-size: 20px; font-weight: bold; color: #ffd700;">
+
+            <div
+                id="lastScoreVal"
+                style="
+                    font-size:20px;
+                    font-weight:bold;
+                    color:#ffd700;
+                "
+            >
                 0
             </div>
+
         </div>
+
+
         <div class="input-group">
-            <label for="playerNameInput">DEIN SPIELERNAME:</label>
+
+            <label for="playerNameInput">
+                DEIN SPIELERNAME:
+            </label>
+
             <input
                 type="text"
                 id="playerNameInput"
                 maxlength="12"
                 placeholder="Name..."
             >
+
         </div>
+
+
         <div class="menu-btn-group">
-            <button class="btn" onclick="startGame()">
+
+            <button
+                class="btn"
+                onclick="startGame()"
+            >
                 Spielen
             </button>
+
             <button
                 class="btn btn-secondary"
-                onclick="showModal('settingsModal')">
+                onclick="showModal('settingsModal')"
+            >
                 ⚙️ Einstellungen
             </button>
+
         </div>
-        <div class="card" style="max-width: 280px; margin-top: 15px;">
-            <div style="
-                font-size: 12px;
-                font-weight: bold;
-                color: #ffd700;
-                text-align: center;">
+
+
+        <div
+            class="card"
+            style="
+                max-width:280px;
+                margin-top:15px;
+            "
+        >
+
+            <div
+                style="
+                    font-size:12px;
+                    font-weight:bold;
+                    color:#ffd700;
+                    text-align:center;
+                "
+            >
                 🏆 TOP 5 HIGH SCORES
             </div>
-            <ul id="leaderboardList" class="leaderboard-list">
+
+            <ul
+                id="leaderboardList"
+                class="leaderboard-list"
+            >
+
                 <li class="leaderboard-item">
                     <span>Lade...</span>
                 </li>
+
             </ul>
+
         </div>
+
     </div>
-    <!-- EINSTELLUNGEN -->
-    <div id="settingsModal" class="modal-overlay hidden">
+
+
+    <!-- =========================
+         EINSTELLUNGEN
+         ========================= -->
+
+    <div
+        id="settingsModal"
+        class="modal-overlay hidden"
+    >
+
         <h2>EINSTELLUNGEN</h2>
+
+
         <div class="card">
+
             <div class="setting-row">
+
                 <div class="setting-label">
-                    <span>🎵 Musiklautstärke</span>
-                    <span id="volumeVal">50%</span>
+
+                    <span>
+                        🎵 Musiklautstärke
+                    </span>
+
+                    <span id="volumeVal">
+                        50%
+                    </span>
+
                 </div>
+
+
                 <input
                     type="range"
                     id="volumeSlider"
@@ -389,105 +818,224 @@
                     value="50"
                     oninput="updateVolume(this.value)"
                 >
+
             </div>
-            <div style="
-                font-size: 13px;
-                font-weight: bold;
-                margin-bottom: 8px;">
+
+
+            <div
+                style="
+                    font-size:13px;
+                    font-weight:bold;
+                    margin-bottom:8px;
+                "
+            >
                 PERFORMANCE
             </div>
-            <div class="menu-btn-group" style="max-width: 100%;">
+
+
+            <div
+                class="menu-btn-group"
+                style="max-width:100%;"
+            >
+
                 <button
                     id="btn30fps"
                     class="btn btn-secondary"
-                    onclick="setFPS(30)">
+                    onclick="setFPS(30)"
+                >
                     🔋 30 FPS
                 </button>
+
                 <button
                     id="btn60fps"
                     class="btn"
-                    onclick="setFPS(60)">
+                    onclick="setFPS(60)"
+                >
                     ⚡ MAX FPS
                 </button>
+
             </div>
+
         </div>
+
+
         <button
             class="btn btn-secondary"
-            onclick="hideModals()">
+            onclick="hideModals()"
+        >
             Zurück
         </button>
+
     </div>
+
+
+    <!-- =========================
+         GAME
+         ========================= -->
+
     <canvas id="gameCanvas"></canvas>
-    <!-- HUD -->
-    <div id="uiOverlay" class="hidden">
+
+
+    <!-- =========================
+         HUD
+         ========================= -->
+
+    <div
+        id="uiOverlay"
+        class="hidden"
+    >
+
         <div class="hud-top-row">
+
             <div class="hud-level-badge">
-                <div class="hud-level-circle" id="hudLvlNum">
+
+                <div
+                    class="hud-level-circle"
+                    id="hudLvlNum"
+                >
                     0
                 </div>
-                <div class="hud-level-name" id="hudLvlName">
+
+                <div
+                    class="hud-level-name"
+                    id="hudLvlName"
+                >
                     Grau
                 </div>
+
             </div>
+
+
             <div class="hud-xp-container">
+
                 <div
                     class="hud-xp-bar"
-                    id="hudXpBar">
-                </div>
+                    id="hudXpBar"
+                ></div>
+
             </div>
+
+
             <div class="hud-score-box">
+
                 <div class="hud-score-p-icon">
                     P
                 </div>
+
                 <span
                     class="hud-score-val"
-                    id="scoreVal">
+                    id="scoreVal"
+                >
                     0
                 </span>
+
             </div>
+
         </div>
+
+
         <div class="hud-banner">
             ISS KLEINERE FISCHE, UM GRÖSSER ZU WERDEN!
         </div>
+
     </div>
-    <!-- PAUSE BUTTON -->
+
+
+    <!-- =========================
+         END BUTTON
+         ========================= -->
+
     <button
         id="pauseButton"
         class="hidden"
-        onclick="pauseGame()">
-        ⏸
+        onclick="endGameManually()"
+        aria-label="Spiel beenden"
+    >
+        ✕
     </button>
-    <!-- JOYSTICK -->
+
+
+    <!-- =========================
+         JOYSTICK
+         ========================= -->
+
     <div id="joystickContainer">
+
         <div id="joystickKnob"></div>
+
     </div>
+
+
+
     <script>
-        /* =========================================================
+
+
+        /* =====================================================
            FIREBASE
-        ========================================================= */
+           ===================================================== */
+
         const firebaseConfig = {
-            apiKey: "AIzaSyBTXBIaZsXWpDaigQAPBiOwuXouz2UlcyQ",
-            authDomain: "fishup-9bc99.firebaseapp.com",
-            projectId: "fishup-9bc99",
-            storageBucket: "fishup-9bc99.firebasestorage.app",
-            messagingSenderId: "366958128305",
-            appId: "1:366958128305:web:f74d82c3c7d9c980f10690",
-            databaseURL: "https://fishup-9bc99-default-rtdb.europe-west1.firebasedatabase.app"
+
+            apiKey:
+                "AIzaSyBTXBIaZsXWpDaigQAPBiOwuXouz2UlcyQ",
+
+            authDomain:
+                "fishup-9bc99.firebaseapp.com",
+
+            projectId:
+                "fishup-9bc99",
+
+            storageBucket:
+                "fishup-9bc99.firebasestorage.app",
+
+            messagingSenderId:
+                "366958128305",
+
+            appId:
+                "1:366958128305:web:f74d82c3c7d9c980f10690",
+
+            databaseURL:
+                "https://fishup-9bc99-default-rtdb.europe-west1.firebasedatabase.app"
         };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        /* =========================================================
+
+
+        firebase.initializeApp(
+            firebaseConfig
+        );
+
+
+        const database =
+            firebase.database();
+
+
+
+        /* =====================================================
            CANVAS
-        ========================================================= */
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d', {
-            alpha: false,
-            desynchronized: true
-        });
-        /* =========================================================
-           RANKS
-        ========================================================= */
+           ===================================================== */
+
+        const canvas =
+            document.getElementById(
+                'gameCanvas'
+            );
+
+
+        const ctx =
+            canvas.getContext(
+                '2d',
+                {
+                    alpha: false,
+                    desynchronized: true
+                }
+            );
+
+
+
+        /* =====================================================
+           RÄNGE
+           ===================================================== */
+
         const RANKS = [
+
             {
                 id: 0,
                 name: 'Grau',
@@ -496,6 +1044,7 @@
                 radius: 18,
                 expNeeded: 10
             },
+
             {
                 id: 1,
                 name: 'Grün',
@@ -504,6 +1053,7 @@
                 radius: 26,
                 expNeeded: 25
             },
+
             {
                 id: 2,
                 name: 'Blau',
@@ -512,6 +1062,7 @@
                 radius: 38,
                 expNeeded: 50
             },
+
             {
                 id: 3,
                 name: 'Lila',
@@ -520,6 +1071,7 @@
                 radius: 54,
                 expNeeded: 100
             },
+
             {
                 id: 4,
                 name: 'Gold',
@@ -528,561 +1080,1239 @@
                 radius: 80,
                 expNeeded: Infinity
             }
+
         ];
-        /* =========================================================
-           SPIEL EINSTELLUNGEN
-        ========================================================= */
+
+
+
+        /* =====================================================
+           WORLD
+           ===================================================== */
+
         const WORLD_WIDTH = 3200;
         const WORLD_HEIGHT = 2400;
+
         const SAND_HEIGHT = 80;
+
         /*
-         * VORHER:
-         * MAX_FISHES = 55
-         *
-         * JETZT:
-         * MAX_FISHES = 70
-         *
-         * Das sind 15 zusätzliche Fische.
+         * Vorher: 55
+         * Jetzt: 70
+         * = 15 Fische mehr
          */
         const MAX_FISHES = 70;
-        /*
-         * 25 % langsamer:
-         *
-         * Vorher Spieler:
-         * 5.5
-         *
-         * Jetzt:
-         * 4.125
-         *
-         * 5.5 * 0.75 = 4.125
-         */
-        const PLAYER_SPEED = 5.5 * 0.75;
-        /*
-         * NPC-Geschwindigkeit ebenfalls 25 % langsamer.
-         */
-        const NPC_SPEED_MULTIPLIER = 0.75;
+
+
+
         let width;
         let height;
+
+
         let camera = {
             x: 0,
             y: 0
         };
+
+
         let isGameRunning = false;
+
+
         let score = 0;
+
+
         let targetFPS = 60;
-        /* =========================================================
-           SPIELER
-        ========================================================= */
+
+
         let playerName =
-            localStorage.getItem('fishup_player_name') || '';
-        document.getElementById('playerNameInput').value =
-            playerName;
-        let player = {
-            x: WORLD_WIDTH / 2,
-            y: WORLD_HEIGHT / 2,
-            rank: 0,
-            exp: 0,
-            vx: 0,
-            vy: 0,
-            speed: PLAYER_SPEED,
-            angle: 0,
-            targetAngle: 0
-        };
-        /* =========================================================
+            localStorage.getItem(
+                'fishup_player_name'
+            ) || '';
+
+
+        document
+            .getElementById(
+                'playerNameInput'
+            )
+            .value = playerName;
+
+
+
+        /* =====================================================
            AUDIO
-        ========================================================= */
+           ===================================================== */
+
         let audioCtx = null;
+
         let mainGainNode = null;
+
         let musicVolume = 0.5;
+
         let isMusicPlaying = false;
+
         let musicTimer = null;
+
+
         const MELODY_NOTES = [
-            { note: "E5", duration: 0.18 },
-            { note: "B4", duration: 0.18 },
-            { note: "C5", duration: 0.18 },
-            { note: "D5", duration: 0.18 },
-            { note: "C5", duration: 0.18 },
-            { note: "B4", duration: 0.18 },
-            { note: "A4", duration: 0.18 },
-            { note: "A4", duration: 0.18 },
-            { note: "C5", duration: 0.18 },
-            { note: "E5", duration: 0.18 },
-            { note: "D5", duration: 0.18 },
-            { note: "C5", duration: 0.18 },
-            { note: "B4", duration: 0.28 },
-            { note: "C5", duration: 0.18 },
-            { note: "D5", duration: 0.18 },
-            { note: "E5", duration: 0.28 },
-            { note: "C5", duration: 0.28 },
-            { note: "A4", duration: 0.28 },
-            { note: "A4", duration: 0.4 },
-            { note: "D5", duration: 0.22 },
-            { note: "F5", duration: 0.18 },
-            { note: "A5", duration: 0.18 },
-            { note: "G5", duration: 0.18 },
-            { note: "F5", duration: 0.18 },
-            { note: "E5", duration: 0.28 },
-            { note: "C5", duration: 0.18 },
-            { note: "E5", duration: 0.18 },
-            { note: "D5", duration: 0.18 },
-            { note: "C5", duration: 0.18 },
-            { note: "B4", duration: 0.22 },
-            { note: "B4", duration: 0.18 },
-            { note: "C5", duration: 0.18 },
-            { note: "D5", duration: 0.28 },
-            { note: "E5", duration: 0.28 },
-            { note: "C5", duration: 0.28 },
-            { note: "A4", duration: 0.28 },
-            { note: "A4", duration: 0.4 }
+
+            {
+                note: "E5",
+                duration: 0.18
+            },
+
+            {
+                note: "B4",
+                duration: 0.18
+            },
+
+            {
+                note: "C5",
+                duration: 0.18
+            },
+
+            {
+                note: "D5",
+                duration: 0.18
+            },
+
+            {
+                note: "C5",
+                duration: 0.18
+            },
+
+            {
+                note: "B4",
+                duration: 0.18
+            },
+
+            {
+                note: "A4",
+                duration: 0.18
+            },
+
+            {
+                note: "A4",
+                duration: 0.18
+            },
+
+            {
+                note: "C5",
+                duration: 0.18
+            },
+
+            {
+                note: "E5",
+                duration: 0.18
+            },
+
+            {
+                note: "D5",
+                duration: 0.18
+            },
+
+            {
+                note: "C5",
+                duration: 0.18
+            },
+
+            {
+                note: "B4",
+                duration: 0.28
+            },
+
+            {
+                note: "C5",
+                duration: 0.18
+            },
+
+            {
+                note: "D5",
+                duration: 0.18
+            },
+
+            {
+                note: "E5",
+                duration: 0.28
+            },
+
+            {
+                note: "C5",
+                duration: 0.28
+            },
+
+            {
+                note: "A4",
+                duration: 0.28
+            },
+
+            {
+                note: "A4",
+                duration: 0.4
+            },
+
+            {
+                note: "D5",
+                duration: 0.22
+            },
+
+            {
+                note: "F5",
+                duration: 0.18
+            },
+
+            {
+                note: "A5",
+                duration: 0.18
+            },
+
+            {
+                note: "G5",
+                duration: 0.18
+            },
+
+            {
+                note: "F5",
+                duration: 0.18
+            },
+
+            {
+                note: "E5",
+                duration: 0.28
+            },
+
+            {
+                note: "C5",
+                duration: 0.18
+            },
+
+            {
+                note: "E5",
+                duration: 0.18
+            },
+
+            {
+                note: "D5",
+                duration: 0.18
+            },
+
+            {
+                note: "C5",
+                duration: 0.18
+            },
+
+            {
+                note: "B4",
+                duration: 0.22
+            },
+
+            {
+                note: "B4",
+                duration: 0.18
+            },
+
+            {
+                note: "C5",
+                duration: 0.18
+            },
+
+            {
+                note: "D5",
+                duration: 0.28
+            },
+
+            {
+                note: "E5",
+                duration: 0.28
+            },
+
+            {
+                note: "C5",
+                duration: 0.28
+            },
+
+            {
+                note: "A4",
+                duration: 0.28
+            },
+
+            {
+                note: "A4",
+                duration: 0.4
+            }
+
         ];
+
+
         function getNoteFrequency(note) {
+
             const notes = {
+
                 "A4": 440.00,
+
                 "B4": 493.88,
+
                 "C5": 523.25,
+
                 "D5": 587.33,
+
                 "E5": 659.25,
+
                 "F5": 698.46,
+
                 "G5": 783.99,
+
                 "A5": 880.00
+
             };
+
             return notes[note] || 440;
+
         }
+
+
         async function initAudio() {
+
             try {
+
                 if (!audioCtx) {
+
                     const AudioContext =
                         window.AudioContext ||
                         window.webkitAudioContext;
-                    audioCtx = new AudioContext();
+
+
+                    audioCtx =
+                        new AudioContext();
+
+
                     mainGainNode =
                         audioCtx.createGain();
+
+
                     mainGainNode.gain.setValueAtTime(
                         musicVolume,
                         audioCtx.currentTime
                     );
+
+
                     mainGainNode.connect(
                         audioCtx.destination
                     );
+
                 }
-                if (audioCtx.state === 'suspended') {
+
+
+                if (
+                    audioCtx.state ===
+                    'suspended'
+                ) {
+
                     await audioCtx.resume();
+
                 }
-            } catch(e) {
+
+            }
+
+            catch (e) {
+
                 console.log(
                     "Audio Init Warning:",
                     e
                 );
+
             }
+
         }
-        function playTone(freq, duration) {
-            if (!audioCtx || musicVolume <= 0) {
+
+
+        function playTone(
+            freq,
+            duration
+        ) {
+
+            if (
+                !audioCtx ||
+                musicVolume <= 0
+            ) {
                 return;
             }
+
+
             try {
+
                 const osc =
                     audioCtx.createOscillator();
+
+
                 const noteGain =
                     audioCtx.createGain();
-                osc.type = 'triangle';
+
+
+                osc.type =
+                    'triangle';
+
+
                 osc.frequency.setValueAtTime(
                     freq,
                     audioCtx.currentTime
                 );
+
+
                 noteGain.gain.setValueAtTime(
                     0.2,
                     audioCtx.currentTime
                 );
+
+
                 noteGain.gain.exponentialRampToValueAtTime(
                     0.001,
                     audioCtx.currentTime +
                     duration -
                     0.02
                 );
-                osc.connect(noteGain);
-                noteGain.connect(mainGainNode);
+
+
+                osc.connect(
+                    noteGain
+                );
+
+
+                noteGain.connect(
+                    mainGainNode
+                );
+
+
                 osc.start();
+
+
                 osc.stop(
                     audioCtx.currentTime +
                     duration
                 );
-            } catch(e) {}
+
+            }
+
+            catch (e) {}
+
         }
+
+
         async function startMusic() {
+
             await initAudio();
+
+
             if (isMusicPlaying) {
                 return;
             }
+
+
             isMusicPlaying = true;
+
+
             let step = 0;
+
+
             function playNextNote() {
+
                 if (!isMusicPlaying) {
                     return;
                 }
+
+
                 const noteData =
                     MELODY_NOTES[step];
+
+
                 playTone(
-                    getNoteFrequency(noteData.note),
+                    getNoteFrequency(
+                        noteData.note
+                    ),
                     noteData.duration
                 );
+
+
                 step =
-                    (step + 1) %
+                    (
+                        step + 1
+                    ) %
                     MELODY_NOTES.length;
+
+
                 musicTimer =
                     setTimeout(
                         playNextNote,
-                        noteData.duration * 1000
+                        noteData.duration *
+                        1000
                     );
+
             }
+
+
             playNextNote();
+
         }
+
+
         function stopMusic() {
+
             isMusicPlaying = false;
+
+
             if (musicTimer) {
-                clearTimeout(musicTimer);
+
+                clearTimeout(
+                    musicTimer
+                );
+
                 musicTimer = null;
+
             }
+
         }
+
+
         function updateVolume(val) {
-            musicVolume = val / 100;
-            document.getElementById(
-                'volumeVal'
-            ).innerText = val + '%';
-            if (mainGainNode && audioCtx) {
+
+            musicVolume =
+                val / 100;
+
+
+            document
+                .getElementById(
+                    'volumeVal'
+                )
+                .innerText =
+                val + '%';
+
+
+            if (
+                mainGainNode &&
+                audioCtx
+            ) {
+
                 mainGainNode.gain.setValueAtTime(
                     musicVolume,
                     audioCtx.currentTime
                 );
+
             }
+
         }
-        /* =========================================================
-           FISCHE
-        ========================================================= */
+
+
+
+        /* =====================================================
+           PLAYER
+           ===================================================== */
+
+        let player = {
+
+            x:
+                WORLD_WIDTH / 2,
+
+            y:
+                WORLD_HEIGHT / 2,
+
+            rank:
+                0,
+
+            exp:
+                0,
+
+            vx:
+                0,
+
+            vy:
+                0,
+
+            /*
+             * Ursprünglich 5.5
+             * Jetzt 25 % langsamer:
+             * 5.5 * 0.75 = 4.125
+             */
+            speed:
+                4.125,
+
+            angle:
+                0,
+
+            targetAngle:
+                0
+
+        };
+
+
+
+        /* =====================================================
+           WORLD OBJECTS
+           ===================================================== */
+
         let fishes = [];
+
         let bubbles = [];
+
         let plants = [];
+
+
+        /* Pflanzen */
+
         for (
             let x = 100;
             x < WORLD_WIDTH;
-            x += 220 + Math.random() * 200
+            x +=
+                220 +
+                Math.random() * 200
         ) {
+
             plants.push({
+
                 x: x,
+
                 height:
                     50 +
                     Math.random() * 40,
+
                 blades:
                     3 +
                     Math.floor(
                         Math.random() * 3
                     )
+
             });
+
         }
-        for (let i = 0; i < 25; i++) {
+
+
+        /* Blasen */
+
+        for (
+            let i = 0;
+            i < 25;
+            i++
+        ) {
+
             bubbles.push({
+
                 x:
                     Math.random() *
                     WORLD_WIDTH,
+
                 y:
                     Math.random() *
                     WORLD_HEIGHT,
+
                 r:
                     2 +
                     Math.random() * 3,
+
                 speed:
                     0.8 +
                     Math.random() * 1.2,
+
                 wobble:
                     Math.random() *
                     Math.PI *
                     2
+
             });
+
         }
-        /* =========================================================
+
+
+
+        /* =====================================================
+           JOYSTICK
+           ===================================================== */
+
+        let touchActive = false;
+
+
+        let touchStartPos = {
+            x: 0,
+            y: 0
+        };
+
+
+        let touchCurrentPos = {
+            x: 0,
+            y: 0
+        };
+
+
+        const joystickContainer =
+            document.getElementById(
+                'joystickContainer'
+            );
+
+
+        const joystickKnob =
+            document.getElementById(
+                'joystickKnob'
+            );
+
+
+
+        /* =====================================================
            RESIZE
-        ========================================================= */
+           ===================================================== */
+
         function resize() {
+
             width =
                 canvas.width =
                 window.innerWidth;
+
+
             height =
                 canvas.height =
                 window.innerHeight;
+
         }
+
+
         window.addEventListener(
             'resize',
             resize
         );
+
+
         resize();
-        /* =========================================================
+
+
+
+        /* =====================================================
            LEADERBOARD
-        ========================================================= */
+           ===================================================== */
+
         function listenToOnlineLeaderboard() {
+
             database
                 .ref('highscores')
                 .orderByChild('score')
                 .limitToLast(5)
-                .on('value', snapshot => {
-                    let scores = [];
-                    snapshot.forEach(child => {
-                        scores.push(
-                            child.val()
+                .on(
+                    'value',
+                    snapshot => {
+
+                        let scores = [];
+
+
+                        snapshot.forEach(
+                            child => {
+
+                                scores.push(
+                                    child.val()
+                                );
+
+                            }
                         );
-                    });
-                    scores.reverse();
-                    renderLeaderboardUI(
-                        scores
-                    );
-                });
+
+
+                        scores.reverse();
+
+
+                        renderLeaderboardUI(
+                            scores
+                        );
+
+                    }
+                );
+
         }
+
+
         function renderLeaderboardUI(list) {
+
             const listEl =
                 document.getElementById(
                     'leaderboardList'
                 );
+
+
             listEl.innerHTML = '';
-            if (list.length === 0) {
+
+
+            if (
+                list.length === 0
+            ) {
+
                 listEl.innerHTML =
                     '<li class="leaderboard-item">' +
                     'Noch keine Rekorde' +
                     '</li>';
+
                 return;
+
             }
-            list.forEach((item, i) => {
-                const li =
-                    document.createElement('li');
-                li.className =
-                    `leaderboard-item ${
-                        item.name === playerName
-                            ? 'highlight'
-                            : ''
-                    }`;
-                li.innerHTML =
-                    `<span>${i + 1}. ${item.name}</span>` +
-                    `<span>${item.score}</span>`;
-                listEl.appendChild(li);
-            });
+
+
+            list.forEach(
+                (item, i) => {
+
+                    const li =
+                        document.createElement(
+                            'li'
+                        );
+
+
+                    li.className =
+                        'leaderboard-item' +
+                        (
+                            item.name === playerName
+                                ? ' highlight'
+                                : ''
+                        );
+
+
+                    const nameSpan =
+                        document.createElement(
+                            'span'
+                        );
+
+
+                    const scoreSpan =
+                        document.createElement(
+                            'span'
+                        );
+
+
+                    nameSpan.textContent =
+                        `${i + 1}. ${item.name}`;
+
+
+                    scoreSpan.textContent =
+                        item.score;
+
+
+                    li.appendChild(
+                        nameSpan
+                    );
+
+
+                    li.appendChild(
+                        scoreSpan
+                    );
+
+
+                    listEl.appendChild(
+                        li
+                    );
+
+                }
+            );
+
         }
+
+
         function saveScoreOnline(
             name,
             finalScore
         ) {
+
             if (!name) {
                 return;
             }
+
+
             const userRef =
                 database.ref(
                     'highscores/' +
                     name
                 );
+
+
             userRef.once(
                 'value',
                 snapshot => {
+
                     const data =
                         snapshot.val();
+
+
                     if (
                         !data ||
-                        finalScore > data.score
+                        finalScore >
+                        data.score
                     ) {
+
                         userRef.set({
-                            name: name,
-                            score: finalScore
+
+                            name:
+                                name,
+
+                            score:
+                                finalScore
+
                         });
+
                     }
+
                 }
             );
+
         }
+
+
         listenToOnlineLeaderboard();
-        /* =========================================================
+
+
+
+        /* =====================================================
            MENÜ
-        ========================================================= */
+           ===================================================== */
+
         function showModal(id) {
+
             document
                 .querySelectorAll(
                     '.modal-overlay'
                 )
-                .forEach(m =>
-                    m.classList.add('hidden')
+                .forEach(
+                    m =>
+                        m.classList.add(
+                            'hidden'
+                        )
                 );
+
+
             document
                 .getElementById(id)
-                .classList.remove('hidden');
+                .classList.remove(
+                    'hidden'
+                );
+
         }
+
+
         function hideModals() {
+
             document
                 .querySelectorAll(
                     '.modal-overlay'
                 )
-                .forEach(m =>
-                    m.classList.add('hidden')
+                .forEach(
+                    m =>
+                        m.classList.add(
+                            'hidden'
+                        )
                 );
+
+
             if (!isGameRunning) {
+
                 document
-                    .getElementById('startMenu')
-                    .classList.remove('hidden');
+                    .getElementById(
+                        'startMenu'
+                    )
+                    .classList.remove(
+                        'hidden'
+                    );
+
             }
+
         }
+
+
         function setFPS(fps) {
+
             targetFPS = fps;
-            document.getElementById(
-                'btn30fps'
-            ).className =
+
+
+            document
+                .getElementById(
+                    'btn30fps'
+                )
+                .className =
                 fps === 30
                     ? 'btn'
                     : 'btn btn-secondary';
-            document.getElementById(
-                'btn60fps'
-            ).className =
+
+
+            document
+                .getElementById(
+                    'btn60fps'
+                )
+                .className =
                 fps === 60
                     ? 'btn'
                     : 'btn btn-secondary';
+
         }
-        /* =========================================================
-           JOYSTICK
-        ========================================================= */
-        let touchActive = false;
-        let touchStartPos = {
-            x: 0,
-            y: 0
-        };
-        let touchCurrentPos = {
-            x: 0,
-            y: 0
-        };
-        const joystickContainer =
-            document.getElementById(
-                'joystickContainer'
-            );
-        const joystickKnob =
-            document.getElementById(
-                'joystickKnob'
-            );
+
+
+
+        /* =====================================================
+           TOUCH
+           ===================================================== */
+
         window.addEventListener(
             'touchstart',
             e => {
+
                 if (!isGameRunning) {
                     return;
                 }
+
+
+                /*
+                 * Wenn der Touch auf dem
+                 * End-Button beginnt,
+                 * nicht den Joystick aktivieren.
+                 */
+
+                if (
+                    e.target.closest &&
+                    e.target.closest(
+                        '#pauseButton'
+                    )
+                ) {
+                    return;
+                }
+
+
                 touchActive = true;
+
+
                 const t =
                     e.touches[0];
+
+
                 touchStartPos = {
-                    x: t.clientX,
-                    y: t.clientY
+
+                    x:
+                        t.clientX,
+
+                    y:
+                        t.clientY
+
                 };
+
+
                 touchCurrentPos = {
-                    x: t.clientX,
-                    y: t.clientY
+
+                    x:
+                        t.clientX,
+
+                    y:
+                        t.clientY
+
                 };
+
+
                 joystickContainer.style.display =
                     'block';
+
+
                 updateJoystick();
+
+
+                e.preventDefault();
+
             },
             {
                 passive: false
             }
         );
+
+
         window.addEventListener(
             'touchmove',
             e => {
+
                 if (!touchActive) {
                     return;
                 }
+
+
                 const t =
                     e.touches[0];
+
+
                 touchCurrentPos = {
-                    x: t.clientX,
-                    y: t.clientY
+
+                    x:
+                        t.clientX,
+
+                    y:
+                        t.clientY
+
                 };
+
+
                 updateJoystick();
+
+
+                e.preventDefault();
+
             },
             {
                 passive: false
             }
         );
+
+
         window.addEventListener(
             'touchend',
             () => {
+
                 touchActive = false;
+
+
                 player.vx = 0;
+
                 player.vy = 0;
+
+
                 joystickContainer.style.display =
                     'none';
+
+
+                joystickKnob.style.transform =
+                    'translate(-50%, -50%)';
+
             }
         );
+
+
         function updateJoystick() {
+
             const dx =
                 touchCurrentPos.x -
                 touchStartPos.x;
+
+
             const dy =
                 touchCurrentPos.y -
                 touchStartPos.y;
+
+
             const dist =
-                Math.hypot(dx, dy);
+                Math.hypot(
+                    dx,
+                    dy
+                );
+
+
             const maxR = 40;
+
+
             const angle =
-                Math.atan2(dy, dx);
+                Math.atan2(
+                    dy,
+                    dx
+                );
+
+
             const moveD =
                 Math.min(
                     dist,
                     maxR
                 );
+
+
             const kX =
                 Math.cos(angle) *
                 moveD;
+
+
             const kY =
                 Math.sin(angle) *
                 moveD;
+
+
             joystickKnob.style.transform =
                 `translate(
                     calc(-50% + ${kX}px),
                     calc(-50% + ${kY}px)
                 )`;
+
+
             if (dist > 5) {
+
                 const speedMult =
                     Math.min(
                         dist / maxR,
                         1
                     );
+
+
                 player.vx =
                     Math.cos(angle) *
                     player.speed *
                     speedMult;
+
+
                 player.vy =
                     Math.sin(angle) *
                     player.speed *
                     speedMult;
+
+
                 player.targetAngle =
                     angle;
-            } else {
-                player.vx = 0;
-                player.vy = 0;
+
             }
+
+            else {
+
+                player.vx = 0;
+
+                player.vy = 0;
+
+            }
+
         }
-        /* =========================================================
-           FISCHE SPAWNEN
-        ========================================================= */
+
+
+
+        /* =====================================================
+           FISCH SPAWNEN
+           ===================================================== */
+
         function spawnFish() {
+
             const rand =
                 Math.random();
+
+
             let rank = 0;
+
+
             if (rand < 0.008) {
+
                 rank = 4;
+
             }
+
             else if (rand < 0.08) {
+
                 rank = 3;
+
             }
+
             else if (rand < 0.22) {
+
                 rank = 2;
+
             }
+
             else if (rand < 0.48) {
+
                 rank = 1;
+
             }
+
+
             const margin = 120;
+
+
             let x =
                 Math.random() < 0.5
                     ? camera.x - margin
-                    : camera.x + width + margin;
+                    : camera.x +
+                      width +
+                      margin;
+
+
             let y =
                 Math.random() *
                 (
@@ -1090,6 +2320,8 @@
                     SAND_HEIGHT -
                     80
                 );
+
+
             x =
                 Math.max(
                     50,
@@ -1098,51 +2330,90 @@
                         x
                     )
                 );
+
+
             y =
                 Math.max(
                     50,
                     y
                 );
+
+
             const dir =
                 Math.random() *
                 Math.PI *
                 2;
+
+
             /*
-             * NPC ist jetzt 25 % langsamer.
+             * NPC war vorher:
+             * 3.8 - rank * 0.4
+             *
+             * Jetzt 25 % langsamer.
              */
-            const spd =
+
+            const baseSpeed =
                 Math.max(
                     1.5,
                     3.8 -
                     rank * 0.4
-                ) *
-                NPC_SPEED_MULTIPLIER;
+                );
+
+
+            const spd =
+                baseSpeed * 0.75;
+
+
             fishes.push({
+
                 x: x,
+
                 y: y,
+
                 rank: rank,
+
                 radius:
                     RANKS[rank].radius,
+
                 speed: spd,
+
                 angle: dir,
+
                 targetAngle: dir,
+
                 turnTimer:
                     Math.random() *
                     100,
+
                 cycle:
                     Math.random() *
                     10
+
             });
+
         }
-        /* =========================================================
+
+
+
+        /* =====================================================
            UPDATE
-        ========================================================= */
+           ===================================================== */
+
         function update() {
+
             if (!isGameRunning) {
                 return;
             }
-            player.x += player.vx;
-            player.y += player.vy;
+
+
+            player.x +=
+                player.vx;
+
+
+            player.y +=
+                player.vy;
+
+
             player.x =
                 Math.max(
                     30,
@@ -1151,6 +2422,8 @@
                         player.x
                     )
                 );
+
+
             player.y =
                 Math.max(
                     30,
@@ -1160,67 +2433,140 @@
                         player.y
                     )
                 );
+
+
             let diff =
                 player.targetAngle -
                 player.angle;
-            while (diff < -Math.PI) {
-                diff += Math.PI * 2;
+
+
+            while (
+                diff < -Math.PI
+            ) {
+
+                diff +=
+                    Math.PI * 2;
+
             }
-            while (diff > Math.PI) {
-                diff -= Math.PI * 2;
+
+
+            while (
+                diff > Math.PI
+            ) {
+
+                diff -=
+                    Math.PI * 2;
+
             }
+
+
             player.angle +=
                 diff * 0.15;
+
+
             camera.x =
                 player.x -
                 width / 2;
+
+
             camera.y =
                 player.y -
                 height / 2;
-            bubbles.forEach(b => {
-                b.y -= b.speed;
-                b.wobble += 0.05;
-                b.x +=
-                    Math.sin(
-                        b.wobble
-                    ) * 0.4;
-                if (b.y < 0) {
-                    b.y =
-                        WORLD_HEIGHT;
-                    b.x =
-                        Math.random() *
-                        WORLD_WIDTH;
+
+
+
+            /* Blasen */
+
+            bubbles.forEach(
+                b => {
+
+                    b.y -=
+                        b.speed;
+
+
+                    b.wobble +=
+                        0.05;
+
+
+                    b.x +=
+                        Math.sin(
+                            b.wobble
+                        ) *
+                        0.4;
+
+
+                    if (
+                        b.y < 0
+                    ) {
+
+                        b.y =
+                            WORLD_HEIGHT;
+
+
+                        b.x =
+                            Math.random() *
+                            WORLD_WIDTH;
+
+                    }
+
                 }
-            });
-            /*
-             * Jetzt werden bis zu 70 Fische
-             * gleichzeitig erzeugt.
-             */
+            );
+
+
+
+            /* Fische auffüllen */
+
             while (
                 fishes.length <
                 MAX_FISHES
             ) {
+
                 spawnFish();
+
             }
+
+
+
             const pRad =
-                RANKS[player.rank].radius;
+                RANKS[
+                    player.rank
+                ].radius;
+
+
+
+            /* NPC-Fische */
+
             for (
-                let i = fishes.length - 1;
+                let i =
+                    fishes.length - 1;
+
                 i >= 0;
+
                 i--
             ) {
+
                 let f =
                     fishes[i];
+
+
                 f.turnTimer--;
-                if (f.turnTimer <= 0) {
+
+
+                if (
+                    f.turnTimer <= 0
+                ) {
+
                     f.turnTimer =
                         100 +
                         Math.random() *
                         200;
+
+
                     if (
                         Math.random() <
                         0.25
                     ) {
+
                         f.targetAngle =
                             f.angle +
                             (
@@ -1228,145 +2574,270 @@
                                 0.5
                             ) *
                             0.8;
+
                     }
+
                 }
+
+
                 let fDiff =
                     f.targetAngle -
                     f.angle;
+
+
                 while (
                     fDiff <
                     -Math.PI
                 ) {
+
                     fDiff +=
                         Math.PI * 2;
+
                 }
+
+
                 while (
                     fDiff >
                     Math.PI
                 ) {
+
                     fDiff -=
                         Math.PI * 2;
+
                 }
+
+
                 f.angle +=
-                    fDiff * 0.05;
+                    fDiff *
+                    0.05;
+
+
                 f.vx =
-                    Math.cos(f.angle) *
+                    Math.cos(
+                        f.angle
+                    ) *
                     f.speed;
+
+
                 f.vy =
-                    Math.sin(f.angle) *
+                    Math.sin(
+                        f.angle
+                    ) *
                     f.speed;
-                f.x += f.vx;
-                f.y += f.vy;
-                f.cycle += 0.08;
+
+
+                f.x +=
+                    f.vx;
+
+
+                f.y +=
+                    f.vy;
+
+
+                f.cycle +=
+                    0.08;
+
+
+
+                /* Weltgrenzen */
+
                 if (
                     f.x < 30 ||
                     f.x >
                     WORLD_WIDTH - 30
                 ) {
+
                     f.targetAngle =
                         Math.PI -
                         f.angle;
+
                     f.angle =
                         f.targetAngle;
+
                 }
+
+
                 if (
                     f.y < 30 ||
                     f.y >
                     WORLD_HEIGHT -
                     SAND_HEIGHT
                 ) {
+
                     f.targetAngle =
                         -f.angle;
+
                     f.angle =
                         f.targetAngle;
+
                 }
+
+
+
+                /* Kollision */
+
                 const dist =
                     Math.hypot(
-                        player.x - f.x,
-                        player.y - f.y
+                        player.x -
+                        f.x,
+
+                        player.y -
+                        f.y
                     );
+
+
                 if (
                     dist <
                     pRad +
-                    f.radius * 0.7
+                    f.radius *
+                    0.7
                 ) {
+
+                    /*
+                     * Spieler kann gleich große
+                     * oder kleinere Fische essen.
+                     */
+
                     if (
                         player.rank >=
                         f.rank
                     ) {
+
                         score +=
-                            (f.rank + 1) *
+                            (
+                                f.rank +
+                                1
+                            ) *
                             10;
-                        player.exp += 1;
+
+
+                        player.exp +=
+                            1;
+
+
                         fishes.splice(
                             i,
                             1
                         );
+
+
                         if (
                             player.exp >=
                             RANKS[
                                 player.rank
                             ].expNeeded &&
+
                             player.rank <
                             RANKS.length - 1
                         ) {
+
                             player.exp = 0;
+
                             player.rank++;
+
                         }
+
+
                         updateHUD();
+
                     }
+
                     else {
+
                         gameOver();
+
+                        return;
+
                     }
+
                 }
+
             }
+
         }
-        /* =========================================================
+
+
+
+        /* =====================================================
            HUD
-        ========================================================= */
+           ===================================================== */
+
         function updateHUD() {
-            document.getElementById(
-                'scoreVal'
-            ).innerText =
+
+            document
+                .getElementById(
+                    'scoreVal'
+                )
+                .innerText =
                 score;
-            document.getElementById(
-                'hudLvlNum'
-            ).innerText =
+
+
+            document
+                .getElementById(
+                    'hudLvlNum'
+                )
+                .innerText =
                 player.rank;
-            document.getElementById(
-                'hudLvlName'
-            ).innerText =
+
+
+            document
+                .getElementById(
+                    'hudLvlName'
+                )
+                .innerText =
                 RANKS[
                     player.rank
                 ].name;
+
+
             const needed =
                 RANKS[
                     player.rank
                 ].expNeeded;
+
+
             let pct = 100;
+
+
             if (
                 needed !== Infinity
             ) {
+
                 pct =
                     Math.min(
                         100,
+
                         Math.max(
                             0,
+
                             (
                                 player.exp /
                                 needed
-                            ) * 100
+                            ) *
+                            100
+
                         )
+
                     );
+
             }
-            document.getElementById(
-                'hudXpBar'
-            ).style.width =
+
+
+            document
+                .getElementById(
+                    'hudXpBar'
+                )
+                .style.width =
                 pct + '%';
+
         }
-        /* =========================================================
+
+
+
+        /* =====================================================
            FISCH ZEICHNEN
-        ========================================================= */
+           ===================================================== */
+
         function drawFish(
             x,
             y,
@@ -1374,319 +2845,1276 @@
             angle,
             cycle
         ) {
-            let screenX =
-                x - camera.x;
-            let screenY =
-                y - camera.y;
+
+            const screenX =
+                x -
+                camera.x;
+
+
+            const screenY =
+                y -
+                camera.y;
+
+
             const rank =
-                RANKS[rankIndex];
+                RANKS[
+                    rankIndex
+                ];
+
+
             const radius =
                 rank.radius;
+
+
             if (
                 screenX <
-                    -radius * 2 ||
+                    -radius * 3 ||
+
                 screenX >
                     width +
-                    radius * 2 ||
+                    radius * 3 ||
+
                 screenY <
-                    -radius * 2 ||
+                    -radius * 3 ||
+
                 screenY >
                     height +
-                    radius * 2
+                    radius * 3
             ) {
+
                 return;
+
             }
+
+
             ctx.save();
+
+
             ctx.translate(
                 screenX,
                 screenY
             );
-            let normAngle =
-                angle;
-            while (
-                normAngle <
-                -Math.PI
+
+
+            ctx.rotate(angle);
+
+
+            ctx.lineJoin =
+                'round';
+
+
+            ctx.lineCap =
+                'round';
+
+
+            const wiggle =
+                Math.sin(
+                    cycle
+                ) *
+                0.08;
+
+
+
+            /* =================================================
+               RANG 0
+               KLEINSTER FISCH
+               ================================================= */
+
+            if (
+                rankIndex === 0
             ) {
-                normAngle +=
-                    Math.PI * 2;
-            }
-            while (
-                normAngle >
-                Math.PI
-            ) {
-                normAngle -=
-                    Math.PI * 2;
-            }
-            const isFacingLeft =
-                Math.abs(
-                    normAngle
-                ) >
-                Math.PI / 2;
-            if (isFacingLeft) {
-                ctx.scale(
-                    1,
-                    -1
-                );
-                ctx.rotate(
-                    -angle
-                );
-            }
-            else {
-                ctx.rotate(
-                    angle
-                );
-            }
-            const tailWiggle =
-                Math.sin(cycle) *
-                0.2;
-            /* Schwanz */
-            ctx.beginPath();
-            ctx.fillStyle =
-                rank.darkColor;
-            ctx.moveTo(
-                -radius * 0.7,
-                0
-            );
-            ctx.quadraticCurveTo(
-                -radius * 1.3,
-                -radius * 0.6 +
-                    tailWiggle * 8,
-                -radius * 1.4,
-                -radius * 0.6 +
-                    tailWiggle * 8
-            );
-            ctx.quadraticCurveTo(
-                -radius * 1.1,
-                0,
-                -radius * 1.4,
-                radius * 0.6 +
-                    tailWiggle * 8
-            );
-            ctx.quadraticCurveTo(
-                -radius * 1.3,
-                radius * 0.6 +
-                    tailWiggle * 8,
-                -radius * 0.7,
-                0
-            );
-            ctx.fill();
-            /* Körper */
-            ctx.beginPath();
-            ctx.fillStyle =
-                rank.color;
-            ctx.ellipse(
-                0,
-                0,
-                radius,
-                radius * 0.55,
-                0,
-                0,
-                Math.PI * 2
-            );
-            ctx.fill();
-            /* Kiemen */
-            if (rankIndex >= 1) {
+
+                const r = 18;
+
+
+                /* Schwanz */
+
                 ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.55,
+                    0
+                );
+
+                ctx.lineTo(
+                    -r * 1.15,
+                    -r * 0.55
+                );
+
+                ctx.lineTo(
+                    -r * 1.05,
+                    0
+                );
+
+                ctx.lineTo(
+                    -r * 1.15,
+                    r * 0.55
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.color;
+
+                ctx.fill();
+
+
                 ctx.strokeStyle =
                     rank.darkColor;
-                ctx.lineWidth =
-                    1.5;
-                ctx.arc(
-                    radius * 0.1,
-                    0,
-                    radius * 0.35,
-                    Math.PI * 0.7,
-                    Math.PI * 1.3
-                );
+
+                ctx.lineWidth = 2;
+
                 ctx.stroke();
-            }
-            /* Auge */
-            const eyeX =
-                radius * 0.45;
-            const eyeY =
-                -radius * 0.2;
-            const eyeRadius =
-                Math.max(
-                    2.5,
-                    radius * 0.15
+
+
+
+                /* Körper */
+
+                ctx.beginPath();
+
+                ctx.ellipse(
+                    0,
+                    0,
+                    r * 0.8,
+                    r * 0.42,
+                    0,
+                    0,
+                    Math.PI * 2
                 );
-            ctx.beginPath();
-            ctx.arc(
-                eyeX,
-                eyeY,
-                eyeRadius,
-                0,
-                Math.PI * 2
-            );
-            ctx.fillStyle =
-                '#ffffff';
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(
-                eyeX +
-                    eyeRadius * 0.25,
-                eyeY,
-                eyeRadius * 0.5,
-                0,
-                Math.PI * 2
-            );
-            ctx.fillStyle =
-                '#000000';
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(
-                eyeX +
-                    eyeRadius * 0.1,
-                eyeY -
-                    eyeRadius * 0.2,
-                eyeRadius * 0.2,
-                0,
-                Math.PI * 2
-            );
-            ctx.fillStyle =
-                '#ffffff';
-            ctx.fill();
+
+
+                ctx.fillStyle =
+                    rank.color;
+
+                ctx.fill();
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.stroke();
+
+
+
+                /* Auge */
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    r * 0.45,
+                    -r * 0.12,
+                    2.5,
+                    0,
+                    Math.PI * 2
+                );
+
+
+                ctx.fillStyle =
+                    '#111';
+
+                ctx.fill();
+
+            }
+
+
+
+            /* =================================================
+               RANG 1
+               LÄNGLICHER FISCH
+               ================================================= */
+
+            else if (
+                rankIndex === 1
+            ) {
+
+                const r = 26;
+
+
+                /* Schwanz */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.65,
+                    0
+                );
+
+                ctx.lineTo(
+                    -r * 1.25,
+                    -r * 0.55
+                );
+
+                ctx.lineTo(
+                    -r * 1.15,
+                    0
+                );
+
+                ctx.lineTo(
+                    -r * 1.25,
+                    r * 0.55
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.color;
+
+                ctx.fill();
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.lineWidth = 2;
+
+                ctx.stroke();
+
+
+
+                /* Körper */
+
+                ctx.beginPath();
+
+                ctx.ellipse(
+                    0,
+                    0,
+                    r * 1.15,
+                    r * 0.38,
+                    0,
+                    0,
+                    Math.PI * 2
+                );
+
+
+                ctx.fillStyle =
+                    rank.color;
+
+                ctx.fill();
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.stroke();
+
+
+
+                /* Rückenflosse */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.05,
+                    -r * 0.3
+                );
+
+                ctx.lineTo(
+                    r * 0.15,
+                    -r * 0.7
+                );
+
+                ctx.lineTo(
+                    r * 0.35,
+                    -r * 0.3
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.darkColor;
+
+                ctx.fill();
+
+
+
+                /* Auge */
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    r * 0.75,
+                    -r * 0.12,
+                    3,
+                    0,
+                    Math.PI * 2
+                );
+
+
+                ctx.fillStyle =
+                    '#111';
+
+                ctx.fill();
+
+            }
+
+
+
+            /* =================================================
+               RANG 2
+               RAUBFISCH
+               ================================================= */
+
+            else if (
+                rankIndex === 2
+            ) {
+
+                const r = 38;
+
+
+                /* Schwanz */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.65,
+                    0
+                );
+
+                ctx.lineTo(
+                    -r * 1.25,
+                    -r * 0.65
+                );
+
+                ctx.lineTo(
+                    -r * 1.15,
+                    0
+                );
+
+                ctx.lineTo(
+                    -r * 1.25,
+                    r * 0.65
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.darkColor;
+
+                ctx.fill();
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.stroke();
+
+
+
+                /* Körper */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.75,
+                    0
+                );
+
+                ctx.quadraticCurveTo(
+                    -r * 0.2,
+                    -r * 0.55,
+                    r * 0.75,
+                    -r * 0.22
+                );
+
+                ctx.quadraticCurveTo(
+                    r,
+                    0,
+                    r * 0.75,
+                    r * 0.22
+                );
+
+                ctx.quadraticCurveTo(
+                    -r * 0.2,
+                    r * 0.55,
+                    -r * 0.75,
+                    0
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.color;
+
+                ctx.fill();
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.stroke();
+
+
+
+                /* Rückenflosse */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.05,
+                    -r * 0.3
+                );
+
+                ctx.lineTo(
+                    r * 0.15,
+                    -r * 0.8
+                );
+
+                ctx.lineTo(
+                    r * 0.38,
+                    -r * 0.28
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.darkColor;
+
+                ctx.fill();
+
+
+
+                /* Untere Flosse */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.1,
+                    r * 0.3
+                );
+
+                ctx.lineTo(
+                    r * 0.1,
+                    r * 0.75
+                );
+
+                ctx.lineTo(
+                    r * 0.35,
+                    r * 0.28
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.darkColor;
+
+                ctx.fill();
+
+
+
+                /* Auge */
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    r * 0.63,
+                    -r * 0.12,
+                    4,
+                    0,
+                    Math.PI * 2
+                );
+
+
+                ctx.fillStyle =
+                    '#111';
+
+                ctx.fill();
+
+
+
+                /* Kiemen */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    r * 0.35,
+                    -r * 0.25
+                );
+
+                ctx.lineTo(
+                    r * 0.25,
+                    r * 0.2
+                );
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.lineWidth = 2;
+
+                ctx.stroke();
+
+            }
+
+
+
+            /* =================================================
+               RANG 3
+               HAI
+               ================================================= */
+
+            else if (
+                rankIndex === 3
+            ) {
+
+                const r = 54;
+
+
+                /* Schwanz */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.55,
+                    0
+                );
+
+                ctx.lineTo(
+                    -r * 1.25,
+                    -r * 0.7
+                );
+
+                ctx.lineTo(
+                    -r * 1.05,
+                    0
+                );
+
+                ctx.lineTo(
+                    -r * 1.25,
+                    r * 0.7
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.darkColor;
+
+                ctx.fill();
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.lineWidth = 2;
+
+                ctx.stroke();
+
+
+
+                /* Körper */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.7,
+                    0
+                );
+
+                ctx.quadraticCurveTo(
+                    -r * 0.2,
+                    -r * 0.5,
+                    r * 0.55,
+                    -r * 0.25
+                );
+
+                ctx.quadraticCurveTo(
+                    r * 0.95,
+                    -r * 0.05,
+                    r * 0.75,
+                    r * 0.15
+                );
+
+                ctx.quadraticCurveTo(
+                    r * 0.1,
+                    r * 0.55,
+                    -r * 0.7,
+                    0
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.color;
+
+                ctx.fill();
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.stroke();
+
+
+
+                /* Rückenflosse */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.05,
+                    -r * 0.3
+                );
+
+                ctx.lineTo(
+                    r * 0.15,
+                    -r * 0.95
+                );
+
+                ctx.lineTo(
+                    r * 0.42,
+                    -r * 0.3
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.darkColor;
+
+                ctx.fill();
+
+
+
+                /* Seitenflosse */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    r * 0.05,
+                    r * 0.25
+                );
+
+                ctx.lineTo(
+                    r * 0.35,
+                    r * 0.8
+                );
+
+                ctx.lineTo(
+                    r * 0.55,
+                    r * 0.2
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.darkColor;
+
+                ctx.fill();
+
+
+
+                /* Auge */
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    r * 0.6,
+                    -r * 0.15,
+                    4,
+                    0,
+                    Math.PI * 2
+                );
+
+
+                ctx.fillStyle =
+                    '#111';
+
+                ctx.fill();
+
+
+
+                /* Kiemen */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    r * 0.35,
+                    -r * 0.25
+                );
+
+                ctx.lineTo(
+                    r * 0.25,
+                    r * 0.22
+                );
+
+
+                ctx.moveTo(
+                    r * 0.43,
+                    -r * 0.22
+                );
+
+                ctx.lineTo(
+                    r * 0.33,
+                    r * 0.2
+                );
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.lineWidth = 2;
+
+                ctx.stroke();
+
+            }
+
+
+
+            /* =================================================
+               RANG 4
+               WALHAI
+               ================================================= */
+
+            else if (
+                rankIndex === 4
+            ) {
+
+                const r = 80;
+
+
+                /* Schwanz */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.6,
+                    0
+                );
+
+                ctx.lineTo(
+                    -r * 1.25,
+                    -r * 0.85
+                );
+
+                ctx.lineTo(
+                    -r * 1.05,
+                    0
+                );
+
+                ctx.lineTo(
+                    -r * 1.25,
+                    r * 0.85
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.darkColor;
+
+                ctx.fill();
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.lineWidth = 2;
+
+                ctx.stroke();
+
+
+
+                /* Walhai-Körper */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.75,
+                    0
+                );
+
+                ctx.quadraticCurveTo(
+                    -r * 0.4,
+                    -r * 0.65,
+                    r * 0.55,
+                    -r * 0.38
+                );
+
+                ctx.quadraticCurveTo(
+                    r * 0.95,
+                    -r * 0.15,
+                    r * 0.95,
+                    0
+                );
+
+                ctx.quadraticCurveTo(
+                    r * 0.9,
+                    r * 0.2,
+                    r * 0.45,
+                    r * 0.35
+                );
+
+                ctx.quadraticCurveTo(
+                    -r * 0.4,
+                    r * 0.65,
+                    -r * 0.75,
+                    0
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.color;
+
+                ctx.fill();
+
+
+                ctx.strokeStyle =
+                    rank.darkColor;
+
+                ctx.lineWidth = 2;
+
+                ctx.stroke();
+
+
+
+                /* Rückenflosse */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.05,
+                    -r * 0.35
+                );
+
+                ctx.lineTo(
+                    r * 0.15,
+                    -r
+                );
+
+                ctx.lineTo(
+                    r * 0.45,
+                    -r * 0.35
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.darkColor;
+
+                ctx.fill();
+
+
+
+                /* Untere Flosse */
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -r * 0.05,
+                    r * 0.35
+                );
+
+                ctx.lineTo(
+                    r * 0.25,
+                    r * 0.9
+                );
+
+                ctx.lineTo(
+                    r * 0.48,
+                    r * 0.28
+                );
+
+                ctx.closePath();
+
+
+                ctx.fillStyle =
+                    rank.darkColor;
+
+                ctx.fill();
+
+
+
+                /* Auge */
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    r * 0.72,
+                    -r * 0.18,
+                    5,
+                    0,
+                    Math.PI * 2
+                );
+
+
+                ctx.fillStyle =
+                    '#111';
+
+                ctx.fill();
+
+
+
+                /* Kiemen */
+
+                for (
+                    let i = 0;
+                    i < 4;
+                    i++
+                ) {
+
+                    ctx.beginPath();
+
+                    ctx.moveTo(
+                        r *
+                        (
+                            0.48 +
+                            i * 0.055
+                        ),
+
+                        -r * 0.3
+                    );
+
+
+                    ctx.lineTo(
+                        r *
+                        (
+                            0.44 +
+                            i * 0.055
+                        ),
+
+                        r * 0.18
+                    );
+
+
+                    ctx.strokeStyle =
+                        rank.darkColor;
+
+                    ctx.lineWidth = 2;
+
+                    ctx.stroke();
+
+                }
+
+
+
+                /* Walhai-Punkte */
+
+                const spots = [
+
+                    [-0.30, -0.18],
+                    [-0.18, -0.30],
+                    [-0.05, -0.15],
+                    [0.10, -0.28],
+                    [0.24, -0.12],
+                    [0.38, -0.25],
+
+                    [-0.25, 0.02],
+                    [-0.08, 0.10],
+                    [0.08, 0.02],
+                    [0.22, 0.12],
+                    [0.40, 0.02],
+
+                    [-0.32, 0.20],
+                    [-0.15, 0.25],
+                    [0.02, 0.20],
+                    [0.18, 0.28],
+                    [0.34, 0.20]
+
+                ];
+
+
+                spots.forEach(
+                    ([sx, sy]) => {
+
+                        ctx.beginPath();
+
+                        ctx.arc(
+                            sx * r,
+                            sy * r,
+                            1.5,
+                            0,
+                            Math.PI * 2
+                        );
+
+
+                        ctx.fillStyle =
+                            rank.darkColor;
+
+                        ctx.fill();
+
+                    }
+                );
+
+            }
+
+
             ctx.restore();
+
         }
-        /* =========================================================
+
+
+
+        /* =====================================================
            SONNENSTRAHLEN
-        ========================================================= */
+           ===================================================== */
+
         function drawSunRays() {
+
             ctx.save();
+
+
             const time =
                 performance.now() *
                 0.0005;
+
+
             ctx.fillStyle =
                 'rgba(255,255,255,0.08)';
+
+
             for (
                 let i = 0;
                 i < 4;
                 i++
             ) {
+
                 ctx.beginPath();
+
+
                 let xStart =
-                    (width / 3) *
+                    (
+                        width / 3
+                    ) *
                     i +
                     Math.sin(
                         time + i
                     ) *
                     20;
+
+
                 ctx.moveTo(
                     xStart,
                     0
                 );
+
+
                 ctx.lineTo(
                     xStart + 100,
                     0
                 );
+
+
                 ctx.lineTo(
                     xStart - 200,
                     height
                 );
+
+
                 ctx.lineTo(
                     xStart - 320,
                     height
                 );
+
+
                 ctx.closePath();
+
+
                 ctx.fill();
+
             }
+
+
             ctx.restore();
+
         }
-        /* =========================================================
+
+
+
+        /* =====================================================
            BACKGROUND
-        ========================================================= */
+           ===================================================== */
+
         function drawBackground() {
+
             ctx.fillStyle =
                 '#4a90e2';
+
+
             ctx.fillRect(
                 0,
                 0,
                 width,
                 height
             );
+
+
             drawSunRays();
+
+
+
+            /* Blasen */
+
             ctx.fillStyle =
                 'rgba(255,255,255,0.3)';
-            bubbles.forEach(b => {
-                let bx =
-                    b.x -
-                    camera.x;
-                let by =
-                    b.y -
-                    camera.y;
-                if (
-                    bx >= 0 &&
-                    bx <= width &&
-                    by >= 0 &&
-                    by <= height
-                ) {
-                    ctx.beginPath();
-                    ctx.arc(
-                        bx,
-                        by,
-                        b.r,
-                        0,
-                        Math.PI * 2
-                    );
-                    ctx.fill();
+
+
+            bubbles.forEach(
+                b => {
+
+                    let bx =
+                        b.x -
+                        camera.x;
+
+
+                    let by =
+                        b.y -
+                        camera.y;
+
+
+                    if (
+                        bx >= 0 &&
+                        bx <= width &&
+                        by >= 0 &&
+                        by <= height
+                    ) {
+
+                        ctx.beginPath();
+
+
+                        ctx.arc(
+                            bx,
+                            by,
+                            b.r,
+                            0,
+                            Math.PI * 2
+                        );
+
+
+                        ctx.fill();
+
+                    }
+
                 }
-            });
+            );
+
+
+
+            /* Sand */
+
             const sandY =
                 WORLD_HEIGHT -
                 SAND_HEIGHT -
                 camera.y;
-            if (sandY < height) {
+
+
+            if (
+                sandY < height
+            ) {
+
+                /*
+                 * Pflanzen
+                 */
+
                 ctx.fillStyle =
                     '#10ac84';
-                plants.forEach(p => {
-                    let px =
-                        p.x -
-                        camera.x;
-                    if (
-                        px >= -30 &&
-                        px <= width + 30
-                    ) {
-                        for (
-                            let i = 0;
-                            i < p.blades;
-                            i++
+
+
+                plants.forEach(
+                    p => {
+
+                        let px =
+                            p.x -
+                            camera.x;
+
+
+                        if (
+                            px >= -30 &&
+                            px <=
+                            width + 30
                         ) {
-                            ctx.fillRect(
-                                px +
-                                    (i * 8),
-                                sandY -
+
+                            for (
+                                let i = 0;
+                                i <
+                                p.blades;
+                                i++
+                            ) {
+
+                                ctx.fillRect(
+                                    px +
+                                    (
+                                        i *
+                                        8
+                                    ),
+
+                                    sandY -
                                     p.height,
-                                4,
-                                p.height
-                            );
+
+                                    4,
+
+                                    p.height
+                                );
+
+                            }
+
                         }
+
                     }
-                });
+                );
+
+
+                /*
+                 * Sandboden
+                 */
+
                 ctx.fillStyle =
                     '#e5c158';
+
+
                 ctx.fillRect(
                     0,
                     sandY,
                     width,
-                    height - sandY
+                    height -
+                    sandY
                 );
+
             }
+
         }
-        /* =========================================================
+
+
+
+        /* =====================================================
            DRAW
-        ========================================================= */
+           ===================================================== */
+
         function draw() {
+
             drawBackground();
-            fishes.forEach(f => {
-                drawFish(
-                    f.x,
-                    f.y,
-                    f.rank,
-                    f.angle,
-                    f.cycle
-                );
-            });
-            if (isGameRunning) {
+
+
+            fishes.forEach(
+                f => {
+
+                    drawFish(
+                        f.x,
+                        f.y,
+                        f.rank,
+                        f.angle,
+                        f.cycle
+                    );
+
+                }
+            );
+
+
+            if (
+                isGameRunning
+            ) {
+
                 drawFish(
                     player.x,
                     player.y,
@@ -1695,61 +4123,147 @@
                     performance.now() *
                     0.01
                 );
+
             }
+
         }
-        /* =========================================================
+
+
+
+        /* =====================================================
            GAME OVER
-        ========================================================= */
+           ===================================================== */
+
         function gameOver() {
+
+            if (!isGameRunning) {
+                return;
+            }
+
+
             isGameRunning = false;
-            stopMusic();
+
+
+            touchActive = false;
+
+
             player.vx = 0;
             player.vy = 0;
+
+
             joystickContainer.style.display =
                 'none';
-            touchActive = false;
+
+
+            joystickKnob.style.transform =
+                'translate(-50%, -50%)';
+
+
+            stopMusic();
+
+
             /*
-             * Score wird gespeichert.
+             * Highscore speichern
              */
+
             saveScoreOnline(
                 playerName,
                 score
             );
-            document.getElementById(
-                'lastScoreBox'
-            ).classList.remove('hidden');
-            document.getElementById(
-                'lastScoreVal'
-            ).innerText =
-                score;
-            document.getElementById(
-                'uiOverlay'
-            ).classList.add('hidden');
-            document.getElementById(
-                'pauseButton'
-            ).classList.add('hidden');
+
+
             /*
-             * Hauptmenü wieder anzeigen.
+             * Letzten Score anzeigen
              */
-            showModal('startMenu');
+
+            document
+                .getElementById(
+                    'lastScoreBox'
+                )
+                .classList.remove(
+                    'hidden'
+                );
+
+
+            document
+                .getElementById(
+                    'lastScoreVal'
+                )
+                .innerText =
+                score;
+
+
+            /*
+             * HUD ausblenden
+             */
+
+            document
+                .getElementById(
+                    'uiOverlay'
+                )
+                .classList.add(
+                    'hidden'
+                );
+
+
+            /*
+             * End-Button ausblenden
+             */
+
+            document
+                .getElementById(
+                    'pauseButton'
+                )
+                .classList.add(
+                    'hidden'
+                );
+
+
+            /*
+             * Hauptmenü wieder anzeigen
+             */
+
+            document
+                .getElementById(
+                    'startMenu'
+                )
+                .classList.remove(
+                    'hidden'
+                );
+
         }
-        /* =========================================================
-           PAUSE / RUNDE BEENDEN
-        ========================================================= */
-        function pauseGame() {
+
+
+
+        /* =====================================================
+           MANUELL SPIEL BEENDEN
+           ===================================================== */
+
+        function endGameManually() {
+
             if (!isGameRunning) {
                 return;
             }
+
+
             /*
-             * Der Pause-Button beendet die Runde
-             * sofort und speichert den Score.
+             * Runde sofort beenden.
+             *
+             * Der aktuelle Score wird gespeichert.
              */
+
             gameOver();
+
         }
-        /* =========================================================
+
+
+
+        /* =====================================================
            START GAME
-        ========================================================= */
-        function startGame() {
+           ===================================================== */
+
+        async function startGame() {
+
             const input =
                 document
                     .getElementById(
@@ -1757,86 +4271,171 @@
                     )
                     .value
                     .trim();
+
+
             if (!input) {
+
                 alert(
                     "Bitte gib deinen Namen ein!"
                 );
+
                 return;
+
             }
+
+
             playerName =
                 input;
+
+
             localStorage.setItem(
                 'fishup_player_name',
                 playerName
             );
+
+
             /*
              * WICHTIG:
              *
-             * Das Hauptmenü wird NICHT mehr
-             * ausgeblendet.
+             * Hauptmenü wird KOMPLETT
+             * versteckt.
              *
-             * Es bleibt im Hintergrund.
-             *
-             * Damit das Spiel trotzdem sichtbar
-             * ist, bekommt das Menü eine niedrigere
-             * Priorität und wird vom Canvas überdeckt.
+             * Nicht nur hinter das Spiel
+             * geschoben.
              */
-            const startMenu =
-                document.getElementById(
+
+            document
+                .getElementById(
                     'startMenu'
+                )
+                .classList.add(
+                    'hidden'
                 );
-            startMenu.style.zIndex =
-                '1';
-            const settingsModal =
-                document.getElementById(
+
+
+            document
+                .getElementById(
                     'settingsModal'
+                )
+                .classList.add(
+                    'hidden'
                 );
-            settingsModal.classList.add(
-                'hidden'
-            );
+
+
             /*
-             * Spiel starten.
+             * Spiel zurücksetzen
              */
+
             isGameRunning = true;
+
+
             score = 0;
+
+
             player.x =
                 WORLD_WIDTH / 2;
+
+
             player.y =
                 WORLD_HEIGHT / 2;
+
+
             player.rank = 0;
+
+
             player.exp = 0;
+
+
             player.vx = 0;
+
+
             player.vy = 0;
+
+
+            player.angle = 0;
+
+
+            player.targetAngle = 0;
+
+
+            camera.x =
+                player.x -
+                width / 2;
+
+
+            camera.y =
+                player.y -
+                height / 2;
+
+
             fishes = [];
+
+
+            /*
+             * HUD
+             */
+
             updateHUD();
-            document.getElementById(
-                'uiOverlay'
-            ).classList.remove(
-                'hidden'
-            );
-            document.getElementById(
-                'pauseButton'
-            ).classList.remove(
-                'hidden'
-            );
+
+
+            document
+                .getElementById(
+                    'uiOverlay'
+                )
+                .classList.remove(
+                    'hidden'
+                );
+
+
+            /*
+             * End-Button
+             */
+
+            document
+                .getElementById(
+                    'pauseButton'
+                )
+                .classList.remove(
+                    'hidden'
+                );
+
+
+            /*
+             * Musik
+             */
+
             startMusic();
+
         }
-        /* =========================================================
+
+
+
+        /* =====================================================
            GAME LOOP
-        ========================================================= */
+           ===================================================== */
+
         let lastTime =
             performance.now();
+
+
         function loop(now) {
-            let dt =
+
+            const dt =
                 now -
                 lastTime;
+
+
             if (
                 dt >=
                 1000 /
                 targetFPS
             ) {
+
                 update();
+
                 draw();
+
+
                 lastTime =
                     now -
                     (
@@ -1846,14 +4445,23 @@
                             targetFPS
                         )
                     );
+
             }
+
+
             requestAnimationFrame(
                 loop
             );
+
         }
+
+
         requestAnimationFrame(
             loop
         );
+
+
     </script>
+
 </body>
 </html>
